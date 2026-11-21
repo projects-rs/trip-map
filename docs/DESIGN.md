@@ -236,37 +236,37 @@ Decision (2026-11-15): users can also add legends and groups in the app, in the 
 
 | # | Icon | Name | ID | Example |
 | --- | --- | --- | --- | --- |
-| 1 | ![Breakfast](icons/breakfast.svg) | Breakfast | `breakfast` | café, bakery |
-| 2 | ![Lunch](icons/lunch.svg) | Lunch | `lunch` | restaurant |
-| 3 | ![Dinner](icons/dinner.svg) | Dinner | `dinner` | restaurant |
-| 4 | ![Architecture](icons/architecture.svg) | Architecture | `architecture` | notable building |
-| 5 | ![Music](icons/music.svg) | Music | `music` | concert hall, jazz club |
-| 6 | ![Market](icons/market.svg) | Market | `market` | food market, flea market |
-| 7 | ![Shopping mall](icons/shopping-mall.svg) | Shopping mall | `shopping-mall` | department store |
-| 8 | ![Shopping](icons/shopping.svg) | Shopping | `shopping` | shopping street |
-| 9 | ![Viewpoint](icons/viewpoint.svg) | Viewpoint | `viewpoint` | hilltop lookout |
-| 10 | ![Sea](icons/sea.svg) | Sea | `sea` | boat trip, harbor |
-| 11 | ![Promenade](icons/promenade.svg) | Promenade | `promenade` | seaside walk |
-| 12 | ![Holy place](icons/holy-place.svg) | Holy place | `holy-place` | church, cathedral |
-| 13 | ![Museum / art](icons/museum.svg) | Museum / art | `museum` | art museum |
-| 14 | ![History / monument](icons/history.svg) | History / monument | `history` | ruins, castle |
-| 15 | ![Park / garden](icons/park.svg) | Park / garden | `park` | city park |
-| 16 | ![Bar / drinks](icons/bar.svg) | Bar / drinks | `bar` | cocktail bar |
-| 17 | ![Airport](icons/airport.svg) | Airport | `airport` | airport |
-| 18 | ![Tickets / booking](icons/tickets.svg) | Tickets / booking | `tickets` | reminder pin |
-| 19 | ![Ski lift](icons/ski-lift.svg) | Ski lift | `ski-lift` | cable car, chairlift |
-| 20 | ![Winery](icons/winery.svg) | Winery | `winery` | winery, wine cellar |
-| 21 | ![Parking](icons/parking.svg) | Parking | `parking` | car park |
-| 22 | ![Home / accommodation](icons/home.svg) | Home / accommodation | `home` | where the group stays: apartment, hotel, or one's own home |
-| 23 | ![Underground station](icons/underground.svg) | Underground station | `underground` | metro stop (a train in a tunnel, so it differs from the railway station) |
-| 24 | ![Bus station](icons/bus.svg) | Bus station | `bus` | bus terminal, bus stop |
-| 25 | ![Railway station](icons/railway.svg) | Railway station | `railway` | train station |
-| 26 | ![Beach](icons/beach.svg) | Beach | `beach` | beach |
-| 27 | ![Gym](icons/gym.svg) | Gym | `gym` | gym, fitness club |
-| 28 | ![Stadium / arena](icons/stadium.svg) | Stadium / arena | `stadium` | football stadium, sports arena |
-| 29 | ![Hospital](icons/hospital.svg) | Hospital | `hospital` | hospital, emergency room |
-| 30 | ![Police station](icons/police.svg) | Police station | `police` | police station |
-| 31 | ![Ferry](icons/ferry.svg) | Ferry | `ferry` | ferry terminal, ferry crossing |
+| 1 | ![Breakfast](../icons/breakfast.svg) | Breakfast | `breakfast` | café, bakery |
+| 2 | ![Lunch](../icons/lunch.svg) | Lunch | `lunch` | restaurant |
+| 3 | ![Dinner](../icons/dinner.svg) | Dinner | `dinner` | restaurant |
+| 4 | ![Architecture](../icons/architecture.svg) | Architecture | `architecture` | notable building |
+| 5 | ![Music](../icons/music.svg) | Music | `music` | concert hall, jazz club |
+| 6 | ![Market](../icons/market.svg) | Market | `market` | food market, flea market |
+| 7 | ![Shopping mall](../icons/shopping-mall.svg) | Shopping mall | `shopping-mall` | department store |
+| 8 | ![Shopping](../icons/shopping.svg) | Shopping | `shopping` | shopping street |
+| 9 | ![Viewpoint](../icons/viewpoint.svg) | Viewpoint | `viewpoint` | hilltop lookout |
+| 10 | ![Sea](../icons/sea.svg) | Sea | `sea` | boat trip, harbor |
+| 11 | ![Promenade](../icons/promenade.svg) | Promenade | `promenade` | seaside walk |
+| 12 | ![Holy place](../icons/holy-place.svg) | Holy place | `holy-place` | church, cathedral |
+| 13 | ![Museum / art](../icons/museum.svg) | Museum / art | `museum` | art museum |
+| 14 | ![History / monument](../icons/history.svg) | History / monument | `history` | ruins, castle |
+| 15 | ![Park / garden](../icons/park.svg) | Park / garden | `park` | city park |
+| 16 | ![Bar / drinks](../icons/bar.svg) | Bar / drinks | `bar` | cocktail bar |
+| 17 | ![Airport](../icons/airport.svg) | Airport | `airport` | airport |
+| 18 | ![Tickets / booking](../icons/tickets.svg) | Tickets / booking | `tickets` | reminder pin |
+| 19 | ![Ski lift](../icons/ski-lift.svg) | Ski lift | `ski-lift` | cable car, chairlift |
+| 20 | ![Winery](../icons/winery.svg) | Winery | `winery` | winery, wine cellar |
+| 21 | ![Parking](../icons/parking.svg) | Parking | `parking` | car park |
+| 22 | ![Home / accommodation](../icons/home.svg) | Home / accommodation | `home` | where the group stays: apartment, hotel, or one's own home |
+| 23 | ![Underground station](../icons/underground.svg) | Underground station | `underground` | metro stop (a train in a tunnel, so it differs from the railway station) |
+| 24 | ![Bus station](../icons/bus.svg) | Bus station | `bus` | bus terminal, bus stop |
+| 25 | ![Railway station](../icons/railway.svg) | Railway station | `railway` | train station |
+| 26 | ![Beach](../icons/beach.svg) | Beach | `beach` | beach |
+| 27 | ![Gym](../icons/gym.svg) | Gym | `gym` | gym, fitness club |
+| 28 | ![Stadium / arena](../icons/stadium.svg) | Stadium / arena | `stadium` | football stadium, sports arena |
+| 29 | ![Hospital](../icons/hospital.svg) | Hospital | `hospital` | hospital, emergency room |
+| 30 | ![Police station](../icons/police.svg) | Police station | `police` | police station |
+| 31 | ![Ferry](../icons/ferry.svg) | Ferry | `ferry` | ferry terminal, ferry crossing |
 
 The icon set belongs to the app, so all maps share it.
 
