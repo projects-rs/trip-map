@@ -1,0 +1,194 @@
+{
+  "iconSetVersion": "1.0",
+  "maxIcons": 50,
+  "note": "The Trip Map icon set (DESIGN.md sections 5.4 and 12.4). Each icon's picture is icons/<id>.svg. IDs are never reused or deleted; a retired icon gets an alias.",
+  "icons": [
+    {
+      "id": "breakfast",
+      "name": "Breakfast",
+      "since": "1.0",
+      "example": "café, bakery"
+    },
+    {
+      "id": "lunch",
+      "name": "Lunch",
+      "since": "1.0",
+      "example": "restaurant"
+    },
+    {
+      "id": "dinner",
+      "name": "Dinner",
+      "since": "1.0",
+      "example": "restaurant"
+    },
+    {
+      "id": "architecture",
+      "name": "Architecture",
+      "since": "1.0",
+      "example": "notable building"
+    },
+    {
+      "id": "music",
+      "name": "Music",
+      "since": "1.0",
+      "example": "concert hall, jazz club"
+    },
+    {
+      "id": "market",
+      "name": "Market",
+      "since": "1.0",
+      "example": "food market, flea market"
+    },
+    {
+      "id": "shopping-mall",
+      "name": "Shopping mall",
+      "since": "1.0",
+      "example": "department store"
+    },
+    {
+      "id": "shopping",
+      "name": "Shopping",
+      "since": "1.0",
+      "example": "shopping street"
+    },
+    {
+      "id": "viewpoint",
+      "name": "Viewpoint",
+      "since": "1.0",
+      "example": "hilltop lookout"
+    },
+    {
+      "id": "sea",
+      "name": "Sea",
+      "since": "1.0",
+      "example": "boat trip, harbor"
+    },
+    {
+      "id": "promenade",
+      "name": "Promenade",
+      "since": "1.0",
+      "example": "seaside walk"
+    },
+    {
+      "id": "holy-place",
+      "name": "Holy place",
+      "since": "1.0",
+      "example": "church, cathedral"
+    },
+    {
+      "id": "museum",
+      "name": "Museum / art",
+      "since": "1.0",
+      "example": "art museum"
+    },
+    {
+      "id": "history",
+      "name": "History / monument",
+      "since": "1.0",
+      "example": "ruins, castle"
+    },
+    {
+      "id": "park",
+      "name": "Park / garden",
+      "since": "1.0",
+      "example": "city park"
+    },
+    {
+      "id": "bar",
+      "name": "Bar / drinks",
+      "since": "1.0",
+      "example": "cocktail bar"
+    },
+    {
+      "id": "airport",
+      "name": "Airport",
+      "since": "1.0",
+      "example": "airport"
+    },
+    {
+      "id": "tickets",
+      "name": "Tickets / booking",
+      "since": "1.0",
+      "example": "reminder pin"
+    },
+    {
+      "id": "ski-lift",
+      "name": "Ski lift",
+      "since": "1.0",
+      "example": "cable car, chairlift"
+    },
+    {
+      "id": "winery",
+      "name": "Winery",
+      "since": "1.0",
+      "example": "winery, wine cellar"
+    },
+    {
+      "id": "parking",
+      "name": "Parking",
+      "since": "1.0",
+      "example": "car park"
+    },
+    {
+      "id": "home",
+      "name": "Home / accommodation",
+      "since": "1.0",
+      "example": "where the group stays: apartment, hotel, or one's own home"
+    },
+    {
+      "id": "underground",
+      "name": "Underground station",
+      "since": "1.0",
+      "example": "metro stop (a train in a tunnel, so it differs from the railway station)"
+    },
+    {
+      "id": "bus",
+      "name": "Bus station",
+      "since": "1.0",
+      "example": "bus terminal, bus stop"
+    },
+    {
+      "id": "railway",
+      "name": "Railway station",
+      "since": "1.0",
+      "example": "train station"
+    },
+    {
+      "id": "beach",
+      "name": "Beach",
+      "since": "1.0",
+      "example": "beach"
+    },
+    {
+      "id": "gym",
+      "name": "Gym",
+      "since": "1.0",
+      "example": "gym, fitness club"
+    },
+    {
+      "id": "stadium",
+      "name": "Stadium / arena",
+      "since": "1.0",
+      "example": "football stadium, sports arena"
+    },
+    {
+      "id": "hospital",
+      "name": "Hospital",
+      "since": "1.0",
+      "example": "hospital, emergency room"
+    },
+    {
+      "id": "police",
+      "name": "Police station",
+      "since": "1.0",
+      "example": "police station"
+    },
+    {
+      "id": "ferry",
+      "name": "Ferry",
+      "since": "1.0",
+      "example": "ferry terminal, ferry crossing"
+    }
+  ],
+  "aliases": {}
+}

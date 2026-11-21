@@ -6,32 +6,33 @@ A phone-first web app that shows the sites of a trip on a real street map, with 
 
 Status: version 1 (basic map) is built. Everything below describes the version 2 design. All proposals and assumptions were approved by the app owner on 2026-11-15. Remaining open questions are listed in section 16. The build plan is in section 14. Group maps (sections 10.8, 10.9) are the last feature to be built, in release E.
 
-Last updated: 2026-11-15
+Last updated: 2026-11-21
 
 ---
 
 ## 1. Goals
 
 1. Show a trip's sites on a real map with every street named.
-2. Group sites by more than one legend (for example Category and Day) and filter by them.
-3. Tap a site to see its details and navigate to it.
-4. Do as much as possible inside the app. Other navigation apps are a choice, not the default.
-5. Make copying and sharing information with other apps easy.
-6. Keep the app independent of any trip. Sites, legends, groups, and colors are configured in a JSON file. The app predefines none of them.
-7. Make the JSON easy to update with an AI agent.
-8. Let a user add new sites directly in the app, from an "Add site" menu.
-9. Keep sites added in the app on that phone only, until the user chooses to send them.
-10. Let a user send changes to a map without knowing GitHub. The map's owner approves every change. After approval, all users of the map see the update, with a notice of what changed, the next time they open the app.
-11. Keep a locked map open only to the users it was shared with. Those users can read it and make local changes. Changes to the map follow the approval process (goal 10).
-12. Let advanced users contribute public maps, readable by everyone, and keep control of their own maps.
-13. Share the app and the maps separately. One user can have the app with map 1, another the app with map 2.
-14. Update the app automatically for users who already have it, with no installation steps.
-15. Free to build, host, and run.
-16. Require nothing preinstalled for simple users. A simple user needs only the phone's browser, with no GitHub account, no other app, and no technical steps. Using the app is like opening a web page.
-17. Let a user move a map file in and out of the app, so that it can be designed and edited with outside tools such as an AI agent or a JSON editor.
-18. Let a user open a map file directly in the app, without GitHub. The app checks that the file follows the format.
-19. Provide a checking tool, available from GitHub, where anyone can verify a map file.
-20. Let users send feedback and problem reports easily, without exposing private information.
+2. Hold several maps on one phone, and let the user switch between them, add, update, and remove them (section 4.1).
+3. Group sites by more than one legend (for example Category and Day) and filter by them.
+4. Tap a site to see its details and navigate to it.
+5. Do as much as possible inside the app. Other navigation apps are a choice, not the default.
+6. Make copying and sharing information with other apps easy.
+7. Keep the app independent of any trip. Sites, legends, groups, and colors are configured in a JSON file. The app predefines none of them.
+8. Let an AI agent create a new map from scratch, or update an existing one, as a JSON file in the exact format the app accepts (section 11), checked by the map checker (section 11.3).
+9. Let a user add new sites directly in the app, from an "Add site" menu.
+10. Keep sites added in the app on that phone only, until the user chooses to send them to the map's owner as a proposal, through a messaging app such as WhatsApp (section 10.4). Nothing is sent to GitHub by the user.
+11. Let a user send changes to a map without knowing GitHub. The map's owner approves every change. After approval, users of the map are offered the update, with a list of what changed, the next time they open the app, and the map changes on their phone only when they accept it (section 3.1).
+12. Keep a locked map open only to the users it was shared with. Those users can read it and make local changes. Changes to the map follow the approval process (goal 11).
+13. Let advanced users (section 2.1) contribute public maps, readable by everyone. The contributor maintains the map, and every change to a public map is approved by the app's owner before it is published (section 10.7).
+14. Share the app and the maps separately. One user can have the app with map 1, another the app with map 2.
+15. Update the app for users who already have it with no installation steps, and only after the user accepts the update (section 3.2).
+16. Cost nothing to users, and as little as possible to the app owner: no servers of our own and no paid services. The owner's only cost is the GitHub plan (section 13.5). Map tiles, routing, and search use free public services within their usage rules.
+17. Require nothing preinstalled for simple users. A simple user needs only the phone's browser, with no GitHub account, no other app, and no technical steps. Using the app is like opening a web page.
+18. Let a user move a map file in and out of the app, so that it can be designed and edited with outside tools such as an AI agent or a JSON editor.
+19. Let a user open a map file directly in the app, without GitHub. The app checks that the file follows the format.
+20. Provide a checking tool, available from GitHub, where anyone can verify a map file. The same checker runs automatically (CI) on every pull request that adds or changes a map, and a map that fails cannot be merged.
+21. Let users send feedback and problem reports easily, without exposing private information.
 
 ## 2. Main concepts
 
@@ -55,6 +56,7 @@ Last updated: 2026-11-15
 
 | | Simple user | Advanced user |
 | --- | --- | --- |
+| Who | Anyone with a phone | Someone who uses GitHub: has an account, and knows how to make a commit and open a pull request |
 | Wants to | Use the app with ready-made maps | Contribute maps, and suggest fixes and features for the app |
 | Needs | Only the phone's browser. No account, no keys. | A free GitHub account |
 | Uses maps | Yes: locked maps from a share link, and public maps | Yes |
@@ -62,7 +64,7 @@ Last updated: 2026-11-15
 | Contributes public maps | No | Yes (section 10.7) |
 | Suggests app changes | No. Can report a problem from the app. | Yes, as a pull request to the App repository, which the app's owner approves |
 
-- Nothing in the app requires a simple user to know that GitHub exists (goal 16).
+- Nothing in the app requires a simple user to know that GitHub exists (goal 17).
 - A user becomes an advanced user by choice, for example when they first publish a public map with their GitHub account (section 10.7).
 - An advanced user's rights belong to their GitHub account, not to their phone. A lost or replaced phone loses nothing: the user sets up the app again with their GitHub account.
 
@@ -80,8 +82,59 @@ Last updated: 2026-11-15
 
 ### 3.1 Installation
 
+The app is a web page that can be added to the phone's home screen (a "progressive web app"). It is not installed from an app store, and it does not need to be: Android and iPhone both support adding a web app to the home screen as a standard feature of the browser, so there is nothing for the stores to block.
+
 - Opening the app link works immediately in the browser.
 - "Add to home screen" gives the app its own icon and a full-screen view. Android offers this in one tap. On iPhone it takes two taps through the Share menu, and the app shows a short picture guide the first time.
+
+#### 3.1.1 Where map links come from, and how they are sent
+
+| Who sends | How they get the link | How they send it |
+| --- | --- | --- |
+| The app owner, for a locked map | "Share this map" in the app, after publishing the map (section 10.6) | The phone's share menu: WhatsApp, email, a text message, or a QR code shown on screen |
+| Any user who has a map | "Share this map" in "My maps": the same link they received | The same share menu |
+| Anyone, for a public map | "Share this map", or the map's plain link from the list of public maps | The same share menu |
+
+The link is an ordinary web address, starting with the app's address on GitHub Pages (`https://projects-rs.github.io/trip-map/`). The user never sees GitHub or needs to know about it. Forwarding a locked map's link gives the map to whoever receives it, so the app reminds the user of this before sharing (section 15.2).
+
+#### 3.1.2 Which browser
+
+| Phone | Opens the app | Adds it to the home screen |
+| --- | --- | --- |
+| Android | Any up-to-date browser: Chrome, Samsung Internet, Edge, Firefox | Chrome, Samsung Internet, Edge (recommended: Chrome) |
+| iPhone | Any browser (on iPhone they all use Safari's engine) | Safari; on newer iOS versions also Chrome and Edge, through their Share menu |
+
+- **Links opened inside WhatsApp** open in WhatsApp's own small browser, which can show the map but cannot add it to the home screen. The app detects this and shows "Open in Chrome" (Android) or "Open in Safari" (iPhone), with the menu item to tap.
+- **Security and permissions:** the app runs inside the browser's security sandbox, like any web page. It cannot read the phone's files, contacts, photos, or other apps. The only permission it asks for is location, the first time the user taps "My location" or starts navigation, and the user can refuse or withdraw it in the phone's settings. Sections 15.3 and 15.4 cover the app's own security rules.
+
+#### 3.1.3 What "installed" means, step by step
+
+Adding the app to the home screen does three things: it saves the app's files in the browser's storage on the phone (so it opens without a connection), it creates an icon on the home screen, and it lets the app open full-screen in its own window, without the browser's address bar. No app store, account, or special permission is involved, and it can be removed like any app.
+
+Android (Chrome):
+
+1. Open the map link in Chrome.
+2. The app shows an "Add to home screen" button. Tap it, or open Chrome's ⋮ menu → **Add to Home screen** (or **Install app**).
+3. Tap **Install**. The icon appears on the home screen, and the map is already inside.
+4. To remove it: long-press the icon → **Uninstall** (or remove).
+
+iPhone (Safari):
+
+1. Open the map link in Safari.
+2. In the app's picture guide, tap **Copy map link** (see step 7 below for why).
+3. Tap Safari's **Share** button (the square with an arrow) → **Add to Home Screen** → **Add**.
+4. Open the app from its new icon and tap **Add map**, which pastes the copied link.
+5. To remove it: long-press the icon → **Remove App** → **Delete from Home Screen**.
+
+#### 3.1.4 When the browser does not load the app
+
+| Cause | What the user sees or does |
+| --- | --- |
+| No internet on the first visit | "No connection" (table below) |
+| A content blocker or "data saver" blocks parts of the page | The app shows which part failed (map tiles, the map file) and suggests allowing the app's address |
+| A phone managed by an employer blocks the address | The browser shows its own block page; the user needs another phone or the employer's permission |
+| A very old browser or phone | "This browser is too old for Trip Map. Please update it." |
+| The link opened inside WhatsApp | Works for viewing; to add to the home screen, "Open in Chrome / Safari" (section 3.1.2) |
 
 #### What happens when a user taps a map link for the first time
 
@@ -102,8 +155,10 @@ The user needs no account and no password at any step.
 
 1. The user opens the app from its home-screen icon, or taps the map link again.
 2. The app opens with the map that was last used. Other maps are in "My maps".
-3. The app checks for a newer version of the map. If the map owner approved changes, it shows "Map updated" with the list of what changed.
-4. If a new version of the app is available, it shows "New version available" with an Update button (section 3.2).
+3. **Map updates, asked first.** For each map on the phone, the app checks for a newer version. If the map owner approved changes, it shows "Update available for <map>" with the list of what changed, and two buttons: **Update** and **Not now**. The map on the phone changes only after the user taps Update.
+4. **Every map update is checked before it is applied.** The app runs the map checker on the new version (section 11.3). If it fails, the saved version stays, and the app shows "This update could not be checked; your current map is unchanged."
+5. **App updates, asked first.** If a new version of the app is available, it shows "New version of Trip Map available" with what is new, and **Update** and **Not now** (section 3.2).
+6. The app and the maps are updated separately: the user can update one without the other.
 
 #### When something goes wrong the first time
 
@@ -128,12 +183,21 @@ This table covers a user who already has the map on the phone.
 
 #### Opening the app without a map link
 
-The app's own address, without a map, opens an empty "My maps" list with two choices: "Add map" (paste a link or scan a QR code) and "Open map file" (section 11.2).
+The app's own address, without a map, opens "My maps" with these choices:
+
+| Choice | What it does | Release |
+| --- | --- | --- |
+| **Public maps** | Shows the list of public maps, each with its title, place, and a short description, and adds the chosen one to "My maps". The user does not see that the list and the maps come from GitHub. | C |
+| **Start a new map** | Creates a new, empty local map with a title and a place, ready for "Add site". With "Create a map with AI" (section 9.3) as a second way. | A (empty map), D (with AI) |
+| **Add map** | Paste a link or scan a QR code | A |
+| **Open map file** | Open a map file saved on the phone (section 11.2) | A |
 
 ### 3.2 App updates
 
-- The app updates itself. When a new version is published at the app's address, each user gets it the next time they open the app.
-- If the app is open when an update arrives, it shows "New version available" with an Update button. Nothing changes during a walk.
+- The app downloads a new version in the background, but uses it only after the user accepts. When a new version is published at the app's address, the app shows "New version of Trip Map available" with a short list of what is new, and **Update** and **Not now**. "Not now" asks again the next time the app is opened.
+- Nothing changes during a walk: the question is never shown during navigation.
+- A user opening the app for the first time always gets the newest version.
+- If a map needs a newer app than the one on the phone, the app says so and offers the update (section 3.1).
 - An update replaces only the app. The user's maps, local sites, and settings stay on the phone.
 - The app's version number is shown in Settings.
 - Each map file records its format version. Newer app versions continue to read older map files (section 12).
@@ -274,7 +338,7 @@ Icon style (decision): solid, filled symbols in one uniform style, shown in whit
 
 The icon set can be extended:
 
-- The icon set is kept as its own file in the app's repository, with its own version number (section 12.4). It is not built into the app's code.
+- The icon set is kept as its own file in the app's repository, `icons/icons.json`, with its own version number (section 12.4). It is not built into the app's code. The pictures are in `icons/`, one SVG file per icon, named by the icon's ID.
 - Each icon has a fixed ID (for example `market`), a display name, a symbol, and the icon set version in which it was added (`since`). One icon file therefore holds the whole history, and no old icon files need to be kept.
 - New icons are added by the app's owner and arrive with an app update.
 - An icon's ID is never reused or deleted. A retired or renamed icon keeps working through an alias, so old maps are not broken.
@@ -309,20 +373,25 @@ Decision: copying uses the phone's native behavior. Each field is copied on its 
 
 ## 7. Copying and sharing with other apps
 
-- **Share button on every site card.** Opens the phone's share menu (WhatsApp, email, Notes, …) with the site's name, address, description, link, and a map location link as one message.
+- **One Share button on every site card, with two choices** (decided 2026-11-21):
+    - **This site:** opens the phone's share menu (WhatsApp, email, Notes, …) with the site's name, address, description, link, and a map location link as one message.
+    - **All sites in <group>:** the "Share a group" below, for one of the groups the site belongs to.
 - **Copy per field,** as in section 6.1.
 - **"Share a group"** (decided 2026-11-15). Sends the list of sites in one legend group, for example all of Friday's sites, as readable text through WhatsApp or another app: each site's name, address, link, and a map location link. For a locked map, the app first warns that the text will be readable by anyone in the chat.
-- **"Share my location"** (decided 2026-11-15). See below.
+- **"Share my location"** (decided 2026-11-15, limited to group maps on 2026-11-21). See below.
 
 #### "Share my location"
 
-How it would work:
+Decision (2026-11-21): "Share my location" is available only in a group map (sections 10.8, 10.9), and is sent only to that map's group, for example the four people on the same trip. Sharing a position with anyone else is not worth the risk, and WhatsApp's own "Share location" already does that. It is built with group maps, in release E.
 
-1. The user taps "Share my location".
+How it works:
+
+1. The user taps "Share my location" in a group map.
 2. The app shows the user's current position on the map, with the text "This shows where you are now", and asks to confirm.
 3. The app prepares a link to the app itself, with the position after the "#" sign. The message travels only through WhatsApp. When a member taps the link, the phone loads the app's page from GitHub Pages, but the part after the "#" is never sent to GitHub (section 10.9).
 4. WhatsApp, or another app, opens. The user picks the chat and taps Send.
-5. A member who taps the link sees a temporary pin, "Noa is here", on their map. It is not saved, unless that member chooses "Add as site".
+5. The link carries the sender's member number, not their name (section 10.9). A member who taps it sees a temporary pin on the group's map, labeled with the name that member keeps on their own phone for that number, for example "Noa is here". It is not saved, unless that member chooses "Add as site".
+6. A link from someone who is not a member of that group, or for a map that is not on the phone, is not shown.
 
 How it fits sections 15.2 and 15.3:
 
@@ -399,7 +468,7 @@ Checking what the AI made:
 - The user can fix a location by dragging the pin or by searching the address (through OpenStreetMap's search, within its usage terms), and mark the site as verified.
 - The request asks the AI to write descriptions in its own words and to leave out private information (section 15).
 
-A built-in AI, where the user types into the app itself, is possible later. Someone must pay for every request, which conflicts with goal 15, so it is not part of this version.
+A built-in AI, where the user types into the app itself, is possible later. Someone must pay for every request, which conflicts with goal 16, so it is not part of this version.
 
 ### 9.4 Search
 
@@ -524,7 +593,7 @@ Without a server, the app cannot send phone notifications when it is closed. Thi
 
 ### 10.7 Public maps
 
-Decision: any advanced user (section 2.1) can contribute a map to the Public maps repository. A contributed map is readable by everyone.
+Decision: any advanced user (section 2.1) can contribute a map to the Public maps repository. A contributed map is readable by everyone. Public maps are part of this project, so every change to a public map, including the first version, is approved by the app's owner before it is published (decided 2026-11-21).
 
 | | Locked map | Public map |
 | --- | --- | --- |
@@ -535,8 +604,8 @@ Decision: any advanced user (section 2.1) can contribute a map to the Public map
 
 Rules:
 
-- **The contributor controls the map's content.** Only the contributor can change its sites, pins, and legends, or approve changes to it.
-- **Proposals from other users.** Any user can add sites to a public map in the app and send them as a proposal, if they can reach the contributor in a messaging app (section 10.4). The map's contributor approves or rejects it.
+- **The contributor maintains the map's content, the app owner approves it.** Only the contributor can propose changes to its sites, pins, and legends. Each change is published only after the app's owner approves and merges it.
+- **Proposals from other users.** Any user can add sites to a public map in the app and send them as a proposal, if they can reach the contributor in a messaging app (section 10.4). The contributor accepts or rejects it; an accepted proposal becomes the contributor's pull request, which the app owner approves.
 - **Adapting to a new app version.** When a new app version needs a newer map format, the map is converted with the adaptation tool. Either the contributor or the app owner can run it and propose the result. The contributor approves it.
 - **The app owner keeps a safety role.** The owner can hide or remove a map that breaks the rules (for example, private information or offensive content), but does not edit its content.
 
@@ -552,7 +621,7 @@ Publishing a public map:
 4. The first time, the contributor creates an access key in their GitHub account, with a picture guide in the app, and enters it in the app's Settings. The key allows changes only to the contributor's own copy of the Public maps repository.
 5. The app sends the map to the Public maps repository as a pull request in the contributor's name.
 6. An automatic check on GitHub checks the map, and records the contributor's GitHub account as the map's contributor in the registry file.
-7. The first map from a new contributor waits for the app owner's approval (decided 2026-11-15). Later maps and updates are merged automatically once the check passes.
+7. The app owner reviews the pull request and merges it (decided 2026-11-21: for every map and every update, not only the first). The automatic check must pass first.
 
 Changes and proposals:
 
@@ -592,7 +661,7 @@ Rules:
 
 Limits:
 
-- The app cannot send the message by itself, or choose the chat. The user taps Send in the messaging app. Sending automatically is possible only through WhatsApp's paid business service, which does not fit goal 15.
+- The app cannot send the message by itself, or choose the chat. The user taps Send in the messaging app. Sending automatically is possible only through WhatsApp's paid business service, which does not fit goal 16.
 - The app cannot read the chat. Each member has to tap the link to receive the changes.
 - Changes are not live. They arrive when someone shares them and the others tap the link.
 
@@ -1015,7 +1084,7 @@ Decision: the app and the maps live in separate GitHub repositories.
 | --- | --- | --- | --- |
 | App | Public | The app, the icon set, the "Check a map" page, the AI toolkit (section 11.1), this document | The app's owner only |
 | Locked maps | Public, files locked | The app owner's own maps. Readable only with a share link (section 10.2). | The app's owner only |
-| Public maps | Public, readable | Maps contributed by any user, readable by everyone (section 10.7) | Each map's contributor, for their own map |
+| Public maps | Public, readable | Maps contributed by advanced users, readable by everyone (section 10.7) | The app's owner approves and merges every change. The map's contributor proposes changes to their own map. |
 
 - The app does not contain a list of locked maps. A share link carries the map's address.
 - The app owner's access key, used by the app to publish locked maps, is limited to the Locked maps repository. It gives no access to the app.
@@ -1053,7 +1122,7 @@ Settings on GitHub:
 - **App repository:** a rule on the main branch requires a pull request, and passing checks (once they exist) before anything is merged. Only the owner can merge: the rule's "Restrict updates" allows changes to main only for the organization admin (the owner). Required approvals are 0, because GitHub does not let anyone approve a pull request that counts as their own; the owner's merge is the approval. Direct changes, deletions and force-pushes are blocked.
 - **Test repository:** deletions and force-pushes are blocked; Claude publishes test versions to it directly, without a pull request (section 14.2).
 - **Locked maps repository:** only the app owner has write access. The app owner's app publishes to it directly with an access key limited to this repository (section 10.6).
-- **Public maps repository:** only the owner has write access. Contributors send pull requests from their own copy. An automatic check accepts a pull request only if it changes the author's own maps, and merges it when the check passes. A new contributor's first map waits for the owner.
+- **Public maps repository:** only the owner has write access. Contributors send pull requests from their own copy. An automatic check accepts a pull request only if it changes the author's own maps and the map passes the checker. The owner then reviews and merges every pull request; nothing is merged automatically.
 - **Access keys and tokens** are limited to the one repository they are for, and to the permissions they need.
 - **The owner's GitHub account** uses two-step sign-in, with recovery codes kept safe.
 
@@ -1119,7 +1188,7 @@ Target: ready and field-tested before the Barcelona trip (December 10, 2026). Ro
 | 3. Pins and legends | The icon set file, pin color from the group, pie-chart pins, the "Other" chip, the legend switch, filtering by chips | Switching legends recolors the pins. A site in two groups shows a split pin. Turning a chip off hides its sites. |
 | 4. Site card and opening hours | The site card (text shown only as plain text, links limited to https), opening hours with open, closing-soon, and closed marks, native copying, the Share button and "Share a group", the navigation panel with "In another app" (Google Maps, Apple Maps). The "In this app" choice is added in release B. | Status text and pin marks are right at different times of day. Copying and sharing work. Navigation opens in Google or Apple Maps. |
 | 5. My maps and local sites | Several maps and switching between them, each map's saved view, Add site, search (section 9.4), local sites, local legends and groups, Export map | Searching "Sagrada Família" in Add site fills in its name, address, and location. A search of the user's own map works offline. Two maps can be switched without losing each one's view. An added site survives closing the app. Export produces a file that opens again. |
-| 6. Locked maps and share links | Locking and unlocking, publishing from the app owner's app to the Locked maps repository, share links, the first-visit and later-visit flows, the iPhone "Add map" flow, saved copies for offline use, "Share my location" | A share link sent to each tester opens the Barcelona map on their phone, also from the home-screen app on iPhone. The map opens without a connection after the first visit. A shared location appears as a temporary pin on another phone. |
+| 6. Locked maps and share links | Locking and unlocking, publishing from the app owner's app to the Locked maps repository, share links, the first-visit and later-visit flows, the iPhone "Add map" flow, saved copies for offline use, "Share this map", "Start a new map" (empty) | A share link sent to each tester opens the Barcelona map on their phone, also from the home-screen app on iPhone. The map opens without a connection after the first visit. A forwarded link opens the same map on a third phone. |
 | 7. Updates, feedback, and field test | The browser security policy (section 15.3). Automatic app updates with the "New version available" notice. Settings → About with the notices list. "Send feedback" in its first form: a prepared message through the phone's share menu (section 14.5). A walk-through of the whole app. | An update reaches all phones. The app owner walks a route in their own city with the app, on both phone types. |
 
 Not in release A: in-app turn-by-turn navigation, proposals to the map owner, error reports, public maps, "Create a map with AI", the full AI toolkit, and group maps.
@@ -1157,7 +1226,7 @@ Decision (2026-11-15, confirmed by the app owner): group maps (sections 10.8, 10
 | Step | Build | Try on the phone |
 | --- | --- | --- |
 | 15. Starting and joining | "Start a group", invite links (7 days, several people), joining and declining, member numbers, names for members kept on each phone, each member's key pair, the internal database for group details | A group of four is started. Each member joins with an invite link and gets the same member numbers on every phone. A person who declines leaves no trace. |
-| 16. Sharing changes | "Share my changes" through WhatsApp, signed changes, merging, taking or skipping new legends and groups, "Noa shared 3 new sites" with the names kept on each phone, privacy checks on both sides, the match code | A site shared in the group chat appears on the other phones after tapping the link. The same link tapped twice adds nothing twice. |
+| 16. Sharing changes | "Share my changes" through WhatsApp, "Share my location" (section 7), signed changes, merging, taking or skipping new legends and groups, "Noa shared 3 new sites" with the names kept on each phone, privacy checks on both sides, the match code | A site shared in the group chat appears on the other phones after tapping the link. The same link tapped twice adds nothing twice. |
 | 17. Leaving, voting, and catching up | "Leave group", removal by signed vote, the new group key, "Send everything", a new phone with its "old number" message | A member who leaves disappears from the others' lists after they tap the message, and cannot read messages sent after the new key. A vote with a faked signature is rejected. A new phone gets everything shared so far. |
 
 Rough effort for releases B to E together: about four to five weeks, mostly set by testing on real phones. These are planning estimates, not promises.
@@ -1464,3 +1533,4 @@ Three ideas raised during the design, and what was decided about each.
 | 2 (design) | 2026-11-15 | Decided: security review by Claude before each release and a human expert before going public. Security checklist added (section 15.4). |
 | 2 (design) | 2026-11-15 | All proposals approved by the app owner. Confirmed: group maps are the last feature (release E). Second coherence review: new group key locked per member; proposals can carry notes on existing sites; `verified` and `source` fields; every feature placed in a release step; trip fallback; search limit per phone; home-location exception stated in section 15.2; icon numbering in open question 12; hours past midnight defined (section 11). First test map: `maps/barcelona-2026.json` |
 | 2 (design) | 2026-11-21 | GitHub setup as built: new private account, organization `projects-rs` on Team, `trip-map` and `trip-map-test` repositories, "Restrict updates" so only the owner merges, Claude on two repositories only (sections 13.3, 13.4, 13.5). Step 0 done. This document moves to `docs/DESIGN.md` in the App repository. |
+| 2 (design) | 2026-11-21 | Review of pull request #1: new goal 2 (several maps); goal 8 (AI creates maps from scratch); goals 10, 11, 15 (user accepts map and app updates; every map update is checked first); goal 16 (cost) clarified; goal 20 (checker runs in CI); advanced user defined; installation explained in detail (sections 3.1.1–3.1.4); "Public maps" and "Start a new map" on the opening screen; one Share button with two choices; "Share my location" limited to group maps (release E); every public map change approved by the app owner (section 10.7); `icons/icons.json`. |
