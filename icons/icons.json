@@ -1,7 +1,7 @@
 {
   "iconSetVersion": "1.0",
   "maxIcons": 50,
-  "note": "The Trip Map icon set (DESIGN.md sections 5.4 and 12.4). Each icon's picture is icons/<id>.svg. IDs are never reused or deleted; a retired icon gets an alias.",
+  "note": "The Trip Map icon set (DESIGN.md sections 5.4 and 11.4). Each icon's picture is icons/<id>.svg. IDs are never reused or deleted; a retired icon gets an alias.",
   "icons": [
     {
       "id": "breakfast",
