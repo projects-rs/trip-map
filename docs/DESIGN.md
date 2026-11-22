@@ -773,7 +773,7 @@ There are two kinds of request:
 
 For the user:
 
-1. The user taps the button. The app runs the checker (section 10.3) and the personal-data check (section 14.2), and shows what it found. Errors and personal data must be removed first.
+1. The user taps the button. The app runs the checker (section 10.3) and the personal-data check (section 14.2), and shows what it found, with the warning "This may become public" (section 14.2, "Before anything leaves the phone"). Errors and personal data must be removed first.
 2. The app removes what must never leave the phone: sites marked "Group only", and any group details. (Group trips cannot be sent at all; see above.)
 3. For a new trip request, the user chooses how to be named in the trip's `credits`, or "anonymous" (section 10).
 4. The app shows everything that will be sent. The user confirms.
@@ -900,7 +900,7 @@ flowchart TD
 ```
 
 1. Tap **"Start a group"**, and choose the trip if asked.
-2. The app checks the trip, and suggests its title as the group's name. The member can change it.
+2. The app checks the trip, and suggests its title as the group's name. The member can change it. Before the group is created, the app shows the warning "Everything in this trip will be shared with the group, including the sites you added", with the personal-data check's findings (section 14.2).
 3. The app does the rest by itself: it makes the group key, a long random group ID, and the write token, creates the group's space in the app's Firebase project, and uploads the trip into it, one locked entry per site, in one batch (section 9.5). Nobody signs in.
 4. **"Invite now"** (section 9.3).
 
@@ -967,7 +967,7 @@ flowchart TD
 3. **The inviter sends the link any way:** WhatsApp, email, or a text message (decided 2026-11-23). This is safe because the link holds nothing secret: no key, and nothing about the group.
 4. **The invited person opens the link** (on iPhone: Copy, then "Paste invite" in the app; on Android, tapping it opens the app). The app asks for their **first name and family name**. Both are required.
 5. **Their app sends a join request** through Firebase: the typed name, locked so that only the inviter's app can read it, and a one-time public key made by their app for this request. Their screen shows "Waiting for approval…".
-6. **The inviter's app shows the request:** "Your invite **Tamar** was used by **Tamar Levi**. Approve?" After sending a link, the inviter's app keeps a "Waiting for Tamar…" screen open, so the request appears at once. If the inviter's app was closed, the request is shown as soon as it is opened, within the 15 minutes.
+6. **The inviter's app shows the request:** "Your invite **Tamar** was used by **Tamar Levi**. Approve?", with the warning "Tamar Levi will see the whole trip and future changes. Approve only if you know them." (section 14.2) After sending a link, the inviter's app keeps a "Waiting for Tamar…" screen open, so the request appears at once. If the inviter's app was closed, the request is shown as soon as it is opened, within the 15 minutes.
 7. **Approve:** the inviter's app locks the group's name, ID, key, and write token so that only the new member's app can open them (with the one-time public key from step 5), and sends them through Firebase. The new member's app unlocks them, joins, and reads the trip.
 8. **Reject**, or no answer within 15 minutes: the request is deleted, and the person sees "Your request was not approved" or "This invite has expired". Nothing about them is kept.
 
@@ -1042,7 +1042,7 @@ How it fits sections 14.2 and 14.3:
 - It only happens when the user taps it and confirms. It is never automatic and never repeated.
 - It is a single position at one moment, not live tracking.
 - The position is never stored in a trip file, in local changes, in "Export trip", in update requests, or in feedback. A member who receives it can choose "Add as site".
-- The real risk is sharing from a private place, such as home: the group sees where it is. The confirmation screen shows the spot before sending.
+- The real risk is sharing from a private place, such as home: the group sees where it is. The confirmation screen shows the spot before sending, with the warning in section 14.2 ("Before anything leaves the phone"), and notices when the position is near a "Group only" site such as the apartment.
 
 ### 9.5 How group trips work with Firebase
 
@@ -1348,6 +1348,7 @@ Export:
 
 - "Export map" saves the current map as a readable JSON file, or passes it to another app through the phone's share menu.
 - The user chooses what to include: the map only, or the map together with their local sites.
+- Before the file leaves the app, the app shows the warning "This file holds the whole trip, including your own sites. Anyone you send it to can read it." (section 14.2, "Before anything leaves the phone").
 - The exported file follows the format in section 10, so an AI tool or a JSON editor can work on it directly.
 
 Open a map file:
@@ -1683,7 +1684,7 @@ Usability:
 
 ### 13.5 Feedback and error reports
 
-- **"Send feedback" in the menu.** The user writes a message. The app adds technical details: the app version, the phone type, and the browser. The user sees everything that will be sent before sending it.
+- **"Send feedback" in the menu.** The user writes a message. The app adds technical details: the app version, the phone type, and the browser. The user sees everything that will be sent, with the warning "Your message goes to the app's maker. Don't include personal details." (section 14.2), before sending it.
     - The message opens in the phone's share menu, ready to send to the app owner by WhatsApp or email. The app owner's feedback address is shown in the app: a dedicated email address for the app, not the owner's personal one.
     - Advanced users can also report a problem directly as an issue in the App repository.
 - **Error reports, with consent.** When something fails, the app records the error on the phone and offers to send it, through the same share menu. Without a server, sending is never fully automatic: the user sees the report and taps Send.
@@ -1776,7 +1777,33 @@ Data in maps:
 - **No photos** are part of the map format, so no image rights arise.
 - **Public map content.** When publishing, the contributor confirms that they have the right to share the map's content, and that it is published under the **CC BY 4.0** license: anyone may reuse it, with credit to the contributor. The notice is kept in the trip file itself, in its `copyright`, `license`, and `credits` fields (section 10).
 
-### 14.2 Keeping private information out of maps
+### 14.2 Privacy: keeping private information safe
+
+#### Before anything leaves the phone (decided 2026-11-23)
+
+Rule: before the app sends, shares, or exports anything, it shows **who will see it, and what**, and asks to confirm. The same screen is used every time, and the stronger the exposure, the clearer the warning.
+
+| # | Operation | Who will see it | What could be private | The warning |
+| --- | --- | --- | --- | --- |
+| 1 | **Share my location** (section 9.4) | The group, for 15 minutes | Where the user is, for example their home | "Your group will see where you are now, for 15 minutes. Don't share from home or another private place." With the spot on the map |
+| 2 | **Start a group** with a trip (section 9.2) | Everyone the user invites | Their own added sites and notes, such as their home or a booking | "Everything in this trip will be shared with the group, including the sites you added", with the personal-data check's findings |
+| 3 | **Send an invite link** (section 9.3) | Whoever receives the link | Nothing secret, but the wrong person could ask to join | "Send it only to the person you're inviting. You'll approve them before they can join." |
+| 4 | **Approve a join request** (section 9.3) | The new member | The whole trip, from now on | "**Tamar Levi** will see the whole trip and future changes. Approve only if you know them." |
+| 5 | **Request to add my changes** (section 8.6) | **The public**, after the trip owner approves | Personal places or details in the changes | "These changes may become **public**", with the personal-data check's findings |
+| 6 | **Request to add this trip** (section 8.6) | **The public** | The same, for the whole trip | "This trip may become **public**", with the findings, and the choice of how to be named in `credits` |
+| 7 | **Export trip**, as a file (section 10.2) | Whoever gets the file | Everything in the trip | "This file holds the whole trip, including your own sites. Anyone you send it to can read it." |
+| 8 | **Send feedback** (section 13.5) | The app's maker | Whatever the user writes or attaches | "Your message goes to the app's maker. Don't include personal details." |
+
+How the screen looks:
+
+- **A title that says who will see it:** "Your group will see…", "This may become public…", "Anyone with this file…".
+- **What exactly**, with possible private details highlighted: an address that looks like a home, a phone number, an email address, a booking code (the personal-data check below).
+- **"Confirm" and "Cancel"**, with Cancel as the default.
+- **"Public" warnings** (rows 5 and 6) are the strongest, because they cannot be taken back once published.
+- **Near a private place:** for "Share my location", if the position is within about 100 m of a site marked "Group only" (such as the apartment) or named "home", the warning adds "You seem to be near *Apartment*." The app cannot know where anyone lives, but it can notice this.
+
+#### Keeping private information out of trips
+
 
 Principle: no map, locked or public, contains private information. A locked map is protected from outsiders, but its share link can be forwarded, so the same rule applies to both. The one exception, decided by the app owner, is the location of a "Home / accommodation" site in a map only the group sees (layer 2 below).
 
