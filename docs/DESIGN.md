@@ -889,14 +889,17 @@ The internal database:
 
 ### 9.2 Starting a group trip
 
-**A group always starts from a trip in "My trips"** (decided 2026-11-23). The starter gets the trip first, in one of these ways:
+**A group always starts with a trip** (decided 2026-11-23): the trip is either already in "My trips", or is brought in as the first step of starting the group. A group is never created without one. "Start a group" can be tapped on a trip in "My trips", or from the menu; from the menu, the first screen is "Choose the trip", with these choices:
 
 | # | Where the trip comes from | How |
 | --- | --- | --- |
-| 1 | **The public trip list** (the Trips repository) | "Add trip" → "Trip list" → Download (section 3.1) |
-| 2 | **A file stored on the phone**, for example one an AI agent made | "Add local trip" (section 8.4) |
-| 3 | **Pasted from an AI chat** | "Paste trip" (section 8.4) |
-| 4 | **Built in the app**, possibly still empty | "Start a new trip" (section 8.1). To plan together from scratch, the starter creates a new trip with only a name and a place, and the group adds the sites |
+| 0 | **A trip already in "My trips"** | Picked from the list |
+| 1 | **The public trip list** (the Trips repository) | Downloaded from the trip list (section 3.1) |
+| 2 | **A file stored on the phone**, for example one an AI agent made | Added as a local trip (section 8.4) |
+| 3 | **Pasted from an AI chat** | Pasted (section 8.4) |
+| 4 | **A new trip**, possibly still empty | Created with a name and a place (section 8.1). To plan together from scratch, the group then adds the sites |
+
+A trip brought in this way is also added to "My trips".
 
 **Every trip is checked before it is used**, whatever its source: the app runs the checker (section 10.3) on its format and contents when the trip is added, and again when the group is started. A trip that fails the check cannot start a group; the app says what is wrong, in plain words.
 
@@ -904,8 +907,9 @@ In stage 2, the trip is uploaded to Firebase when the group is started, before t
 
 ```mermaid
 flowchart TD
-    T["Required first: a trip in 'My trips' (from the trip list, a local file, pasted, or built in the app), checked"] --> A["In the app: open the trip and tap 'Start a group'"]
-    A --> B["Name the group: the trip's title is suggested"]
+    A0["'Start a group': on a trip in 'My trips', or from the menu"] --> A{"Choose the trip: one in 'My trips', the trip list, a file on the phone, pasted, or a new trip"}
+    A --> CK["The app checks the trip"]
+    CK --> B["Name the group: the trip's title is suggested"]
     B --> S{"Stage"}
     S -->|"Stage 1"| W1["Create a WhatsApp group of all the participants, in WhatsApp (guide below)"]
     W1 --> W2["Paste the WhatsApp group's invite link"]
