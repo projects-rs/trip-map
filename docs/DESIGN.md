@@ -847,7 +847,7 @@ A group trip is **one trip that a few people travelling together share on their 
 
 - **One way of sharing: Firebase** (decided 2026-11-23). The group's trip is kept in Firebase, a ready-made database run by Google, and every member's app reads and writes it by itself (section 9.5). An earlier design that sent everything through WhatsApp by hand was discarded as too clumsy (section 15.1, idea F).
 - **Users never see Firebase.** It is set up once by the app's maker (section 9.5). Group creators and members just tap Start, Invite, and Join: no accounts, no sign-in, no settings.
-- **WhatsApp only to send an invite** to someone who is not there in person (section 9.3). No WhatsApp group is needed.
+- **No WhatsApp group is needed.** An invite link for someone who is not there in person can be sent any way, because it holds no key; the inviter approves each join (section 9.3).
 - **Membership is simply having the group key** (decided 2026-11-21). Only apps that hold the key can read the group's data. The app keeps **no member list, no member IDs, and no names**.
 - **What the group makes stays in the group** (decided 2026-11-22): for now, a group trip cannot update the public trips. It can never be sent in an update request or a new trip request, by any member, also after leaving the group (section 8.6). How a group could publish its trip later is an open question (section 15, question 19).
 - **Simple for everyone:** joining is scanning a QR code on another member's phone, or opening an invite link, and tapping Join.
@@ -913,16 +913,16 @@ Rules:
 
 ### 9.3 Inviting and joining
 
-Any member can invite, at any time, with no approval step: whoever opens a valid invite and taps Join is in the group. Because the app keeps no member list or IDs, it does not matter who invites, how many invite at once, or in which order people join.
+Any member can invite, at any time. In person, whoever scans the member's QR code and taps Join is in the group. At a distance, the member who sent the invite link approves the join (below). Because the app keeps no member list or IDs, it does not matter who invites, how many invite at once, or in which order people join.
 
 #### Two ways to invite
 
-| # | Way | When | Valid | Where the group key goes |
-| --- | --- | --- | --- | --- |
-| 1 | **In person, with a QR code (recommended)** | The members are together, for example at the airport or at a meeting before the trip | 15 minutes, while the screen is open | Straight from one phone to the other, through the camera. It never goes into WhatsApp or the browser |
-| 2 | **An invite link through WhatsApp** | Someone who is not there in person | 15 minutes from when it was made | Inside the link, after the "#" (section 9.6) |
+| # | Way | When | Valid | Approval | Where the group key goes |
+| --- | --- | --- | --- | --- | --- |
+| 1 | **In person, with a QR code (recommended)** | The members are together, for example at the airport or at a meeting before the trip | 15 minutes, while the screen is open | Not needed: the inviter sees who scans it | Inside the QR code, straight from one phone to the other through the camera. It never goes into a chat or the browser |
+| 2 | **An invite link, with approval** (decided 2026-11-23) | Someone who is not there in person | 15 minutes, and only once | **The inviter approves**, after seeing the name the person typed | **Not in the link.** After approval, the inviter's app sends it through Firebase, locked so that only the new member's app can open it |
 
-What an invite holds, the same in both ways:
+What a QR code holds:
 
 | # | Item | Example |
 | --- | --- | --- |
@@ -932,7 +932,7 @@ What an invite holds, the same in both ways:
 | 4 | The group key, and the write token | (hidden) |
 | 5 | The expiry time | 15 minutes from when it was made |
 
-This is well under 1 KB. The trip itself is not in the invite: the new member's app reads it from Firebase after joining.
+What an invite link holds: **only a long random, one-use invite code**. No group name, no group ID, no key, and no name of the person invited. The trip itself is never in an invite: the new member's app reads it from Firebase after joining.
 
 #### Inviting in person, with a QR code
 
@@ -945,24 +945,38 @@ Why in person is safer: the group key never appears in a chat, so it is not in a
 
 The QR code is free, with no outside service: making it uses a small open-source library (for example *qrcode-generator*, MIT), and scanning uses the browser's built-in barcode reader where there is one (Android) or a small open-source library (for example *jsQR*, Apache 2.0) on iPhone. Both are included in the app and listed in the notices file (section 14.1). The app asks for camera permission the first time someone scans.
 
-#### Inviting with a link
+#### Inviting with a link, with approval
+
+Decided (2026-11-23): an invite link holds no key, so a link that reaches the wrong person, is forwarded, or is found later in a chat backup cannot let anyone in by itself. The inviter approves each request, after seeing the name the person typed. This follows the way other apps handle invites: links with an expiry and a use limit, approval by the person who invited, and the key handed over only after approval.
 
 ```mermaid
 flowchart TD
-    A["A member taps 'Invite' → 'Send invite link'"] --> B["The app makes the link: the group, its ID, the trip's uid, the group key and write token; valid 15 minutes"]
-    B --> C["The member sends it through WhatsApp"]
-    C --> D["The invited person opens it. Android: tap. iPhone: Copy, then 'Paste invite' in the app"]
-    D --> E["Join screen: group name, 'nothing about you is stored or shared'"]
-    E --> F{"The invited person decides"}
-    F -->|Join| G["The app reads the trip from Firebase: it appears at once"]
-    F -->|"No, thanks"| K["Nothing is stored, anywhere"]
-    F -->|"Does nothing"| O["The link expires after 15 minutes"]
+    A["The inviter taps 'Invite' → 'Send invite link', and may label it for themselves, for example 'Tamar'"] --> B["The app makes a one-use invite code in Firebase, valid 15 minutes; the link holds only that code"]
+    B --> C["The inviter sends the link any way: WhatsApp, email, or a text message"]
+    C --> D["The invited person opens it, and types their first name and family name"]
+    D --> E["Their app sends a join request through Firebase: the typed name, locked, and their app's one-time public key"]
+    E --> F{"The inviter's app: 'Your invite Tamar was used by Tamar Levi. Approve?'"}
+    F -->|Approve| G["The inviter's app sends the group key, locked for the new member's app only, through Firebase"]
+    G --> H["The new member's app unlocks it and reads the trip: it appears at once"]
+    F -->|Reject| R["The request is deleted; the person sees 'Your request was not approved'"]
+    F -->|"No answer in 15 minutes"| X["The invite expires; nothing is stored"]
 ```
 
-- **Invites go in person or through WhatsApp** (decided 2026-11-23). The invite screen says "Send this invite only to the people on the trip, through WhatsApp". WhatsApp encrypts every chat end to end. Invites are never sent by text message or email: those are not encrypted end to end, and an invite holds the group key.
-- One link can be used by several people, for example by posting it in a WhatsApp chat of the trip's participants, within its 15 minutes. Someone who misses it asks for a new one; after 15 minutes the app shows "This invite has expired. Ask a member for a new one."
-- On iPhone, links from WhatsApp open in Safari, not in the home-screen app, so the member long-presses the link, taps Copy, opens the app, and taps **"Paste invite"**. On Android, tapping the link opens the app. The app recommends copying and pasting on both, so that the link does not enter the browser's history; if the link is tapped, the app removes the part after the "#" from the address bar as soon as it has read it.
-- Someone who declines: nothing about them is stored, on any phone, and the app sends nothing on their behalf.
+1. **The inviter taps "Invite" → "Send invite link".** The app may ask for a label for the inviter's own use, for example "Tamar". The label stays only on the inviter's phone; it is not in the link and is never sent anywhere.
+2. **The app makes a one-use invite code**, a long random code, and creates a waiting place for it in Firebase. The link holds only that code. It is valid for 15 minutes, and can be used once.
+3. **The inviter sends the link any way:** WhatsApp, email, or a text message (decided 2026-11-23). This is safe because the link holds nothing secret: no key, and nothing about the group.
+4. **The invited person opens the link** (on iPhone: Copy, then "Paste invite" in the app; on Android, tapping it opens the app). The app asks for their **first name and family name**. Both are required.
+5. **Their app sends a join request** through Firebase: the typed name, locked so that only the inviter's app can read it, and a one-time public key made by their app for this request. Their screen shows "Waiting for approval…".
+6. **The inviter's app shows the request:** "Your invite **Tamar** was used by **Tamar Levi**. Approve?" After sending a link, the inviter's app keeps a "Waiting for Tamar…" screen open, so the request appears at once. If the inviter's app was closed, the request is shown as soon as it is opened, within the 15 minutes.
+7. **Approve:** the inviter's app locks the group's name, ID, key, and write token so that only the new member's app can open them (with the one-time public key from step 5), and sends them through Firebase. The new member's app unlocks them, joins, and reads the trip.
+8. **Reject**, or no answer within 15 minutes: the request is deleted, and the person sees "Your request was not approved" or "This invite has expired". Nothing about them is kept.
+
+Rules:
+
+- **One use:** once someone has sent a request with an invite, the same link cannot be used again. If someone else used it first, the right person's attempt shows "This invite was already used", so the mistake shows up within minutes; the inviter rejects the wrong request, or, if it was approved by mistake, the members start a new group.
+- **The typed name** is shown only on the inviter's approval screen. It is locked in Firebase, and deleted with the request as soon as it is approved, rejected, or expired. It does not become a member list.
+- **Only the inviter approves.** A request that the inviter does not answer within 15 minutes expires; the person asks for a new invite.
+- Someone who declines, or who is rejected: nothing about them is stored, on any phone, and the app sends nothing on their behalf.
 
 #### After joining
 
@@ -1059,6 +1073,8 @@ groups/{group ID}                  the group: the check for its write token, and
 groups/{group ID}/sites/trip       the trip itself: its title, legends, legend entries, offline area
 groups/{group ID}/sites/{site ID}  one entry per site: { "data": "TM1.…locked site…", "changed": "…" }
 groups/{group ID}/locations/{ID}   a shared location, locked, deleted after an hour
+invites/{invite code}              a waiting place for one invite link: the join request (the typed name and a public key, locked)
+                                   and the inviter's answer (the group's details, locked for the requester); deleted after 15 minutes
 ```
 
 - **The group ID** is a long random code, known only to the members' apps; it travels inside invites. Each group lives under its own ID, so groups never mix.
@@ -1078,6 +1094,7 @@ groups/{group ID}/locations/{ID}   a shared location, locked, deleted after an h
 
 - A group can be read or written only by an app that knows its long random ID. Listing or searching groups is not allowed, so no one can find other groups.
 - Writing also needs the group's **write token**, which is made from the group key and travels only in invites. An app without it cannot change a group, even if it learned the ID.
+- An invite's waiting place accepts **one** join request, only before it expires; only the app that created it can write the answer.
 - Every entry must have the expected shape and size; anything else is refused.
 - The rules are reviewed in the security review before group trips are released (section 14.3).
 
@@ -1085,6 +1102,7 @@ groups/{group ID}/locations/{ID}   a shared location, locked, deleted after an h
 
 | # | What | When |
 | --- | --- | --- |
+| 0 | Invite waiting places, with any join request and its typed name | Automatically, 15 minutes after the invite was made |
 | 1 | Locations | Automatically, an hour after being shared |
 | 2 | The whole group | When a member taps **"Delete the group's data"** |
 | 3 | A safety net | Automatically, 30 days after the group's last change |
@@ -1127,9 +1145,9 @@ Most tests run against Firebase's free emulator on a laptop, without touching th
 How the invite travels, and its limits (checked against section 14.2):
 
 - **In person,** the QR code passes the invite from screen to camera; it is never sent anywhere.
-- **Through WhatsApp,** the invite is inside the part of the link after the "#" sign, which browsers do not send to any server. GitHub, which hosts the app, never receives it, and neither does a link preview. WhatsApp encrypts it end to end.
-- **Chat history:** an invite link stays in the WhatsApp chat, like any message, and in WhatsApp's backups if a member uses them. Someone who can read a member's backup could find the group key in it. Inviting by QR code avoids this, and so does WhatsApp's encrypted backup.
-- **The 15-minute limit** on invites is checked by the app; the key inside an old invite does not expire. Leaving the group does not take the key away either. If an invite may have reached the wrong person, or someone should no longer see the trip, the members start a new group from the same trip, which gives a new key and a new ID, and delete the old group's data.
+- **An invite link holds no key** (decided 2026-11-23), only a one-use code, so it can be sent any way, and a link found later in a chat or a backup is useless. The key is handed over only after the inviter approves, through Firebase, locked for the new member's app.
+- **A QR code holds the key**, but it is never sent anywhere: it passes from screen to camera.
+- **The 15-minute limit** applies to both. Leaving the group does not take the key away. If someone was approved by mistake, or should no longer see the trip, the members start a new group from the same trip, which gives a new key and a new ID, and delete the old group's data.
 - **Sealed:** every entry is locked and sealed (AES-GCM). An entry that was altered, or not made with the group's key, is rejected (section 14.3).
 
 ### 9.7 Decided items
@@ -1137,7 +1155,7 @@ How the invite travels, and its limits (checked against section 14.2):
 Decided on 2026-11-15, and updated on 2026-11-21, 2026-11-22, and 2026-11-23:
 
 1. ~~Phone numbers~~: decided, none are stored.
-2. ~~Invites~~: decided, valid for joining for 15 minutes; one link can be used by several people; a QR code in person is recommended; links go only through WhatsApp, never by text message or email.
+2. ~~Invites~~: decided, valid for 15 minutes. In person: a QR code holding the key, with no approval needed. At a distance (decided 2026-11-23): a one-use invite link holding no key, sent any way (WhatsApp, email, or a text message); the person types their first name and family name, and the inviter approves before the key is sent through Firebase.
 3. ~~Removing a member~~: replaced on 2026-11-21. There is no vote and no way to remove a member; to shut someone out, the others start a new group.
 4. ~~The starter's role~~: decided, all members are equal. The starter has no extra rights.
 5. ~~Ending a group~~: decided, each member keeps the trip, or leaves whenever they like. The group's data in Firebase is deleted by a tap, or 30 days after its last change.
@@ -1638,7 +1656,7 @@ Decision (2026-11-15, confirmed by the app owner): group trips (section 9) are t
 
 | Step | Build | Try on the phone |
 | --- | --- | --- |
-| 15. Firebase, starting, and joining | The app maker's one-time Firebase setup (section 9.5), anonymous sign-in, "Start a group" with "Choose the trip" and the check, the group key, ID, and write token, the first upload, QR invites and invite links (15 minutes), joining and declining, the security rules | A group of four is started. Members join by QR code and by a link through WhatsApp, and see the trip at once. An app without the write token cannot change the group. A person who declines leaves no trace. |
+| 15. Firebase, starting, and joining | The app maker's one-time Firebase setup (section 9.5), anonymous sign-in, "Start a group" with "Choose the trip" and the check, the group key, ID, and write token, the first upload, QR invites (15 minutes), one-use invite links with the typed name and the inviter's approval, the key sent through Firebase locked for the new member, joining, declining and rejecting, the security rules | A group of four is started. Members join by QR code, and by an invite link sent by email that the inviter approves, and see the trip at once. A second use of the same link is refused. An app without the write token cannot change the group. A person who declines leaves no trace. |
 | 16. Sharing in the group | Automatic sharing of every change through Firebase, transactions, live updates, offline queueing, merging, "Looks like the same place?", taking or skipping new legend entries, "Share my location" with "Also send to WhatsApp", privacy checks | Four phones, two of them offline for a while, end with the same trip. Two phones changing the same site at once keep the newer version. A location appears on the others' open apps within seconds and is gone after an hour. |
 | 17. Leaving and after the trip | "Leave group", a new phone with a fresh invite, "Delete the group's data", automatic deletion, falling back to "Export trip" when Firebase cannot be reached | A member who leaves keeps the trip as a local trip that cannot be sent in a request. After deletion, nothing of the group is left in Firebase. |
 
@@ -1822,7 +1840,7 @@ Threats and protections:
 | A harmful app update reaching all users | Only the app owner can publish (section 12.2). Two-step sign-in on the owner's GitHub account. Every change is reviewed and tested before merging. Outside libraries are stored in the App repository at fixed versions, not loaded from other websites. |
 | A known weakness in an outside component | Automatic alerts for known weaknesses in the components the app uses, and prompt updates. |
 | Someone using an unlocked phone | The app relies on the phone's own screen lock. An optional app lock with the phone's fingerprint or face check, where the browser supports it. |
-| A group key kept in WhatsApp chat history or backups, in an invite link | QR invites keep the key out of any chat. Members are told this, with a tip to turn on WhatsApp's encrypted backup. A new group, with a new key, shuts out anyone holding an old invite (section 9.6). |
+| An invite link reaching the wrong person, forwarded, or found in a chat backup | The link holds no key, works once, and expires after 15 minutes. Joining needs the inviter's approval, after seeing the typed name; the key is then sent through Firebase, locked for the new member's app only (section 9.3). |
 | Data lost or damaged on a phone | Saved data is checked when it is loaded. Export gives a backup (section 10.2). |
 
 Protecting a group's data in Firebase (decided 2026-11-23; section 9.5):
@@ -1832,7 +1850,7 @@ Protecting a group's data in Firebase (decided 2026-11-23; section 9.5):
 | 1 | **Every entry is locked with the group key**, which never goes to Firebase | Google, or anyone who reached the data, cannot read the trip or the locations |
 | 2 | **The group's long random ID**, and no listing of groups | No one can find a group without an invite |
 | 3 | **The write token**, derived from the group key, required by the security rules for every write | Someone who learned only the group ID cannot change or delete anything |
-| 4 | **The QR code in person** | The invite, with the key, ID, and token, never enters WhatsApp, chat backups, or the browser |
+| 4 | **The QR code in person**, and **invite links that hold no key** | The key never enters a chat, a backup, or the browser; at a distance it is sent only after the inviter approves |
 | 5 | **Every phone keeps its full copy** of the trip | If the group's data were damaged or deleted, any member can write it back |
 | 6 | **App Check** | Only the real app can talk to the project |
 | 7 | **Automatic deletion** after the trip | Data does not stay at Google longer than needed |
