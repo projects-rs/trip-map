@@ -848,9 +848,9 @@ A group trip is **one trip that a few people travelling together share on their 
 - **The group is the only place for sharing** in the app. Outside a group there is nothing to share: a friend who wants the same trip downloads it from the trip list (section 3.1), and changes to a public trip are sent as a request, not shared (section 8.6).
 - **Two stages of building** (decided 2026-11-22; stage 2 changed to Firebase on 2026-11-23). There is no server of our own; stage 2 uses one hosted service, Firebase (goal 15).
 
-    | # | | **Stage 1: WhatsApp** (built first) | **Stage 2: WhatsApp and Firebase** (built afterwards) |
+    | # | | **Stage 1: WhatsApp** (built first) | **Stage 2: Firebase** (built afterwards) |
     | --- | --- | --- | --- |
-    | 1 | Invites | QR code in person, or an invite link through WhatsApp | QR code in person, or an invite link through any end-to-end encrypted messenger: WhatsApp, Signal, or iMessage. **WhatsApp is not needed** (decided 2026-11-23) |
+    | 1 | Invites | QR code in person, or an invite link through WhatsApp | **Same:** QR code in person, or an invite link through WhatsApp (decided 2026-11-23: the same in both stages) |
     | 2 | "I've joined" (optional) | A plain WhatsApp message | Not needed |
     | 3 | **Sites and the trip** | Through WhatsApp: tap "Share with my group", pick the chat, Send; the others tap the link | **Through Firebase, automatically**, within about a second: nobody shares, taps, or copies anything (section 9.5) |
     | 4 | "Share my location" | Through WhatsApp | **Through Firebase** to every open app, with an optional "Also send to WhatsApp" so that members whose app is closed get an alert |
@@ -932,7 +932,7 @@ flowchart TD
     - After "Yes", the app creates the group and its group key.
 3. **Invite** with "Invite now" (section 9.3).
 
-**Stage 2 (WhatsApp and Firebase):** two taps, and nothing outside the app.
+**Stage 2 (Firebase):** two taps, and no WhatsApp group needed.
 
 1. In "My trips", open the trip and tap **"Start a group"**, and confirm the name.
 2. The app does the rest by itself: it checks the trip, makes the group key, a long random group ID, and the write token, creates the group's space in the app's Firebase project, and uploads the trip into it, one locked entry per site, in one batch (section 9.5). Nobody signs in, and no WhatsApp group is needed.
@@ -1010,12 +1010,12 @@ Why in person is safer: the group key never appears in the WhatsApp chat, so it 
 
 The QR code is free, with no outside service: making it uses a small open-source library (for example *qrcode-generator*, MIT), and scanning uses the browser's built-in barcode reader where there is one (Android) or a small open-source library (for example *jsQR*, Apache 2.0) on iPhone. Both are included in the app and listed in the notices file (section 14.1). The app asks for camera permission the first time someone scans.
 
-#### Inviting with a link in the WhatsApp group
+#### Inviting with a link
 
 ```mermaid
 flowchart TD
     A["A member taps 'Invite' → 'Send invite link'"] --> B["The app makes the link: the group, the trip's uid, the WhatsApp group's link (stage 1) or the Firebase group ID (stage 2), the group key; valid 15 minutes"]
-    B --> C["The member sends it: stage 1 through WhatsApp; stage 2 through any end-to-end encrypted messenger, such as WhatsApp, Signal, or iMessage"]
+    B --> C["The member sends it through WhatsApp: in the trip's WhatsApp group, or in the person's own chat"]
     C --> D["The invited person opens it. Android: tap. iPhone: Copy, then 'Paste group link' in the app"]
     D --> E["Join screen: group name, 'nothing about you is stored or shared'"]
     E --> F{"The invited person decides"}
@@ -1024,7 +1024,7 @@ flowchart TD
     F -->|"Does nothing"| O["The link expires after 15 minutes"]
 ```
 
-- The invite screen says "Send this invite only to the people on the trip, through an encrypted messenger": in stage 1 WhatsApp; in stage 2 WhatsApp, Signal, or iMessage. Invites are never sent by text message or email (decided 2026-11-23): those are not encrypted end to end, and an invite holds the group key.
+- **Invites always go in person or through WhatsApp, in both stages** (decided 2026-11-23). The invite screen says "Send this invite only to the people on the trip, through WhatsApp". WhatsApp encrypts every chat end to end. Invites are never sent by text message or email: those are not encrypted end to end, and an invite holds the group key. In stage 1 the link goes in the trip's WhatsApp group, where everyone must be anyway; in stage 2, where no WhatsApp group is needed, it can also go in the person's own chat.
 - One link can be used by several people, for example everyone in the WhatsApp group, within its 15 minutes. Someone who misses it asks for a new one; after 15 minutes the app shows "This invite has expired. Ask a member for a new one."
 - The app recommends copying the link and using **"Paste group link"** in the app rather than tapping it, so that it does not enter the browser's history; on iPhone this is the way it works anyway (section 9.4, "Receiving a shared trip"). If the link is tapped, the app removes the part after the "#" from the address bar as soon as it has read it.
 - Someone who declines: nothing about them is stored, on any phone, and the app sends nothing on their behalf. If they want to tell the inviter, they reply in WhatsApp as usual.
@@ -1316,7 +1316,7 @@ Decided on 2026-11-15, and updated on 2026-11-21:
 12. ~~Member IDs and names~~: decided on 2026-11-21, none. Membership is having the group key; WhatsApp shows who sent each message.
 13. ~~WhatsApp group~~: decided on 2026-11-21, a WhatsApp group of all participants is required, and all sharing goes through it.
 14. ~~What a share carries~~: decided on 2026-11-21, always the whole trip, compressed and locked; merged site by site by each site's ID and last-changed time. One "Share with my group" button replaces sharing a site, a legend entry, changes, or everything.
-15. ~~Two stages~~: decided on 2026-11-22, and stage 2 changed to Firebase on 2026-11-23. Stage 1: WhatsApp for everything. Stage 2, built afterwards: the trip and locations through Firebase, automatically, with no user accounts; invites by QR code or an invite link through an end-to-end encrypted messenger (WhatsApp, Signal, or iMessage), never by text message or email; WhatsApp is not needed in stage 2; WhatsApp optional, for chatting and location alerts (sections 9.2, 9.5). The shared Google Sheet plan is kept as an alternative (section 15.1, idea E).
+15. ~~Two stages~~: decided on 2026-11-22, and stage 2 changed to Firebase on 2026-11-23. Stage 1: WhatsApp for everything. Stage 2, built afterwards: the trip and locations through Firebase, automatically, with no user accounts; invites by QR code or an invite link through WhatsApp, as in stage 1, never by text message or email; no WhatsApp group is needed in stage 2; WhatsApp optional, for chatting and location alerts (sections 9.2, 9.5). The shared Google Sheet plan is kept as an alternative (section 15.1, idea E).
 16. ~~Requests from a group trip~~: decided on 2026-11-22, none. A trip that is or has been in a group cannot be sent in an update request or a new trip request, by any member (section 8.6).
 
 ## 10. Map file format
