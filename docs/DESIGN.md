@@ -904,7 +904,8 @@ In stage 2, the trip is uploaded to Firebase when the group is started, before t
 
 ```mermaid
 flowchart TD
-    A["In the app: open the trip in 'My trips' and tap 'Start a group'"] --> B["Name the group: the trip's title is suggested"]
+    T["Required first: a trip in 'My trips' (from the trip list, a local file, pasted, or built in the app), checked"] --> A["In the app: open the trip and tap 'Start a group'"]
+    A --> B["Name the group: the trip's title is suggested"]
     B --> S{"Stage"}
     S -->|"Stage 1"| W1["Create a WhatsApp group of all the participants, in WhatsApp (guide below)"]
     W1 --> W2["Paste the WhatsApp group's invite link"]
