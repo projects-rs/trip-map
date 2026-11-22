@@ -864,7 +864,8 @@ On each member's phone, in the app's internal database:
 | 2 | The trip | The Barcelona trip, with every site the group added | Yes, site by site, locked, in Firebase (section 9.5). Each site has its own ID and the time it was last changed; who changed it is not stored |
 | 3 | The group's ID | A long random code | Yes, inside invites; it names the group's space in Firebase |
 | 4 | The group key, and the write token made from it | (hidden) | Only inside invites. The key never goes to Firebase. The browser keeps it so that it can be used but not read out of the app |
-| 5 | The group's offline area | A rectangle: four numbers | Yes, locked in Firebase, so every member can download the same offline map (section 7.4) |
+| 5 | The manager token, on the manager's phone only (section 9.5) | (hidden) | Never in invites. Only its fingerprint is in Firebase. It can be moved to another member with "Hand over manager" |
+| 6 | The group's offline area | A rectangle: four numbers | Yes, locked in Firebase, so every member can download the same offline map (section 7.4) |
 
 Not stored anywhere: members, member IDs, names, phone numbers, email addresses, or any other contact details.
 
@@ -908,7 +909,7 @@ Rules:
 
 - A trip can have only one group on each phone.
 - A public trip that becomes a group trip still gets the trip owner's updates, offered as usual (section 3.1). The group's own sites, such as the apartment, are kept on top of it and are never replaced by an update.
-- **The member who starts the group is its manager** (decided 2026-11-23). The manager's only extra right is **"Delete the group"**: removing the group and all its content from Firebase. In everything else, all members are equal. Nothing extra is needed to set this up: since the manager's app created the group, Firebase records that phone's random hidden number as the group's manager when the group is created (section 9.5).
+- **The member who starts the group is its manager** (decided 2026-11-23). The manager's only extra right is **"Delete the group"**: removing the group and all its content from Firebase. In everything else, all members are equal. Nothing extra is needed to set this up: since the manager's app creates the group, it also makes a **manager token**, a long random secret kept only on the manager's phone, and stores only a fingerprint of it in Firebase (section 9.5).
 - If the starter is offline, the upload waits on the phone and is sent as soon as there is internet (section 9.5).
 
 ### 9.3 Inviting and joining
@@ -1091,7 +1092,7 @@ invites/{invite code}              a waiting place for one invite link: the join
 #### Security rules (summary)
 
 - A group can be read or written only by an app that knows its long random ID. Listing or searching groups is not allowed, so no one can find other groups.
-- **Deleting the group** is allowed only from the manager's phone: Firebase records that phone's random hidden number when the group is created, and the rules compare it. Other members cannot delete the group.
+- **Deleting the group** needs the **manager token** (decided 2026-11-23). The manager's app makes it when the group is created: a long random secret, kept only on the manager's phone. Firebase stores only its fingerprint (a one-way hash), so no one who reads the group, not even a member, can learn the token itself. To delete the group, the manager's app presents the token, and the rules check it against the fingerprint. Other members cannot delete the group.
 - Writing also needs the group's **write token**, which is made from the group key and travels only in invites. An app without it cannot change a group, even if it learned the ID.
 - An invite's waiting place accepts **one** join request, only before it expires; only the app that created it can write the answer.
 - Every entry must have the expected shape and size; anything else is refused.
@@ -1140,7 +1141,9 @@ Most tests run against Firebase's free emulator on a laptop, without touching th
 - **Leaving:** a member taps "Leave group". The group, its key, and its ID are removed from that phone; the trip stays as a local trip, marked as a former group trip, so it still cannot be sent in a request (section 8.6).
 - **A new phone:** the member gets a fresh invite from any member; the app reads the trip from Firebase.
 - **After the trip:** the group's manager taps **"Delete the group"** and confirms, with the warning "This removes the group and all its content for everyone. Each member keeps the trip on their own phone." The app deletes the group's sites, locations, and pending invites from Firebase. The other members' apps notice and show "The group was deleted by its manager. Your copy of the trip is kept."; the trip stays on each phone as a local trip, marked as a former group trip.
-- **If the manager's phone is lost**, or the app is deleted from it, the manager's right cannot move to another phone, since nobody can prove they are the manager. Firebase then deletes the group by itself, 30 days after its last change (section 9.5).
+- **Keeping the manager token safe:** it is kept in the app's storage, with the protections of section 3.3, and included in the user's backup file if they make one. After a reinstall, restoring the backup brings the manager's right back.
+- **"Hand over manager":** the manager can give the role to another member, for example before leaving the group. In person, the manager's app shows a QR code; the other member scans it. The new manager's app makes a new token, replaces the fingerprint in Firebase, and the old token stops working.
+- **If the manager token is lost** (the phone is lost and there is no backup), nobody can delete the group, since nobody can prove they are the manager. Firebase then deletes it by itself, 30 days after its last change (section 9.5).
 
 How the invite travels, and its limits (checked against section 14.2):
 
@@ -1157,7 +1160,7 @@ Decided on 2026-11-15, and updated on 2026-11-21, 2026-11-22, and 2026-11-23:
 1. ~~Phone numbers~~: decided, none are stored.
 2. ~~Invites~~: decided, valid for 15 minutes. In person: a QR code holding the key, with no approval needed. At a distance (decided 2026-11-23): a one-use invite link holding no key, sent any way (WhatsApp, email, or a text message); the person types their first name and family name, and the inviter approves before the key is sent through Firebase.
 3. ~~Removing a member~~: replaced on 2026-11-21. There is no vote and no way to remove a member; to shut someone out, the others start a new group.
-4. ~~The starter's role~~: changed on 2026-11-23. The starter is the group's manager, whose only extra right is deleting the group from Firebase; in everything else all members are equal.
+4. ~~The starter's role~~: changed on 2026-11-23. The starter is the group's manager, whose only extra right is deleting the group from Firebase; in everything else all members are equal. The manager is recognized by a manager token kept on their phone, with only its fingerprint in Firebase; the role can be handed over in person by QR code.
 5. ~~Ending a group~~: decided, each member keeps the trip, or leaves whenever they like. The group's data in Firebase is deleted by its manager, or by Firebase 30 days after its last change.
 6. ~~Group size~~: about 8 members, as a recommendation. The app does not count members.
 7. ~~Checking that copies match~~: replaced on 2026-11-23. Every app reads the same data in Firebase, so a match code is no longer needed.
