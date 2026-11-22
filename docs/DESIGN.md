@@ -908,7 +908,7 @@ Rules:
 
 - A trip can have only one group on each phone.
 - A public trip that becomes a group trip still gets the trip owner's updates, offered as usual (section 3.1). The group's own sites, such as the apartment, are kept on top of it and are never replaced by an update.
-- All members are equal. The member who starts the group has no extra rights.
+- **The member who starts the group is its manager** (decided 2026-11-23). The manager's only extra right is **"Delete the group"**: removing the group and all its content from Firebase. In everything else, all members are equal. Nothing extra is needed to set this up: since the manager's app created the group, Firebase records that phone's random hidden number as the group's manager when the group is created (section 9.5).
 - If the starter is offline, the upload waits on the phone and is sent as soon as there is internet (section 9.5).
 
 ### 9.3 Inviting and joining
@@ -1091,6 +1091,7 @@ invites/{invite code}              a waiting place for one invite link: the join
 #### Security rules (summary)
 
 - A group can be read or written only by an app that knows its long random ID. Listing or searching groups is not allowed, so no one can find other groups.
+- **Deleting the group** is allowed only from the manager's phone: Firebase records that phone's random hidden number when the group is created, and the rules compare it. Other members cannot delete the group.
 - Writing also needs the group's **write token**, which is made from the group key and travels only in invites. An app without it cannot change a group, even if it learned the ID.
 - An invite's waiting place accepts **one** join request, only before it expires; only the app that created it can write the answer.
 - Every entry must have the expected shape and size; anything else is refused.
@@ -1102,7 +1103,7 @@ invites/{invite code}              a waiting place for one invite link: the join
 | --- | --- | --- |
 | 0 | Invite waiting places, with any join request and its typed name | Automatically, 15 minutes after the invite was made |
 | 1 | Locations | Each app removes the pin 15 minutes after it was shared; Firebase's automatic deletion then removes the entry, usually within a day (it is not instant). Until then the entry stays locked and is no longer shown |
-| 2 | The whole group | When a member taps **"Delete the group's data"** |
+| 2 | The whole group | When the group's **manager** taps **"Delete the group"** (only the manager can) |
 | 3 | A safety net | Automatically, 30 days after the group's last change |
 
 After deletion, each member keeps their own copy of the trip on their phone, as a local trip.
@@ -1138,7 +1139,8 @@ Most tests run against Firebase's free emulator on a laptop, without touching th
 
 - **Leaving:** a member taps "Leave group". The group, its key, and its ID are removed from that phone; the trip stays as a local trip, marked as a former group trip, so it still cannot be sent in a request (section 8.6).
 - **A new phone:** the member gets a fresh invite from any member; the app reads the trip from Firebase.
-- **After the trip:** a member taps "Delete the group's data", or Firebase deletes it 30 days after the last change (section 9.5). Each member keeps the trip on their phone.
+- **After the trip:** the group's manager taps **"Delete the group"** and confirms, with the warning "This removes the group and all its content for everyone. Each member keeps the trip on their own phone." The app deletes the group's sites, locations, and pending invites from Firebase. The other members' apps notice and show "The group was deleted by its manager. Your copy of the trip is kept."; the trip stays on each phone as a local trip, marked as a former group trip.
+- **If the manager's phone is lost**, or the app is deleted from it, the manager's right cannot move to another phone, since nobody can prove they are the manager. Firebase then deletes the group by itself, 30 days after its last change (section 9.5).
 
 How the invite travels, and its limits (checked against section 14.2):
 
@@ -1155,8 +1157,8 @@ Decided on 2026-11-15, and updated on 2026-11-21, 2026-11-22, and 2026-11-23:
 1. ~~Phone numbers~~: decided, none are stored.
 2. ~~Invites~~: decided, valid for 15 minutes. In person: a QR code holding the key, with no approval needed. At a distance (decided 2026-11-23): a one-use invite link holding no key, sent any way (WhatsApp, email, or a text message); the person types their first name and family name, and the inviter approves before the key is sent through Firebase.
 3. ~~Removing a member~~: replaced on 2026-11-21. There is no vote and no way to remove a member; to shut someone out, the others start a new group.
-4. ~~The starter's role~~: decided, all members are equal. The starter has no extra rights.
-5. ~~Ending a group~~: decided, each member keeps the trip, or leaves whenever they like. The group's data in Firebase is deleted by a tap, or 30 days after its last change.
+4. ~~The starter's role~~: changed on 2026-11-23. The starter is the group's manager, whose only extra right is deleting the group from Firebase; in everything else all members are equal.
+5. ~~Ending a group~~: decided, each member keeps the trip, or leaves whenever they like. The group's data in Firebase is deleted by its manager, or by Firebase 30 days after its last change.
 6. ~~Group size~~: about 8 members, as a recommendation. The app does not count members.
 7. ~~Checking that copies match~~: replaced on 2026-11-23. Every app reads the same data in Firebase, so a match code is no longer needed.
 8. ~~Locked maps~~: no longer applies; locked maps were dropped on 2026-11-21.
@@ -1657,7 +1659,7 @@ Decision (2026-11-15, confirmed by the app owner): group trips (section 9) are t
 | --- | --- | --- |
 | 15. Firebase, starting, and joining | The app maker's one-time Firebase setup (section 9.5), anonymous sign-in, "Start a group" with "Choose the trip" and the check, the group key, ID, and write token, the first upload, QR invites (15 minutes), one-use invite links with the typed name and the inviter's approval, the key sent through Firebase locked for the new member, joining, declining and rejecting, the security rules | A group of four is started. Members join by QR code, and by an invite link sent by email that the inviter approves, and see the trip at once. A second use of the same link is refused. An app without the write token cannot change the group. A person who declines leaves no trace. |
 | 16. Sharing in the group | Automatic sharing of every change through Firebase, transactions, live updates, offline queueing, merging, "Looks like the same place?", taking or skipping new legend entries, "Share my location" (15 minutes), privacy checks | Four phones, two of them offline for a while, end with the same trip. Two phones changing the same site at once keep the newer version. A location appears on the others' open apps within seconds and is gone after 15 minutes. |
-| 17. Leaving and after the trip | "Leave group", a new phone with a fresh invite, "Delete the group's data", automatic deletion, falling back to "Export trip" when Firebase cannot be reached | A member who leaves keeps the trip as a local trip that cannot be sent in a request. After deletion, nothing of the group is left in Firebase. |
+| 17. Leaving and after the trip | "Leave group", a new phone with a fresh invite, "Delete the group" by the manager only, automatic deletion, falling back to "Export trip" when Firebase cannot be reached | A member who leaves keeps the trip as a local trip that cannot be sent in a request. After deletion, nothing of the group is left in Firebase. |
 
 Rough effort for releases B to E together: about four to five weeks, mostly set by testing on real phones. These are planning estimates, not promises.
 
