@@ -33,13 +33,13 @@ Getting and changing trips:
 
 Sharing:
 
-12. Let a user share, from the app, with a predefined group (for example the people on the same trip): the whole trip, a legend entry, a site, and their location, the last only in a safe way (section 9.4). What is shared inside a group stays inside the group, and never reaches the public trip.
+12. Let a small group (for example the people on the same trip) share one trip in the app: every site and change reaches all members automatically, and members can show their location, only in a safe way (section 9). What is shared inside a group stays inside the group, and never reaches the public trip.
 
 Platform and cost:
 
 13. Install the app once, on its own, with no trips inside. After that, every trip is downloaded from within the app (goal 6). Installing needs nothing preinstalled: only the phone's browser, with no account, no app store, and no technical steps (section 3.1).
 14. Update the app with no installation steps, and only after the user accepts.
-15. Cost nothing to users, and as little as possible to the app owner: no servers of our own and no paid services, only the GitHub plan. Group trips in stage 2 use one hosted service, Firebase, on its free plan (decided 2026-11-23; section 9.5).
+15. Cost nothing to users, and as little as possible to the app owner: no servers of our own and no paid services, only the GitHub plan. Group trips use one hosted service, Firebase, on its free plan (decided 2026-11-23; section 9.5).
 16. Keep private information out of public trips, and let users send feedback and problem reports without exposing it.
 
 ## 2. Main concepts
@@ -59,7 +59,7 @@ Platform and cost:
 | Update request | A user's local changes to a published trip, sent to the app owner with "Request to add my changes", to be added to that trip (section 8.6). Only the app owner approves. |
 | New trip request | A trip a user created, sent to the app owner with "Request to add this trip", to be added to the Trips repository after the personal-data check (goal 9, section 8.6). Only the app owner approves. |
 | Contributor | Someone who adds a new trip to the Trips repository, or updates one, by pull request on GitHub (an advanced user, section 2.1). The app owner approves every contribution. |
-| Group | A predefined set of people, for example the four people on the same trip, who share trips, legend entries, sites, and their location with each other from the app, through the trip's WhatsApp group (goal 12, section 9). Membership is having the group's key; the app keeps no member list, IDs, or names. |
+| Group | A small set of people, for example the four people on the same trip, who share one trip and their location with each other in the app. The shared trip is kept in Firebase and every member's app updates it by itself (section 9). Membership is having the group's key; the app keeps no member list, IDs, or names. |
 | Group trip | A trip that a group shares and works on together. What the members share inside the group, such as their apartment, stays inside the group and never reaches the published trip (section 9). |
 | User | Anyone who uses the app. Simple and advanced users are described in section 2.1. |
 
@@ -90,7 +90,7 @@ Words that are no longer used (decision of 2026-11-21): "map" for the shared fil
 | Map display | Leaflet. Online: OpenStreetMap tiles. Offline: the trip's own offline map file (section 7.4) |
 | Walking routes | FOSSGIS OSRM public server, foot profile |
 | Hosting | GitHub Pages |
-| Server of our own | None. Messages between users travel through WhatsApp or another messaging app (sections 8.6, 9). |
+| Server of our own | None. Group trips use one hosted service, Firebase (section 9.5). Requests and feedback travel through the phone's share menu (section 8.6). |
 | Cost | Free |
 
 ### 3.1 Installation
@@ -112,7 +112,7 @@ The app and the trips arrive separately: first the app, then the trips, from ins
 | 4 | **Adding a trip made by an AI agent** | The AI agent writes the trip as a file (section 10.1). The user saves it on the phone, then uses "Add local trip" to add it to "My trips". The app checks the file first (section 10.3). |
 | 5 | **Asking to update a public trip** | "Request to add my changes": an update request to the app owner (section 8.6). |
 | 6 | **Asking to add a new trip to the public trips** | "Request to add this trip": a new trip request to the app owner, after the personal-data check (goal 9, section 8.6). |
-| 7 | **Sharing a trip with a group** | Members of a group trip share the whole trip with each other through WhatsApp: "Share with my group" sends it as a group message, with everything the group added, such as their apartment. A trip too large for a link is sent as a small file. Each member's app adds it to "My trips". It does not go to the public trips. |
+| 7 | **Sharing a trip with a group** | Members of a group trip share the trip automatically: every change reaches the others through Firebase by itself. New members join with an invite (section 9.3). |
 
 Inside a group (goal 12), members also send each other other group messages: a group invite, and messages that bring changes, sites, legend entries, or a location into the group trip (section 9). These stay inside the group chat.
 
@@ -200,7 +200,7 @@ A trip shared inside a group arrives as a group message instead (section 3.1.1, 
 
 #### Receiving a trip from a group
 
-A trip shared inside a group arrives as a link in the group's WhatsApp chat. How a member receives it, with or without the app installed, is described in section 9.4 ("Receiving a whole trip").
+A trip shared inside a group reaches a new member right after joining with an invite: the app reads it from Firebase (section 9.3).
 
 #### What happens on later visits
 
@@ -266,7 +266,7 @@ Protections:
 1. **Persistent storage.** When the app is installed, it asks the browser to keep its data permanently ("persistent storage"), so the browser never deletes it on its own to free space. Settings shows whether this was granted.
 2. **Never in the cache.** Trips and changes are stored only in the database and the private folder, never in the browser's cache.
 3. **Restore link for the trips list.** Every published trip can be downloaded again by its `uid`. Settings offers "Save my restore link": a short link listing the user's trips, which the user can send to themselves, for example in WhatsApp. Tapping it re-downloads every trip on the list.
-4. **Copies inside the group.** Everything shared in a group is also on the other members' phones. After a wipe, any member taps "Share with my group", which always sends the whole trip (section 9.4).
+4. **Copies inside the group.** A group trip is also kept in Firebase. After a wipe, a fresh invite from any member brings the whole trip back (section 9.6).
 5. **One-tap backup of local changes.** A phone browser does not let a web app save a file by itself, so backup is offered, not silent: when a trip has unsent local changes, the app reminds the user ("You have 6 unsaved changes on Barcelona. Save a backup?"), and one tap saves a backup file to the phone's files or the user's own cloud drive. "Open trip file" restores it. The backup is private: it is not sent to the app owner.
 6. **Warnings.** "Remove from this phone" warns about unsent changes and offers a backup first. Each trip in "My trips" shows the number of its unsent changes.
 7. **After a wipe.** If the app finds its data gone, it opens with "Your trips are not on this phone any more" and three ways back: "Open my restore link", "Open a backup file", and "Download from the trip list".
@@ -356,7 +356,7 @@ Main screen:
 | UI-01 | Trip title (top) | Tap | Opens "My trips" (section 4.1) |
 | UI-02 | Legend switch (top) | Tap | Shows the trip's legends. Choosing one replaces the chips at the bottom with its entries, and redraws every pin in that legend's colors (section 5.1) |
 | UI-03 | Legend entry chip (bottom) | Tap | Shows or hides that entry's sites on the map. A hidden entry's chip is greyed out. A site stays visible while any of its entries in the active legend is shown |
-| UI-04 | Legend entry chip | Long press | A small menu: "Show only this entry" (a second long press shows all again), and, in a group trip, "Share with my group" |
+| UI-04 | Legend entry chip | Long press | A small menu: "Show only this entry" (a second long press shows all again) |
 | UI-05 | Pin | Tap | Opens the site card (section 6), and moves the map so the pin is not hidden by the card |
 | UI-06 | Map | Drag, pinch | Moves and zooms the map. Without a connection, the offline map is used in the trip's area (section 7.4) |
 | UI-07 | Map | Long press | Starts "Add site" at that point (section 8.2) |
@@ -376,7 +376,7 @@ Site card (section 6):
 | UI-24 | Web link | Tap | Opens the page in the phone's browser |
 | UI-25 | Web link | Long press | The phone's own link menu: copy, open |
 | UI-26 | Legend entry label on the card | Tap | Switches to that legend and shows only that entry (as UI-04) |
-| UI-27 | Share button | Tap | "Share with my group": sends the whole trip, with this site in it, to the trip's WhatsApp group (section 9.4). In a trip with no group, offers to start one |
+| UI-27 | Share button | Tap | In a trip with no group: offers to start one with this trip (section 9.2). In a group trip it is not shown: every change is shared automatically (section 9.4). |
 | UI-28 | "Edit" (local sites, and sites of the user's own trips) | Tap | Opens the site form (section 8.2) |
 
 My trips (section 4.1):
@@ -523,7 +523,7 @@ A short tap on a pin opens the card. It shows these details:
 
 Open or closed is worked out automatically from the site's hours and the current time at the map's location, not the time zone of the phone.
 
-The card also lists the legend entries the site belongs to, in every legend, each with its color (section 5.1), and has a Share button (section 9.4).
+The card also lists the legend entries the site belongs to, in every legend, each with its color (section 5.1), and has a Share button (UI-27).
 
 ### 6.1 Interactions
 
@@ -825,9 +825,9 @@ The trip's owner decides whether to accept the request. Today that is the app ow
 
 ## 9. Group trips
 
-### What a group trip is (decided 2026-11-21)
+### What a group trip is (decided 2026-11-21; Firebase only since 2026-11-23)
 
-A group trip is **one trip that a few people travelling together share on their phones**, for example four friends in Barcelona, December 10–15. Everyone sees the same map, the same sites, and the same legends. When one person adds something, the others get it.
+A group trip is **one trip that a few people travelling together share on their phones**, for example four friends in Barcelona, December 10–15. Everyone sees the same map, the same sites, and the same legends. When one person adds something, the others see it within a second or two, by themselves.
 
 **Why it is needed.** People on a trip plan together and change plans on the way. Without a group trip, each person has their own copy, and the copies drift apart ("where is that restaurant Noa found?"). A group trip keeps everyone on the same map.
 
@@ -835,37 +835,24 @@ A group trip is **one trip that a few people travelling together share on their 
 
 | # | What | Example |
 | --- | --- | --- |
-| 1 | **Start from a trip** | A public trip from the trip list, or one a member built in the app or with AI (sections 3.1, 8) |
+| 1 | **Start from a trip** | A public trip from the trip list, a file from an AI agent, or a trip built in the app, even an empty one (section 9.2) |
 | 2 | **Add private places** | The apartment, a friend's home, the car park: seen only by the group, never sent to the public trips |
-| 3 | **Share** | A new site, a whole day (a legend entry), changes, or the whole trip (section 9.4) |
-| 4 | **Show where I am** | One tap sends my current position to the group, as a pin on the map: once, never tracked (section 9.4) |
-| 5 | **Navigate** | Everyone navigates to the same shared sites (section 7) |
+| 3 | **Change the trip together** | Every site added, changed, or removed reaches the others automatically (section 9.4) |
+| 4 | **Show where I am** | One tap shows my current position to the group, as a pin on the map: once, never tracked (section 9.4) |
+| 5 | **Navigate** | Everyone navigates to the same sites (section 7) |
 
-**Who and when.** A small group of people who know each other, about 8 at most (a recommendation; the app does not count members), for the length of one trip. After the trip, each member simply keeps the trip on their phone.
+**Who and when.** A small group of people who know each other, about 8 at most (a recommendation; the app does not count members), for the length of one trip. After the trip, each member keeps the trip on their phone.
 
 **Basic principles:**
 
-- **The group is the only place for sharing** in the app. Outside a group there is nothing to share: a friend who wants the same trip downloads it from the trip list (section 3.1), and changes to a public trip are sent as a request, not shared (section 8.6).
-- **Two stages of building** (decided 2026-11-22; stage 2 changed to Firebase on 2026-11-23). There is no server of our own; stage 2 uses one hosted service, Firebase (goal 15).
+- **One way of sharing: Firebase** (decided 2026-11-23). The group's trip is kept in Firebase, a ready-made database run by Google, and every member's app reads and writes it by itself (section 9.5). An earlier design that sent everything through WhatsApp by hand was discarded as too clumsy (section 15.1, idea F).
+- **Users never see Firebase.** It is set up once by the app's maker (section 9.5). Group creators and members just tap Start, Invite, and Join: no accounts, no sign-in, no settings.
+- **WhatsApp only to send an invite** to someone who is not there in person (section 9.3). No WhatsApp group is needed.
+- **Membership is simply having the group key** (decided 2026-11-21). Only apps that hold the key can read the group's data. The app keeps **no member list, no member IDs, and no names**.
+- **What the group makes stays in the group** (decided 2026-11-22): for now, a group trip cannot update the public trips. It can never be sent in an update request or a new trip request, by any member, also after leaving the group (section 8.6). How a group could publish its trip later is an open question (section 15, question 19).
+- **Simple for everyone:** joining is scanning a QR code on another member's phone, or opening an invite link, and tapping Join.
 
-    | # | | **Stage 1: WhatsApp** (built first) | **Stage 2: Firebase** (built afterwards) |
-    | --- | --- | --- | --- |
-    | 1 | Invites | QR code in person, or an invite link through WhatsApp | **Same:** QR code in person, or an invite link through WhatsApp (decided 2026-11-23: the same in both stages) |
-    | 2 | "I've joined" (optional) | A plain WhatsApp message | Not needed |
-    | 3 | **Sites and the trip** | Through WhatsApp: tap "Share with my group", pick the chat, Send; the others tap the link | **Through Firebase, automatically**, within about a second: nobody shares, taps, or copies anything (section 9.5) |
-    | 4 | "Share my location" | Through WhatsApp | **Through Firebase** to every open app, with an optional "Also send to WhatsApp" so that members whose app is closed get an alert |
-    | 5 | The trip's WhatsApp group | Required | Optional: for chatting and for location alerts |
-    | 6 | Accounts for users | None | **None**: the app signs in to Firebase by itself, anonymously |
-    | 7 | Missed updates | Caught up by the next share | Cannot happen: every app reads the same group data |
-    | 8 | The app owner's one-time setup | Nothing new | The app's Firebase project (section 9.5) |
-
-    - **In stage 2, every new group uses Firebase.** It needs no accounts, so there is no reason for a group to opt out. "Share with my group" through WhatsApp stays available as a fallback, for example if Firebase cannot be reached.
-    - Everything else is the same in both stages: the group key, joining, the trip format, and the merging rules (section 9.4). The app keeps the part that moves the trip separate from the rest, so stage 2 is an added piece on top of the same merging (section 13).
-- **Membership is simply having the group key** (decided 2026-11-21). A share that opens with the group key came from inside the group, so it is valid. The app keeps **no member list, no member IDs, and no names**: WhatsApp already shows who sent each message, and the member who taps it knows who it came from.
-- **What the group makes stays in the group** (decided 2026-11-22): for now, a group trip cannot update the public trips. It can never be sent in an update request or a new trip request, by any member, also after leaving the group (section 8.6). Nothing the group adds reaches the public trips. How a group could publish its trip later is an open question for a future version (section 15, question 19).
-- **Simple for everyone:** joining is scanning a QR code on another member's phone, or opening an invite link, and receiving is one tap on a message.
-
-Release: group trips are scheduled as the last feature, in release E (section 13.3). Moving them earlier is under discussion (2026-11-21). Until then, members pass trips as files (section 13.3, release A).
+Release: group trips are scheduled in release E (section 13.3). Until then, members pass trips as files (section 13.3, release A).
 
 ### 9.1 What a group trip stores
 
@@ -873,18 +860,18 @@ On each member's phone, in the app's internal database:
 
 | # | Item | Example | Leaves the phone? |
 | --- | --- | --- | --- |
-| 1 | The group's name | "Barcelona Dec 2026" | Yes, inside invites and the group's locked messages |
-| 2 | The trip | The Barcelona trip, with every site the group added | Yes: in stage 1, the whole trip each time a member taps "Share with my group" (section 9.4); in stage 2, site by site through Firebase, locked (section 9.5). Each site has its own ID and the time it was last changed; who changed it is not stored. |
-| 3 | Stage 1: the trip's WhatsApp group's invite link. Stage 2: the group's Firebase ID, and the WhatsApp group's link if the starter added one | `https://chat.whatsapp.com/…`; a long random group ID | Yes, inside invites (section 9.3) |
-| 4 | The group key | (hidden) | Yes, inside invites. The browser keeps it so that it can be used but not read out of the app. |
-| 5 | The group's offline area | A rectangle: four numbers | Yes, inside the trip, so every member can download the same offline map (section 7.4) |
+| 1 | The group's name | "Barcelona Dec 2026" | Yes, inside invites, and locked in Firebase |
+| 2 | The trip | The Barcelona trip, with every site the group added | Yes, site by site, locked, in Firebase (section 9.5). Each site has its own ID and the time it was last changed; who changed it is not stored |
+| 3 | The group's ID | A long random code | Yes, inside invites; it names the group's space in Firebase |
+| 4 | The group key, and the write token made from it | (hidden) | Only inside invites. The key never goes to Firebase. The browser keeps it so that it can be used but not read out of the app |
+| 5 | The group's offline area | A rectangle: four numbers | Yes, locked in Firebase, so every member can download the same offline map (section 7.4) |
 
 Not stored anywhere: members, member IDs, names, phone numbers, email addresses, or any other contact details.
 
 The internal database:
 
 - It is the app's own storage on the phone, separate from trip files.
-- "Export trip", update requests, new trip requests, and feedback never read the group key or the WhatsApp link from it.
+- "Export trip", update requests, new trip requests, and feedback never read the group key, the write token, or the group's ID from it.
 - A group trip is never included in a request (section 8.6).
 
 ### 9.2 Starting a group trip
@@ -903,110 +890,58 @@ A trip brought in this way is also added to "My trips".
 
 **Every trip is checked before it is used**, whatever its source: the app runs the checker (section 10.3) on its format and contents when the trip is added, and again when the group is started. A trip that fails the check cannot start a group; the app says what is wrong, in plain words.
 
-In stage 2, the trip is uploaded to Firebase when the group is started, before the first invite.
-
 ```mermaid
 flowchart TD
     A0["'Start a group': on a trip in 'My trips', or from the menu"] --> A{"Choose the trip: one in 'My trips', the trip list, a file on the phone, pasted, or a new trip"}
     A --> CK["The app checks the trip"]
     CK --> B["Name the group: the trip's title is suggested"]
-    B --> S{"Stage"}
-    S -->|"Stage 1"| W1["Create a WhatsApp group of all the participants, in WhatsApp (guide below)"]
-    W1 --> W2["Paste the WhatsApp group's invite link"]
-    W2 --> W3{"Confirm: is this your trip's WhatsApp group? Check it in WhatsApp, and see its participants there"}
-    W3 -->|"Paste again"| W2
-    W3 -->|"Yes, it's the right group"| E["The app creates the group and its group key"]
-    S -->|"Stage 2"| F1["The app creates the group's space in Firebase and writes the trip into it, locked"]
-    F1 --> E
-    E --> F["'Invite now' (section 9.3)"]
+    B --> C["The app makes the group key, the group ID, and the write token, and uploads the trip to Firebase, locked"]
+    C --> D["'Your group is ready' → 'Invite now' (section 9.3)"]
 ```
 
-**Stage 1 (WhatsApp):** decided 2026-11-21, **a WhatsApp group of all the participants is required**. It is the one place where the group's messages are sent and received.
-
-1. **Create a WhatsApp group** with all the participants, in WhatsApp, as usual. The app cannot create it.
-2. **Start the group trip in the app.** In "My trips", open the trip and tap **"Start a group"**. Any trip can be used: one downloaded from the trip list, one built in the app, or one made with AI.
-    - The app suggests the trip's title as the group's name. The member can change it; using the same name as the WhatsApp group makes it easy to recognize.
-    - The app asks for the WhatsApp group's invite link, with a short picture guide (below). The app stores it with the group, so that the QR code can carry it and the app can show "Open the group chat". The app cannot use it to send messages.
-    - **The app asks to confirm the link** (decided 2026-11-21): it shows the pasted link, shortened, and asks "Is this your trip's WhatsApp group?", with three buttons: **"Check in WhatsApp"**, **"Yes, it's the right group"**, and **"Paste again"**. "Check in WhatsApp" opens the link in WhatsApp; since the member is already in that group, WhatsApp simply opens it. The screen also says: "To see who is in it: in WhatsApp, open the group, tap its name, and the participants are listed. Make sure everyone there is on this trip."
-    - The app cannot show the group's name or its participants itself: WhatsApp gives other apps no way to read them, and the link holds only a random code. This also means the app never learns anyone's phone number or name.
-    - After "Yes", the app creates the group and its group key.
-3. **Invite** with "Invite now" (section 9.3).
-
-**Stage 2 (Firebase):** two taps, and no WhatsApp group needed.
-
-1. In "My trips", open the trip and tap **"Start a group"**, and confirm the name.
-2. The app does the rest by itself: it checks the trip, makes the group key, a long random group ID, and the write token, creates the group's space in the app's Firebase project, and uploads the trip into it, one locked entry per site, in one batch (section 9.5). Nobody signs in, and no WhatsApp group is needed.
-3. Optionally, the starter adds the trip's WhatsApp group's link, if the group has one, so that "Also send to WhatsApp" and "Open the group chat" can be offered.
-4. **Invite** with "Invite now" (section 9.3).
-
-#### The in-app guide for the WhatsApp steps
-
-"Start a group" opens a short guide in the app, with a picture for each step, on the phone's own system (Android or iPhone). The menu wording differs a little between WhatsApp versions, so the guide names what to look for rather than an exact position.
-
-Creating the WhatsApp group (step 1):
-
-| # | Android | iPhone |
-| --- | --- | --- |
-| 1 | Open WhatsApp, on the Chats tab | Open WhatsApp, on the Chats tab |
-| 2 | Tap the new-chat button, then "New group" | Tap the new-chat button, then "New Group" |
-| 3 | Choose the participants, then tap the arrow | Choose the participants, then tap "Next" |
-| 4 | Type the group's name, for example "Barcelona Dec 2026", and tap the check mark | Type the group's name, and tap "Create" |
-
-The person who creates a WhatsApp group is its admin. Only admins can get its invite link.
-
-Copying the WhatsApp group's invite link (step 2):
-
-| # | Android | iPhone |
-| --- | --- | --- |
-| 1 | Open the group chat | Open the group chat |
-| 2 | Tap the group's name at the top | Tap the group's name at the top |
-| 3 | Tap "Invite to group via link" (sometimes under "Invite to group") | Tap "Invite to Group via Link" |
-| 4 | Tap "Copy link" | Tap "Copy Link" |
-| 5 | Back in Trip Map, tap "Paste" | Back in Trip Map, tap "Paste" |
-
-The link looks like `https://chat.whatsapp.com/…`. The app checks that what was pasted is a WhatsApp group link, and says so if it is not. The guide also says: anyone who has this link can join the WhatsApp group; if it reaches the wrong person, an admin taps "Reset link" in the same WhatsApp menu, and the old link stops working.
-
-Stage 2 needs no guide: the app sets up the group's space in Firebase by itself.
+1. Tap **"Start a group"**, and choose the trip if asked.
+2. The app checks the trip, and suggests its title as the group's name. The member can change it.
+3. The app does the rest by itself: it makes the group key, a long random group ID, and the write token, creates the group's space in the app's Firebase project, and uploads the trip into it, one locked entry per site, in one batch (section 9.5). Nobody signs in.
+4. **"Invite now"** (section 9.3).
 
 Rules:
 
 - A trip can have only one group on each phone.
 - A public trip that becomes a group trip still gets the trip owner's updates, offered as usual (section 3.1). The group's own sites, such as the apartment, are kept on top of it and are never replaced by an update.
 - All members are equal. The member who starts the group has no extra rights.
+- If the starter is offline, the upload waits on the phone and is sent as soon as there is internet (section 9.5).
 
 ### 9.3 Inviting and joining
 
 Any member can invite, at any time, with no approval step: whoever opens a valid invite and taps Join is in the group. Because the app keeps no member list or IDs, it does not matter who invites, how many invite at once, or in which order people join.
 
-#### Two ways to invite (decided 2026-11-21)
+#### Two ways to invite
 
 | # | Way | When | Valid | Where the group key goes |
 | --- | --- | --- | --- | --- |
-| 1 | **In person, with a QR code (recommended)** | The members are together, for example at the airport or at a meeting before the trip | 15 minutes, while the screen is open | Straight from one phone to the other, through the camera. It never goes into WhatsApp or the browser. |
-| 2 | **An invite link in the trip's WhatsApp group** | Someone who is not there in person | 15 minutes from when it was made | Inside the link, after the "#" (section 9.6, "How group messages travel") |
+| 1 | **In person, with a QR code (recommended)** | The members are together, for example at the airport or at a meeting before the trip | 15 minutes, while the screen is open | Straight from one phone to the other, through the camera. It never goes into WhatsApp or the browser |
+| 2 | **An invite link through WhatsApp** | Someone who is not there in person | 15 minutes from when it was made | Inside the link, after the "#" (section 9.6) |
 
 What an invite holds, the same in both ways:
 
 | # | Item | Example |
 | --- | --- | --- |
-| 1 | The group's name and ID | "Barcelona Dec 2026" |
-| 2 | The trip's `uid` | `6f1c2a9e-…` |
-| 3 | Stage 1: the trip's WhatsApp group's invite link (decided 2026-11-22) | `https://chat.whatsapp.com/…` |
-| 4 | Stage 2: the group's Firebase ID, and the WhatsApp group's link if the starter added one | A long random code |
-| 5 | The group key | (hidden) |
-| 6 | The expiry time | 15 minutes from when it was made |
+| 1 | The group's name | "Barcelona Dec 2026" |
+| 2 | The group's ID | A long random code |
+| 3 | The trip's `uid` | `6f1c2a9e-…` |
+| 4 | The group key, and the write token | (hidden) |
+| 5 | The expiry time | 15 minutes from when it was made |
 
-This is well under 1 KB. A whole trip does not fit in a QR code, so the trip and the group's sites arrive after joining (below).
+This is well under 1 KB. The trip itself is not in the invite: the new member's app reads it from Firebase after joining.
 
 #### Inviting in person, with a QR code
 
-1. A member taps "Invite" → **"Show QR code"**. The app draws the QR code on the spot; no service is involved. It is valid for 15 minutes and shown only while that screen is open, so a photo of the screen taken later is useless.
+1. A member taps "Invite" → **"Show QR code"**. The app draws the QR code on the spot. It is valid for 15 minutes and shown only while that screen is open, so a photo of the screen taken later is useless.
 2. The new member opens the app and taps **"Join with QR code"**. The app's own scanner opens the camera. The camera is used only for scanning; no picture is kept.
 3. The join screen shows the group's name and "Nothing about you is stored or shared". The new member taps **Join**.
-4. **Stage 1:** the screen after Join offers "Not in the trip's WhatsApp group yet? Join it", which opens WhatsApp on that group, and "Done". The app cannot know whether the member is already in the WhatsApp group, so it always offers both; opening the group when already in it simply opens the chat. **Stage 2:** nothing more; the app reads the group's data from Firebase at once (section 9.5).
-5. If the new member does not have the app yet, the inviter's screen first shows a second QR code, **"Get the app"**, with only the app's address. The new member scans it with the phone's camera, adds the app to the home screen (section 3.1.3), opens it, and then scans the invite QR code from inside the app.
+4. If the new member does not have the app yet, the inviter's screen first shows a second QR code, **"Get the app"**, with only the app's address. The new member scans it with the phone's camera, adds the app to the home screen (section 3.1.3), opens it, and then scans the invite QR code from inside the app.
 
-Why in person is safer: the group key never appears in the WhatsApp chat, so it is not in any chat backup or on WhatsApp on a computer, and it never passes through the browser, so it is not in the browser's history. Every share later sent in the chat is locked with a key that exists only inside the members' apps; someone who reads a backup of the chat sees only unreadable links.
+Why in person is safer: the group key never appears in a chat, so it is not in any chat backup or on WhatsApp on a computer, and it never passes through the browser, so it is not in the browser's history.
 
 The QR code is free, with no outside service: making it uses a small open-source library (for example *qrcode-generator*, MIT), and scanning uses the browser's built-in barcode reader where there is one (Android) or a small open-source library (for example *jsQR*, Apache 2.0) on iPhone. Both are included in the app and listed in the notices file (section 14.1). The app asks for camera permission the first time someone scans.
 
@@ -1014,174 +949,96 @@ The QR code is free, with no outside service: making it uses a small open-source
 
 ```mermaid
 flowchart TD
-    A["A member taps 'Invite' → 'Send invite link'"] --> B["The app makes the link: the group, the trip's uid, the WhatsApp group's link (stage 1) or the Firebase group ID (stage 2), the group key; valid 15 minutes"]
-    B --> C["The member sends it through WhatsApp: in the trip's WhatsApp group, or in the person's own chat"]
-    C --> D["The invited person opens it. Android: tap. iPhone: Copy, then 'Paste group link' in the app"]
+    A["A member taps 'Invite' → 'Send invite link'"] --> B["The app makes the link: the group, its ID, the trip's uid, the group key and write token; valid 15 minutes"]
+    B --> C["The member sends it through WhatsApp"]
+    C --> D["The invited person opens it. Android: tap. iPhone: Copy, then 'Paste invite' in the app"]
     D --> E["Join screen: group name, 'nothing about you is stored or shared'"]
     E --> F{"The invited person decides"}
-    F -->|Join| G["Group added. Stage 1: the trip arrives with the next 'Share with my group'. Stage 2: the app reads it from Firebase at once (below)"]
+    F -->|Join| G["The app reads the trip from Firebase: it appears at once"]
     F -->|"No, thanks"| K["Nothing is stored, anywhere"]
     F -->|"Does nothing"| O["The link expires after 15 minutes"]
 ```
 
-- **Invites always go in person or through WhatsApp, in both stages** (decided 2026-11-23). The invite screen says "Send this invite only to the people on the trip, through WhatsApp". WhatsApp encrypts every chat end to end. Invites are never sent by text message or email: those are not encrypted end to end, and an invite holds the group key. In stage 1 the link goes in the trip's WhatsApp group, where everyone must be anyway; in stage 2, where no WhatsApp group is needed, it can also go in the person's own chat.
-- One link can be used by several people, for example everyone in the WhatsApp group, within its 15 minutes. Someone who misses it asks for a new one; after 15 minutes the app shows "This invite has expired. Ask a member for a new one."
-- The app recommends copying the link and using **"Paste group link"** in the app rather than tapping it, so that it does not enter the browser's history; on iPhone this is the way it works anyway (section 9.4, "Receiving a shared trip"). If the link is tapped, the app removes the part after the "#" from the address bar as soon as it has read it.
-- Someone who declines: nothing about them is stored, on any phone, and the app sends nothing on their behalf. If they want to tell the inviter, they reply in WhatsApp as usual.
+- **Invites go in person or through WhatsApp** (decided 2026-11-23). The invite screen says "Send this invite only to the people on the trip, through WhatsApp". WhatsApp encrypts every chat end to end. Invites are never sent by text message or email: those are not encrypted end to end, and an invite holds the group key.
+- One link can be used by several people, for example by posting it in a WhatsApp chat of the trip's participants, within its 15 minutes. Someone who misses it asks for a new one; after 15 minutes the app shows "This invite has expired. Ask a member for a new one."
+- On iPhone, links from WhatsApp open in Safari, not in the home-screen app, so the member long-presses the link, taps Copy, opens the app, and taps **"Paste invite"**. On Android, tapping the link opens the app. The app recommends copying and pasting on both, so that the link does not enter the browser's history; if the link is tapped, the app removes the part after the "#" from the address bar as soon as it has read it.
+- Someone who declines: nothing about them is stored, on any phone, and the app sends nothing on their behalf.
 
 #### After joining
 
-**Stage 1 (WhatsApp):**
+1. **The trip:** the new member's app reads the group's data from Firebase straight after Join, and has the whole trip at once, with everything the group added. A public trip keeps its `uid`, so the new member also gets the trip owner's updates later (section 3.1).
+2. **The offline map:** if the group chose an offline area, the app offers "Download the group's offline map: Barcelona centre, 12.4 km², 38 MB. Wi-Fi recommended." The map itself is downloaded from the offline region catalog (section 7.4), not from Firebase: it is far larger than the trip.
+3. **Nobody else needs to do anything.**
 
-1. **The inviter taps "Share with my group"** in the trip's WhatsApp group. The app offers it right after each invite.
-2. **The new member taps it.** The whole trip, with everything the group added, is added to "My trips". This works the same for every kind of trip: one from the trip list, one built in the app, or one made with AI. A public trip keeps its `uid`, so the new member also gets the trip owner's updates later (section 3.1).
+Someone who joins late simply gets an invite like everyone else; the app reads the current trip from Firebase.
 
-**Stage 2 (Firebase):** the new member's app reads the group's data from Firebase straight after Join, and has the whole trip at once. Nobody needs to share anything.
+### 9.4 Sharing in the group
 
-**In both stages:**
+Decided (2026-11-23): **everything is shared automatically.** There is no "Share" button for the trip: every site a member adds, changes, or removes reaches the other members by itself, within about a second when their app is open, or the next time they open it. What is shared reaches only the group's members, and never the public trips or GitHub.
 
-1. **The offline map:** if the group chose an offline area, the app offers "Download the group's offline map: Barcelona centre, 12.4 km², 38 MB. Wi-Fi recommended." The map itself is downloaded from the offline region catalog (section 7.4), not through WhatsApp or Firebase: it is far larger than the trip.
-2. **"I've joined" (optional, stage 1)** (decided 2026-11-22): right after Join, the app offers **"Tell the group you've joined"**. It prepares a plain WhatsApp text, for example "✓ I've joined the group trip 'Barcelona Dec 2026' in Trip Map", and the new member sends it to the trip's WhatsApp group. WhatsApp shows who sent it, so everyone sees who has joined. The app does not read it or need it, and it holds no key and no trip data. Skipping it changes nothing.
-3. **Nobody else needs to do anything.** The app keeps no member list, so there is nothing else to announce.
+How a change travels:
 
-#### Someone joins late
-
-WhatsApp does not show a new member the messages sent before they joined, unless whoever added them chooses to share recent messages with them (WhatsApp's "Group message history", up to 100 messages). So a late joiner cannot rely on old invites or old shares. A member gives them a fresh invite (a QR code, or a new link posted after they joined). In stage 1 the member then taps "Share with my group"; in stage 2 the new member's app reads everything from Firebase by itself.
-
-### 9.4 Stage 1: sharing in the group through WhatsApp
-
-Decision (2026-11-21): the app shares only inside a group, and **every share sends the whole trip**. In stage 2, "Share with my group" is not needed: the trip goes through Firebase by itself, and "Share my location" too (section 9.5). Both stay available through WhatsApp as a fallback. The merging rules below are used in both stages. Everything below travels only to the group's members, through the trip's WhatsApp group, and never reaches the public trips or GitHub.
-
-There are two buttons:
-
-| # | Button | Where | What the others get |
-| --- | --- | --- | --- |
-| 1 | **"Share with my group"** | In "My trips", in the trip's menu, and on a site card (UI-27) | **The whole current trip:** its sites, legends, and legend entries, everything the group added (for example the apartment), and the group's offline area |
-| 2 | **"Share my location"** | In the group trip | A temporary pin, for one moment, not live tracking (below). It is not part of the trip. |
-
-Why always the whole trip (decided 2026-11-21): it is simpler to build and to use than sending only the changes. A member who missed a message, a new member, and a late joiner are all brought up to date by the next share; the order in which messages are opened does not matter; and there is one kind of message to build and test. The cost is size, and trips are small: the Barcelona trip, 32 sites with descriptions and opening hours, is about 6,000 characters as a link, and a WhatsApp message holds over 65,000.
-
-How every share travels:
-
-1. A member adds, changes, or removes sites or legend entries. Each change goes into the trip's JSON on their phone, with the time (section 10).
-2. The member taps **"Share with my group"**. The app runs the privacy checks (section 14.2).
-3. The app packs the whole trip into a link: compressed (as in a zip file), and locked with the group key. It carries no name and no member ID.
-4. The phone's share menu opens. The member picks the trip's WhatsApp group and taps Send. The app never sends anything by itself.
-5. The other members tap the link. The app checks it, merges it into their copy (rules below), and shows what changed, for example "1 new site: Café Jansen · 1 changed · 1 removed". The member knows who sent it from the WhatsApp chat.
-6. A trip too large for a link is sent as a small compressed file in the same chat; members add it with "Add local trip", which recognizes it as a group share.
+1. A member adds, changes, or removes a site, or a legend entry. The change is saved in the trip on their phone, with the time (section 10).
+2. The app runs the privacy checks (section 14.2), locks the changed site with the group key, and writes it to the group's space in Firebase (section 9.5).
+3. Every other member's app receives it, unlocks it, merges it into their copy (rules below), and shows, for example, "1 new site: Café Jansen". Who made the change is not stored.
 
 ```mermaid
 flowchart TD
-    A["Member adds, changes, or removes a site: it goes into the trip's JSON, with the time"] --> B["Taps 'Share with my group'"]
-    B --> C["App checks for private information"]
-    C --> D["App packs the whole trip into a link: compressed, locked with the group key"]
-    D --> E["WhatsApp opens: the member picks the trip's WhatsApp group and taps Send"]
-    E --> F["Members tap the link"]
-    F --> G["App unlocks and checks the trip"]
-    G --> H["Merges site by site: the newest version of each site wins"]
-    H --> I["Shows '1 new site · 1 changed · 1 removed'"]
+    A["Member adds, changes, or removes a site: it is saved on the phone, with the time"] --> B["App checks for private information"]
+    B --> C["App locks the site with the group key and writes it to Firebase"]
+    C --> D["Firebase passes it to every open app within about a second; closed apps get it when opened"]
+    D --> E["Each app unlocks it and merges it: the newer version of each site wins"]
+    E --> F["Shows '1 new site: Café Jansen'"]
 ```
 
 Merging rules:
 
-- **Site by site, by the site's own ID** (not a user ID; there are none). If both copies have the same site, the version with the later `changed` time is kept.
-- **A removed site** is kept in the trip as a short "removed" note with its time (section 10), so that a phone that still has the site can tell that it was removed, and not that the sender never had it. A removed note newer than the site removes it; a site changed after the note brings it back.
-- **New sites added on a phone** get a random ID, for example `cafe-jansen-7k2m`, so two members adding sites at the same time never pick the same ID.
-- **The times come from each phone's clock.** If two members change the same site within a few seconds, the later clock wins. For a trip among friends, this is acceptable.
+- **Site by site, by the site's own ID** (not a user ID; there are none). When two versions of the same site meet, the one with the later `changed` time is kept. Firebase's transactions make sure that a newer version is never overwritten by an older one (section 9.5).
+- **A removed site** is kept as a short "removed" note with its time (section 10), so that a phone that was offline can tell that it was removed. A removed note newer than the site removes it; a site changed after the note brings it back.
+- **New sites added on a phone** get an ID from OpenStreetMap when found by search, so that two members adding the same place get the same ID, or otherwise an ID made from the name and a short random part (section 10).
+- **The times come from each phone's clock.** If two phones' clocks differ by minutes, an older change can win. Phones set their clocks automatically, so this is rare.
 - A new or changed legend entry is offered to each member, who takes it or skips it. If a member skips it, its sites appear under that legend's "Other" chip.
-- Sharing the same trip twice changes nothing the second time.
-- A share that does not open with this group's key, or is for a group not on the phone, is not shown.
-- The app shows, for each trip, whether there are local changes that have not been shared yet.
 - **What is shared in the group stays in the group.** A group trip can never be sent in an update request or a new trip request (section 8.6). The "Group only" mark (`groupOnly`, section 10), for a site such as the group's apartment, stays as an extra safeguard: such a site is never sent in a request even from a trip that is not a group trip.
 
-#### What happens when several members share (decided 2026-11-21)
-
-Example: Noa, Tamar, and Avichai each share the trip. Noa's has a new site, Café Jansen. Tamar's has the Sagrada Família visit changed to 11:15. Avichai's has Noa's Café Jansen, which he received from her, and his own new site, Bar Marsella. A member opens the three links in this order:
-
-| # | Opened | The trip afterwards | The app shows |
-| --- | --- | --- | --- |
-| 1 | Avichai's | + Café Jansen, + Bar Marsella | "2 new sites" |
-| 2 | Noa's | Café Jansen is already there, with the same time: nothing changes | "Already up to date" |
-| 3 | Tamar's | Sagrada Família: 11:15 | "1 changed" |
-
-Opened in any other order, the result is the same trip. Every case:
+#### What happens when several members change things (decided 2026-11-21, updated 2026-11-23)
 
 | # | Case | What happens | Why |
 | --- | --- | --- | --- |
-| 1 | The links are opened in different orders on different phones | Every phone ends up with the same trip | For each site, only the newest version (latest `changed` time) is kept, whatever the order |
-| 2 | A member skips a link | They miss only what was new in it, until that person shares again | Every share carries the sender's whole trip |
-| 3 | The same site arrives from two people (one added it, another passed it on) | Kept once | Same site ID |
-| 4 | The same version arrives twice | Nothing changes: "Already up to date" | Same ID and time |
-| 5 | Two members add the same place by searching | Kept once, automatically | Both get the OpenStreetMap ID, for example `osm-n123456789` (section 10) |
-| 6 | Two members add the same place by a long press, or by hand | The app asks: **"Looks like the same place: Café Jansen. Merge or keep both?"** | A similar name within about 30 m. "Merge" keeps the newer details under one ID, and the other becomes a removed note |
-| 7 | Two members change the same site | The later change wins, on every phone | The phones' clocks decide |
-| 8 | One member removes a site, another changes it | Whichever happened later wins: removed, or kept with the change | The removed note has a time, like a change |
-| 9 | A new legend entry arrives, for example "Tapas night" | Each member takes it or skips it | A personal choice. The match code counts only sites and legend entries, not which entries a member skipped |
-
-Joining has no such cases any more: the app hands out no member numbers, so several members can invite at once, and one link in the WhatsApp group can be used by everyone within its 15 minutes (section 9.3).
-
-Not protected: if a phone's clock is wrong by minutes, an older change can win in case 7. Phones set their clocks automatically, so this is rare.
-
-#### Receiving a shared trip
-
-Every share (section 3.1.1, row 7) arrives as a link in the trip's WhatsApp group.
-
-If the app is already installed:
-
-1. **Android:** tapping the link opens the installed app, which adds the trip to "My trips" and opens it.
-2. **iPhone:** links from WhatsApp always open in Safari, not in the home-screen app. So the member long-presses the link in WhatsApp, taps **Copy**, opens the app from its icon, and taps **Paste group link** in "My trips". The app adds the trip. If the member taps the link anyway, Safari shows a page that explains these two steps. The same applies to every group link on iPhone, so "Paste group link" is a large button on the main screen.
-
-If the app is not installed yet:
-
-1. The member taps the link. The app opens in the browser and shows the trip at once, so the member can look at it right away.
-2. The app explains: "To keep this trip, add Trip Map to your home screen", with the picture guide (section 3.1.3).
-    - **Android:** after installing, the trip is already inside.
-    - **iPhone:** the guide first offers **Copy group link**; after adding the app to the home screen, the member opens it and taps **Paste group link**. This step is needed because on iPhone the home-screen app does not share saved data with Safari.
-3. A member who has not joined the group yet needs an invite (section 9.3) to open its shares.
-
-The same steps apply to every "Share with my group" link.
+| 1 | Two members change **different sites** at the same time | Both changes land | Each site is its own entry in Firebase |
+| 2 | Two members **add** sites at the same time | Both land | Two new entries |
+| 3 | Two members change **the same site** at the same time | The newer version is kept, on every phone | Firebase's transaction: "write mine only if it is newer" |
+| 4 | One member removes a site while another changes it | Whichever happened later wins: removed, or kept with the change | The removed note has a time, like a change |
+| 5 | A member is offline, or the phone is off | Their changes wait on the phone and are sent later; they receive everything they missed when they open the app | Firebase keeps changes made offline |
+| 6 | Two members add the same place by searching | Kept once | Both get the OpenStreetMap ID, for example `osm-n123456789` |
+| 7 | Two members add the same place by a long press, or by hand | The app asks: **"Looks like the same place: Café Jansen. Merge or keep both?"** | A similar name within about 30 m. "Merge" keeps the newer details under one ID, and the other becomes a removed note |
+| 8 | A new legend entry arrives, for example "Tapas night" | Each member takes it or skips it | A personal choice |
 
 #### "Share my location"
 
-Decision (2026-11-21): "Share my location" is sent only to the trip's WhatsApp group. Sharing a position with anyone else is not worth the risk, and WhatsApp's own "Share location" already does that.
+Decided (2026-11-21, updated 2026-11-23): "Share my location" is shown only in a group trip, and reaches only the group.
 
 How it works:
 
 1. The user taps "Share my location" in the group trip.
 2. The app shows the user's current position on the map, with the text "This shows where you are now", and asks to confirm.
-3. The app prepares a link to the app itself, with the position after the "#" sign, locked with the group key. When a member taps the link, the phone loads the app's page from GitHub Pages, but the part after the "#" is never sent to GitHub.
-4. WhatsApp opens. The user picks the trip's WhatsApp group and taps Send.
-5. A member who taps it sees a temporary pin on the group's map, labeled with the time it was sent, for example "Shared location, 14:05". The member knows whose it is from the chat. It is not saved, unless that member chooses "Add as site".
+3. The app locks the position (with its time and accuracy, and nothing else) and writes it to the group's space in Firebase. Every member's open app shows a temporary pin within about a second, labeled with the time, for example "Shared location, 14:05". Firebase deletes it after an hour (section 9.5).
+4. **"Also send to WhatsApp" (optional):** a member whose app is closed would see the pin only when opening the app, because the app cannot show notifications while it is closed. So the confirm screen also offers to send it to WhatsApp: the app prepares a locked link to the app, with the position after the "#", and the member picks a chat and taps Send. WhatsApp alerts the others, and the chat shows who sent it.
 
 How it fits sections 14.2 and 14.3:
 
-- It only happens when the user taps it, confirms, and sends. It is never automatic and never repeated.
+- It only happens when the user taps it and confirms. It is never automatic and never repeated.
 - It is a single position at one moment, not live tracking.
-- The position is never stored in a trip file, in local changes, in "Export trip", in update requests, or in feedback.
-- A received link is checked like any other (section 14.3).
+- The position is never stored in a trip file, in local changes, in "Export trip", in update requests, or in feedback. A member who receives it can choose "Add as site".
+- If the WhatsApp link is sent to the wrong chat by mistake, nobody there can read it: it is locked with the group key. Its visible text says only "Trip Map: shared location. Open it in the app."
+- The real risk is sharing from a private place, such as home: the group sees where it is. The confirmation screen shows the spot before sending.
 
-Risks:
+### 9.5 How group trips work with Firebase
 
-- Sending it to the wrong chat. The confirmation step and the user's own choice of chat in WhatsApp reduce this.
-- Pressing it at home reveals where one lives, to the people in the chat.
+Firebase is a ready-made database run by Google. It does the hard parts of sharing by itself: safe updates when several phones write at the same time, passing every change to every open app within a second, keeping changes made offline until the phone is back online, and deleting old data by date. Users need no account and set up nothing: the app signs in to it by itself, anonymously.
 
-WhatsApp also has its own "Share location", including live location for a set time. The app's version adds the position directly to the map, next to the group's sites.
+#### One-time setup by the app's maker
 
-Limits of sharing in a group:
-
-- The app cannot send a message by itself, or choose the chat. The member taps Send in WhatsApp. Sending automatically is possible only through WhatsApp's paid business service, which does not fit goal 15.
-- The app cannot read the chat. Each member taps the link to receive a share.
-- Shares are not live. They arrive when someone shares and the others tap the link.
-
-### 9.5 Stage 2: the trip through Firebase
-
-Decided (2026-11-23): stage 2 adds an automatic way for the trip, and for locations, to travel: **Firebase**, a ready-made database run by Google. Users need no account and set up nothing; the app signs in to it by itself, anonymously. Stage 2 is built after stage 1 works (step 17a, section 13.3). A shared Google Sheet was the earlier plan for stage 2; it is kept as an alternative (section 15.1, idea E).
-
-Why Firebase: it is made for exactly this. Several phones change the same data at the same time, some offline, and every open app should see every change within a second. Firebase does the hard parts itself: safe simultaneous updates, live updates to every open app, keeping changes made offline until the phone is back online, and deleting old data by date. The app writes much less code of its own than with a shared sheet, and users never sign in.
-
-#### One-time setup by the app owner
-
-Done once, before stage 2 is built, with the app's own Google account (a dedicated address, not a work or personal one), with two-step sign-in. About 30 minutes, with a step-by-step guide. It is recorded in section 12.5 when done. Users never see any of it; every group trip, by every user, lives inside this one project.
+Done once, before group trips are built, with the app's own Google account (a dedicated address, not a work or personal one), with two-step sign-in. About 30 minutes, with a step-by-step guide; recorded in section 12.5 when done. Users never see any of it; every group trip, by every user, lives inside this one project. Claude never gets access to it.
 
 | # | Step | What it is |
 | --- | --- | --- |
@@ -1198,48 +1055,31 @@ No Google consent screen or brand check is needed, because users never sign in t
 #### What Firebase holds
 
 ```
-groups/{group ID}                  the group: its write token's check, and when it was last changed
-groups/{group ID}/sites/{site ID}  one entry per site: { "data": "TM1.…locked site…", "changed": "…" }
+groups/{group ID}                  the group: the check for its write token, and when it was last changed
 groups/{group ID}/sites/trip       the trip itself: its title, legends, legend entries, offline area
+groups/{group ID}/sites/{site ID}  one entry per site: { "data": "TM1.…locked site…", "changed": "…" }
 groups/{group ID}/locations/{ID}   a shared location, locked, deleted after an hour
 ```
 
-- **The group ID** is a long random code, known only to the members' apps; it travels inside invites.
-- **Every site is one entry, locked with the group key**, the same way as a cell in the earlier sheet plan: the site as JSON, compressed, locked and sealed (AES-GCM), and turned into plain letters and digits, starting with `TM1.`. Google stores it but cannot read it. The `changed` time is also kept unlocked next to it, so that the safe update below can compare versions.
+- **The group ID** is a long random code, known only to the members' apps; it travels inside invites. Each group lives under its own ID, so groups never mix.
+- **Every site is one entry, locked with the group key:** the site as JSON, compressed, locked and sealed (AES-GCM, with a fresh random number for each write), and turned into plain letters and digits (Base64), starting with `TM1.` for the format's version. Google stores it but cannot read it. The `changed` time is also kept unlocked next to it, so that the safe update below can compare versions.
 - **A removed site** stays as an entry marked removed, so a phone that was offline sees the removal later.
 - **Never in Firebase:** the group key, names, phone numbers, email addresses, or anything readable about the trip.
-
-#### What each phone keeps
-
-Each phone keeps its own full copy of the trip, as an ordinary trip file (section 10), in the app's storage. It is the copy the member uses, also without internet. Firebase is only the meeting point.
+- **Each phone keeps its own full copy** of the trip, as an ordinary trip file (section 10), in the app's storage. It is the copy the member uses, also without internet. Firebase is only the meeting point.
 
 #### How changes travel
 
-0. **The first upload.** "Start a group" writes the whole trip in one batch: the trip entry and one locked entry per site, about 35 for Barcelona. If the starter is offline, Firebase's library keeps the upload on the phone and sends it as soon as there is internet; a member who joins meanwhile receives the trip as soon as it arrives.
-1. **A member changes a site.** The app saves it in the phone's copy, locks it, and writes that site's entry to Firebase with a **transaction**: "write mine only if it is newer than what is there". Firebase guarantees that nothing slips in between reading and writing; if someone wrote first, the app repeats the step with their version. So the newer version always wins, with no gap.
-2. **Every open app listens** to the group's entries. Firebase sends each change to them within about a second; the app unlocks it and merges it, with the rules of section 9.4.
-3. **Offline:** Firebase's own library keeps the change on the phone and sends it when the internet is back. A phone that was off or offline receives everything it missed when it opens the app.
-
-| # | Case | What happens |
-| --- | --- | --- |
-| 1 | Two members change **different sites** at once | Different entries: both land |
-| 2 | Two members **add** sites at once | Two new entries: both land |
-| 3 | Two members change **the same site** at once | The transaction keeps the newer version, always |
-| 4 | A member is offline | The change waits on the phone and is sent later |
-| 5 | A phone was off all day | When the app opens, it receives everything at once |
-
-#### "Share my location" in stage 2
-
-1. The member taps "Share my location" and confirms, as in section 9.4.
-2. The app locks the position and writes it to the group's locations in Firebase. Every open app shows it within about a second, labeled with its time, for example "Shared location, 14:05". Firebase deletes it after an hour.
-3. **"Also send to WhatsApp" (optional):** the app also prepares the WhatsApp message, as in stage 1, for members whose app is closed. WhatsApp alerts them, which the app cannot do by itself: without a server of our own, it cannot show notifications while it is closed.
+1. **The first upload.** "Start a group" writes the whole trip in one batch: the trip entry and one locked entry per site, about 35 for Barcelona. If the starter is offline, Firebase's library keeps the upload on the phone and sends it as soon as there is internet; a member who joins meanwhile receives the trip as soon as it arrives.
+2. **A member changes a site.** The app saves it in the phone's copy, locks it, and writes that site's entry with a **transaction**: "write mine only if it is newer than what is there". Firebase guarantees that nothing slips in between reading and writing; if someone wrote first, the app repeats the step with their version. So the newer version always wins.
+3. **Every open app listens** to the group's entries. Firebase sends each change to them within about a second; the app unlocks it and merges it (section 9.4).
+4. **Offline:** Firebase's own library keeps changes on the phone and sends them when the internet is back. A phone that was off or offline receives everything it missed when it opens the app.
 
 #### Security rules (summary)
 
-- A group can be read or written only by an app that knows its long random ID. Listing groups is not allowed, so no one can find other groups.
-- Writing also needs the group's **write token**, which is derived from the group key and travels only in invites. An app without it cannot change a group, even if it learned the ID.
+- A group can be read or written only by an app that knows its long random ID. Listing or searching groups is not allowed, so no one can find other groups.
+- Writing also needs the group's **write token**, which is made from the group key and travels only in invites. An app without it cannot change a group, even if it learned the ID.
 - Every entry must have the expected shape and size; anything else is refused.
-- The rules are reviewed in the security review before stage 2 is released (section 14.3).
+- The rules are reviewed in the security review before group trips are released (section 14.3).
 
 #### Deleting after the trip
 
@@ -1253,7 +1093,7 @@ After deletion, each member keeps their own copy of the trip on their phone, as 
 
 #### Free plan limits
 
-As far as known on 2026-11-23, Firebase's free plan allows about 50,000 reads and 20,000 writes a day, and 1 GB of stored data, for the whole app (to be checked: open question 17). A group of four on a busy trip day uses a few hundred reads and writes, so many groups fit for free; 20 groups active on the same day use about a fifth of the free reads. Going over the free plan's limits stops requests for the rest of the day; the app then falls back to sharing through WhatsApp (stage 1) and says so. A paid plan, with small prices per 100,000 operations, can be chosen later if the app grows.
+As far as known on 2026-11-23, Firebase's free plan allows about 50,000 reads and 20,000 writes a day, and 1 GB of stored data, for the whole app (to be checked: open question 17). A group of four on a busy trip day uses a few hundred reads and writes, so about 100 busy groups fit on the same day, and the stored data has room for thousands of groups. When the free limits are reached, requests stop for the rest of the day: the app says so, and members can still pass the trip as a file ("Export trip", then "Add local trip"). A paid plan, with small prices per 100,000 operations, can be chosen later if the app grows.
 
 #### Privacy
 
@@ -1261,7 +1101,7 @@ As far as known on 2026-11-23, Firebase's free plan allows about 50,000 reads an
 - Google sees when phones connect, from which internet address, and the random hidden number of each phone. It sees no names, phone numbers, or email addresses.
 - The data is deleted after the trip, as above.
 
-#### Tests before building stage 2
+#### Tests before release
 
 | # | Test | Passes if |
 | --- | --- | --- |
@@ -1270,54 +1110,49 @@ As far as known on 2026-11-23, Firebase's free plan allows about 50,000 reads an
 | 3 | The same site changed on four phones at once, many times | Every phone ends with the newest version |
 | 4 | Twenty simulated groups on one day | Usage stays well within the free plan |
 
+Most tests run against Firebase's free emulator on a laptop, without touching the real project.
+
 #### Limits
 
-- Firebase is one hosted service that all groups share. If it is down, or the free limits are reached, groups fall back to sharing through WhatsApp until it is back.
-- Locations reach a member whose app is closed only through WhatsApp's "Also send to WhatsApp".
-- Firebase belongs to Google, which runs it under its own terms; the terms are checked before stage 2 is built (open question 18).
+- Firebase is one hosted service that all groups share. If it is down, or the free limits are reached, members can still pass the trip as a file until it is back.
+- A member whose app is closed sees a shared location only when opening the app, unless it was also sent to WhatsApp.
+- Firebase belongs to Google, which runs it under its own terms; the terms are checked before group trips are built (open question 18).
 
-### 9.6 Leaving, catching up, and a new phone
+### 9.6 Leaving, a new phone, and after the trip
 
-- **Leaving:** a member taps "Leave group". The group and its key are removed from that phone; the trip stays as a local trip, marked as a former group trip, so it still cannot be sent in a request (section 8.6). No message is needed.
-- **Catching up:** happens by itself with the next "Share with my group", which always carries the whole trip. Anyone who missed messages can also ask a member to share.
-- **A new phone:** the member gets a fresh invite from any member, then a "Share with my group".
-- **Checking that copies match:** each phone shows a short code for the group trip's current state, such as "K7P2". The same code means the same trip. If codes differ, a member taps "Share with my group".
+- **Leaving:** a member taps "Leave group". The group, its key, and its ID are removed from that phone; the trip stays as a local trip, marked as a former group trip, so it still cannot be sent in a request (section 8.6).
+- **A new phone:** the member gets a fresh invite from any member; the app reads the trip from Firebase.
+- **After the trip:** a member taps "Delete the group's data", or Firebase deletes it 30 days after the last change (section 9.5). Each member keeps the trip on their phone.
 
-How group messages travel (checked against section 14.2):
+How the invite travels, and its limits (checked against section 14.2):
 
-- **Only inside the trip's WhatsApp group**, sent by a member.
-- **Locked twice:** with the group key, and by WhatsApp's own end-to-end encryption.
-- **Never seen by a web server:** the data sits in the part of the link after the "#" sign, which browsers do not send to any server. GitHub, which hosts the app, never receives it, and neither does a link preview.
-- **Sealed:** the lock used (AES-GCM) also detects any change. A share that was altered, or not made with the group's key, is rejected (section 14.3).
-- **Nothing personal inside:** the messages contain sites, times, the group's name, and, in invites, the key and the WhatsApp group's link. No names, member IDs, phone numbers, or contact details.
-- **Chat history:** the messages stay in the WhatsApp chat, like any message, and in WhatsApp's backups if a member uses them. If the group was joined by QR code, the key is not in the chat, so a backup holds only unreadable shares. If an invite link was posted, the key is in the chat too, and someone who can read a member's backup could open the shares; WhatsApp's encrypted backup avoids this.
-
-Limits:
-
-- The 15-minute limit on invites is checked by the app; the key inside an old invite does not expire. If an invite may have reached the wrong person, the members start a new group, which gives a new key.
-- Without a server, the app cannot change data on another person's phone by itself.
-- Members' copies can differ until the next share. Every "Share with my group" brings them back in step, and the match code shows when one is needed.
+- **In person,** the QR code passes the invite from screen to camera; it is never sent anywhere.
+- **Through WhatsApp,** the invite is inside the part of the link after the "#" sign, which browsers do not send to any server. GitHub, which hosts the app, never receives it, and neither does a link preview. WhatsApp encrypts it end to end.
+- **Chat history:** an invite link stays in the WhatsApp chat, like any message, and in WhatsApp's backups if a member uses them. Someone who can read a member's backup could find the group key in it. Inviting by QR code avoids this, and so does WhatsApp's encrypted backup.
+- **The 15-minute limit** on invites is checked by the app; the key inside an old invite does not expire. Leaving the group does not take the key away either. If an invite may have reached the wrong person, or someone should no longer see the trip, the members start a new group from the same trip, which gives a new key and a new ID, and delete the old group's data.
+- **Sealed:** every entry is locked and sealed (AES-GCM). An entry that was altered, or not made with the group's key, is rejected (section 14.3).
 
 ### 9.7 Decided items
 
-Decided on 2026-11-15, and updated on 2026-11-21:
+Decided on 2026-11-15, and updated on 2026-11-21, 2026-11-22, and 2026-11-23:
 
 1. ~~Phone numbers~~: decided, none are stored.
-2. ~~Invites~~: decided, valid for joining for 15 minutes (changed on 2026-11-21 from 7 days); one link can be used by several people; a QR code in person is recommended.
-3. ~~Removing a member~~: replaced on 2026-11-21. There is no vote; to exclude someone, the others start a new group.
+2. ~~Invites~~: decided, valid for joining for 15 minutes; one link can be used by several people; a QR code in person is recommended; links go only through WhatsApp, never by text message or email.
+3. ~~Removing a member~~: replaced on 2026-11-21. There is no vote and no way to remove a member; to shut someone out, the others start a new group.
 4. ~~The starter's role~~: decided, all members are equal. The starter has no extra rights.
-5. ~~Ending a group~~: decided, there is no "end group" for everyone. Each member keeps the trip, or leaves whenever they like. When a member leaves, the trip stays on their phone as a local trip.
-6. ~~Group size~~: changed on 2026-11-21: about 8 members, as a recommendation. The app does not count members.
-7. ~~Checking that copies match~~: decided, each phone shows a short code for the group trip's current state, such as "K7P2". If codes differ, a member taps "Share with my group".
+5. ~~Ending a group~~: decided, each member keeps the trip, or leaves whenever they like. The group's data in Firebase is deleted by a tap, or 30 days after its last change.
+6. ~~Group size~~: about 8 members, as a recommendation. The app does not count members.
+7. ~~Checking that copies match~~: replaced on 2026-11-23. Every app reads the same data in Firebase, so a match code is no longer needed.
 8. ~~Locked maps~~: no longer applies; locked maps were dropped on 2026-11-21.
-9. ~~Release~~: decided, group trips are built last, in release E (section 13.3). Moving them earlier is under discussion.
-10. ~~Signed changes~~: replaced on 2026-11-21. There are no member keys or signatures; the group key and its seal (AES-GCM) show that a share came from the group.
+9. ~~Release~~: decided, group trips are built in release E (section 13.3).
+10. ~~Signed changes~~: replaced on 2026-11-21. There are no member keys or signatures; the group key, its seal (AES-GCM), and the write token show that data came from the group.
 11. ~~New group key~~: replaced on 2026-11-21. A new key comes with a new group.
-12. ~~Member IDs and names~~: decided on 2026-11-21, none. Membership is having the group key; WhatsApp shows who sent each message.
-13. ~~WhatsApp group~~: decided on 2026-11-21, a WhatsApp group of all participants is required, and all sharing goes through it.
-14. ~~What a share carries~~: decided on 2026-11-21, always the whole trip, compressed and locked; merged site by site by each site's ID and last-changed time. One "Share with my group" button replaces sharing a site, a legend entry, changes, or everything.
-15. ~~Two stages~~: decided on 2026-11-22, and stage 2 changed to Firebase on 2026-11-23. Stage 1: WhatsApp for everything. Stage 2, built afterwards: the trip and locations through Firebase, automatically, with no user accounts; invites by QR code or an invite link through WhatsApp, as in stage 1, never by text message or email; no WhatsApp group is needed in stage 2; WhatsApp optional, for chatting and location alerts (sections 9.2, 9.5). The shared Google Sheet plan is kept as an alternative (section 15.1, idea E).
+12. ~~Member IDs and names~~: decided on 2026-11-21, none.
+13. ~~WhatsApp group~~: replaced on 2026-11-23. No WhatsApp group is needed; WhatsApp is used only to send invite links, and optionally to alert members about a shared location.
+14. ~~What a change carries~~: decided on 2026-11-23, one locked site at a time, merged by each site's ID and last-changed time.
+15. ~~One way of sharing~~: decided on 2026-11-23, Firebase only. The two-stage plan (WhatsApp first, then a hybrid) and the shared Google Sheet were discarded (section 15.1, ideas E and F).
 16. ~~Requests from a group trip~~: decided on 2026-11-22, none. A trip that is or has been in a group cannot be sent in an update request or a new trip request, by any member (section 8.6).
+17. ~~Starting a group~~: decided on 2026-11-23, always with a trip, chosen or brought in as the first step, and checked.
 
 ## 10. Map file format
 
@@ -1723,7 +1558,7 @@ The setup steps, with every setting and its reason, are in the separate "Trip Ma
 | Test repository | `projects-rs/trip-map-test`, public, MIT. Ruleset `Protect test`. Published at `https://projects-rs.github.io/trip-map-test/`. |
 | Claude | Claude GitHub App on `projects-rs`, only the selected repositories (`trip-map` and `trip-map-test`, and `trip-db` once created). Claude never gets access to the Firebase project. |
 | Trips repository | `projects-rs/trip-db`, public, CC BY 4.0 (section 12.1): planned on 2026-11-21, created by the owner with the same settings as `trip-map`, "Preserve this repository" off, and added to the Claude GitHub App. |
-| Not yet created | The app's Firebase project, for group trips in stage 2 (build step 17a): with the app's own Google account, two-step sign-in, on the free plan; the steps are in section 9.5, "One-time setup by the app owner". |
+| Not yet created | The app's Firebase project, for group trips (build step 15): with the app's own Google account, two-step sign-in, on the free plan; the steps are in section 9.5, "One-time setup by the app owner". |
 | Optional later | "Require signed commits" on `trip-map`, kept only if squash merging still works with it. "Require status checks" once the Check workflow exists (build step 2). |
 
 ## 13. Implementation plan
@@ -1803,10 +1638,9 @@ Decision (2026-11-15, confirmed by the app owner): group trips (section 9) are t
 
 | Step | Build | Try on the phone |
 | --- | --- | --- |
-| 15. Starting and joining | "Start a group" with the WhatsApp guide and the WhatsApp group's link, the group key, QR invites (15 minutes) and invite links (15 minutes, several people), joining and declining, the internal database for group details | A group of four is started. Members join by QR code and by a link in the WhatsApp group. A person who declines leaves no trace. |
-| 16. Sharing in the group | "Share with my group" (always the whole trip, compressed) through WhatsApp, "Share my location" (section 9.4), the seal on every share (AES-GCM), merging, taking or skipping new legend entries, "3 new sites added", privacy checks on both sides, the match code | A site shared in the group chat appears on the other phones after tapping the link. The same link tapped twice adds nothing twice. |
-| 17a. Stage 2: the trip through Firebase (built after steps 15 to 17 work with WhatsApp) | The app owner's one-time Firebase setup (section 9.5), anonymous sign-in, the group's entries with one locked entry per site, transactions, live updates, offline queueing, locations with "Also send to WhatsApp", the security rules and write token, automatic deletion, falling back to WhatsApp | Four phones, two of them offline for a while, end with the same trip. Two phones changing the same site at once keep the newer version. An app without the write token cannot change a group. |
-| 17. Leaving and catching up | "Leave group", catching up with the next share, a new phone with a fresh invite | A member who leaves keeps the trip as a local trip. A share altered by one character is rejected. A new phone gets everything shared so far. |
+| 15. Firebase, starting, and joining | The app maker's one-time Firebase setup (section 9.5), anonymous sign-in, "Start a group" with "Choose the trip" and the check, the group key, ID, and write token, the first upload, QR invites and invite links (15 minutes), joining and declining, the security rules | A group of four is started. Members join by QR code and by a link through WhatsApp, and see the trip at once. An app without the write token cannot change the group. A person who declines leaves no trace. |
+| 16. Sharing in the group | Automatic sharing of every change through Firebase, transactions, live updates, offline queueing, merging, "Looks like the same place?", taking or skipping new legend entries, "Share my location" with "Also send to WhatsApp", privacy checks | Four phones, two of them offline for a while, end with the same trip. Two phones changing the same site at once keep the newer version. A location appears on the others' open apps within seconds and is gone after an hour. |
+| 17. Leaving and after the trip | "Leave group", a new phone with a fresh invite, "Delete the group's data", automatic deletion, falling back to "Export trip" when Firebase cannot be reached | A member who leaves keeps the trip as a local trip that cannot be sent in a request. After deletion, nothing of the group is left in Firebase. |
 
 Rough effort for releases B to E together: about four to five weeks, mostly set by testing on real phones. These are planning estimates, not promises.
 
@@ -1876,7 +1710,8 @@ This list is kept up to date in the dependencies document. An item marked "to be
 | Online service | FOSSGIS routing server (OSRM) | Walking routes | Free | Usage terms: one request per second, no heavy use |
 | Online service | OpenStreetMap search service (Nominatim) | Searching places, streets, and addresses (section 8.5) | Free | Usage policy: at most one request per second for the whole app, no search-as-you-type, credit required. Fallback: another search provider. |
 | Online service | GitHub and GitHub Pages | Storing the code and maps, hosting the app | Free | GitHub terms of service |
-| Other apps | WhatsApp, or another messaging app | Carrying group changes, proposals, invites, and feedback (sections 8.6, 9) | Free | Used through the phone's share menu. The app's messages are locked before they leave the phone. |
+| Other apps | WhatsApp, or another messaging app | Sending invite links and, optionally, shared locations; requests and feedback (sections 8.6, 9) | Free | Used through the phone's share menu. The app never sends anything by itself. |
+| Group trips | Firebase (Google), on its free plan | Keeping each group trip and passing changes between members' phones (section 9.5) | Free, within the free plan's limits | Set up once by the app's maker; users never see it. Everything stored is locked with each group's key. |
 | Other apps | Google Maps, Apple Maps, and other navigation apps | "Navigate in another app" (section 7.1) | Free | Opened by a link only. No data is copied from them. |
 | Browser features | Location, speech, keeping the screen on, encryption, offline storage, the share menu | GPS position, spoken directions, navigation, locked maps, saved maps, sending messages | Built in | Standard web features of the phone's browser |
 | Development tool | Automated browser testing tool, for example Playwright | Browser tests (section 13.4) | Free | Apache 2.0 |
@@ -1983,14 +1818,14 @@ Threats and protections:
 | A harmful map, link, or shared change that tries to run code inside the app | Everything received is checked against the format before use (section 10.3). Text is always shown as plain text, never as code. A strict browser security policy forbids running any code that is not part of the app. Size limits on everything received. |
 | A link on a site card that leads somewhere harmful | Only ordinary web links (https) are allowed. The card shows the link's address before it is opened. |
 | Someone outside the group reading or faking group messages | Every message is locked and sealed with the group key. A message that fails the seal is rejected. |
-| A share that was altered, or made by someone outside the group | Every share is locked and sealed with the group key (AES-GCM). A share that does not open with the key, or was changed, is rejected. Members are not told apart; WhatsApp shows who sent each message (decided 2026-11-21, section 9). |
+| Group data in Firebase altered, or written by someone outside the group | Every entry is locked and sealed with the group key (AES-GCM), and the security rules require the group's write token for every write. An entry that does not open with the key, or was changed, is rejected (section 9.5). |
 | A harmful app update reaching all users | Only the app owner can publish (section 12.2). Two-step sign-in on the owner's GitHub account. Every change is reviewed and tested before merging. Outside libraries are stored in the App repository at fixed versions, not loaded from other websites. |
 | A known weakness in an outside component | Automatic alerts for known weaknesses in the components the app uses, and prompt updates. |
 | Someone using an unlocked phone | The app relies on the phone's own screen lock. An optional app lock with the phone's fingerprint or face check, where the browser supports it. |
-| Keys or messages kept in WhatsApp chat history or WhatsApp backups | QR invites keep the key out of the chat. Members are told this when joining, with a tip to turn on WhatsApp's encrypted backup. A new group, with a new key, stops anyone holding an old invite from reading new messages (section 9.6). |
+| A group key kept in WhatsApp chat history or backups, in an invite link | QR invites keep the key out of any chat. Members are told this, with a tip to turn on WhatsApp's encrypted backup. A new group, with a new key, shuts out anyone holding an old invite (section 9.6). |
 | Data lost or damaged on a phone | Saved data is checked when it is loaded. Export gives a backup (section 10.2). |
 
-Protecting a group's data in Firebase, in stage 2 (decided 2026-11-23; section 9.5):
+Protecting a group's data in Firebase (decided 2026-11-23; section 9.5):
 
 | # | Protection | What it guards against |
 | --- | --- | --- |
@@ -2078,7 +1913,7 @@ For users (shown in the app's help):
 15. ~~Security checklist~~: decided, section 14.4. The copyright line is "The Trip Map authors" (section 14.1).
 16. **A distinctive name (open):** "Trip Map" is a common name, so a web search for "Trip Map app" may not find our AI toolkit. Before the app is announced, choose a name that a search finds uniquely, and check it as in section 14.1. Then "Plan a trip for the <name> app" works by itself (section 8.4).
 17. **Firebase's free plan (open):** check the current free limits of Firebase's Spark plan, and how the app behaves when they are reached (section 9.5).
-18. **Firebase's terms (open):** check Firebase's terms of service and data-processing terms before stage 2 is built, including where the data is stored (section 9.5).
+18. **Firebase's terms (open):** check Firebase's terms of service and data-processing terms before group trips are built, including where the data is stored (section 9.5).
 19. **Publishing from a group trip (open, for a later version):** for now, a group trip cannot update the public trips: no update request and no new trip request from it, by any member (section 8.6, decided 2026-11-22). Later, a way may be found for a group to agree to send its trip, or some of its sites, to the trip owner, for example with every member's approval. Without a member list or a server the app cannot tell when everyone has approved, so this needs its own design.
 
 Approved: simple users can add local sites and send proposals (section 2.1).
@@ -2095,7 +1930,9 @@ Three ideas raised during the design, and what was decided about each.
 
 **D. Community trips: a repository where each contributor owns their trips.** Raised on 2026-11-21, for later. A separate repository, next to `trip-db`, where each contributor owns their trips and approves update requests for them. The app owner keeps only a safety role: hiding or removing a trip that breaks the rules. The trip list in the app would show both, marked by where each trip comes from. The `uid`, the request flow (section 8.6), and the `copyright`, `license`, and `credits` fields (section 10) already work for this, so nothing built now has to change.
 
-**E. A shared Google Sheet for stage 2 (alternative to Firebase).** Worked out on 2026-11-22 and replaced by Firebase on 2026-11-23. The group's sheet would be created by the app in the starter's Google Drive, with one row per site and the whole site in one locked cell, opened to "anyone with the link", with the link inside the invites. It needs no hosted service of the app's, but every member needs a Google account and signs in once, the app must be registered with Google Cloud (with a consent screen and Google's brand check), changes arrive within about a minute, simultaneous writes to the same site must be handled by the app, and several behaviors had to be tested first. Other services considered: Microsoft OneDrive and Dropbox (safe "only if unchanged" writes, but fewer users have accounts), and iCloud (web apps only through a paid Apple developer account, and no Android).
+**E. A shared Google Sheet (alternative to Firebase).** Worked out on 2026-11-22 and replaced by Firebase on 2026-11-23. The group's sheet would be created by the app in the starter's Google Drive, with one row per site and the whole site in one locked cell, opened to "anyone with the link", with the link inside the invites. It needs no hosted service of the app's, but every member needs a Google account and signs in once, the app must be registered with Google Cloud (with a consent screen and Google's brand check), changes arrive within about a minute, simultaneous writes to the same site must be handled by the app, and several behaviors had to be tested first. Other services considered: Microsoft OneDrive and Dropbox (safe "only if unchanged" writes, but fewer users have accounts), and iCloud (web apps only through a paid Apple developer account, and no Android).
+
+**F. Group trips through WhatsApp only (discarded on 2026-11-23).** Worked out on 2026-11-21 and 2026-11-22 as "stage 1". The whole trip was sent as a locked link in the trip's WhatsApp group with "Share with my group", and every member tapped each link to receive it (on iPhone: copy, then paste in the app). It needed no hosted service, but every share needed several taps by the sender and the receivers, a member who missed a link stayed behind, and the app could not pick the chat or read it. It was discarded as too clumsy in favor of Firebase (section 9).
 
 ## 16. Version history
 
