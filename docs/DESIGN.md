@@ -1035,15 +1035,13 @@ How it works:
 
 1. The user taps "Share my location" in the group trip.
 2. The app shows the user's current position on the map, with the text "This shows where you are now", and asks to confirm.
-3. The app locks the position (with its time and accuracy, and nothing else) and writes it to the group's space in Firebase. Every member's open app shows a temporary pin within about a second, labeled with the time, for example "Shared location, 14:05". Firebase deletes it after an hour (section 9.5).
-4. **"Also send to WhatsApp" (optional):** a member whose app is closed would see the pin only when opening the app, because the app cannot show notifications while it is closed. So the confirm screen also offers to send it to WhatsApp: the app prepares a locked link to the app, with the position after the "#", and the member picks a chat and taps Send. WhatsApp alerts the others, and the chat shows who sent it.
+3. The app locks the position (with its time and accuracy, and nothing else) and writes it to the group's space in Firebase. Every member's open app shows a temporary pin within about a second, labeled with the time, for example "Shared location, 14:05". **After 15 minutes** (decided 2026-11-23), every app removes the pin by itself, and Firebase deletes the entry soon after (section 9.5). A location is never part of the trip: it is kept in a separate list in the group's space, not with the sites, and never in the trip file on any phone.
 
 How it fits sections 14.2 and 14.3:
 
 - It only happens when the user taps it and confirms. It is never automatic and never repeated.
 - It is a single position at one moment, not live tracking.
 - The position is never stored in a trip file, in local changes, in "Export trip", in update requests, or in feedback. A member who receives it can choose "Add as site".
-- If the WhatsApp link is sent to the wrong chat by mistake, nobody there can read it: it is locked with the group key. Its visible text says only "Trip Map: shared location. Open it in the app."
 - The real risk is sharing from a private place, such as home: the group sees where it is. The confirmation screen shows the spot before sending.
 
 ### 9.5 How group trips work with Firebase
@@ -1061,7 +1059,7 @@ Done once, before group trips are built, with the app's own Google account (a de
 | 3 | Turn on anonymous sign-in | Each phone gets a random, hidden number; nobody signs in |
 | 4 | Create the database (Firestore) | Where groups are stored |
 | 5 | Set the security rules | Who may read and write what (below) |
-| 6 | Set automatic deletion | Locations after an hour; a group 30 days after its last change |
+| 6 | Set automatic deletion | Locations after 15 minutes; a group 30 days after its last change |
 | 7 | Turn on App Check | Helps make sure only the real app talks to the project; before opening to the public |
 
 No Google consent screen or brand check is needed, because users never sign in to Google.
@@ -1072,7 +1070,7 @@ No Google consent screen or brand check is needed, because users never sign in t
 groups/{group ID}                  the group: the check for its write token, and when it was last changed
 groups/{group ID}/sites/trip       the trip itself: its title, legends, legend entries, offline area
 groups/{group ID}/sites/{site ID}  one entry per site: { "data": "TM1.…locked site…", "changed": "…" }
-groups/{group ID}/locations/{ID}   a shared location, locked, deleted after an hour
+groups/{group ID}/locations/{ID}   a shared location, locked: hidden by the apps after 15 minutes, then deleted
 invites/{invite code}              a waiting place for one invite link: the join request (the typed name and a public key, locked)
                                    and the inviter's answer (the group's details, locked for the requester); deleted after 15 minutes
 ```
@@ -1103,7 +1101,7 @@ invites/{invite code}              a waiting place for one invite link: the join
 | # | What | When |
 | --- | --- | --- |
 | 0 | Invite waiting places, with any join request and its typed name | Automatically, 15 minutes after the invite was made |
-| 1 | Locations | Automatically, an hour after being shared |
+| 1 | Locations | Each app removes the pin 15 minutes after it was shared; Firebase's automatic deletion then removes the entry, usually within a day (it is not instant). Until then the entry stays locked and is no longer shown |
 | 2 | The whole group | When a member taps **"Delete the group's data"** |
 | 3 | A safety net | Automatically, 30 days after the group's last change |
 
@@ -1133,7 +1131,7 @@ Most tests run against Firebase's free emulator on a laptop, without touching th
 #### Limits
 
 - Firebase is one hosted service that all groups share. If it is down, or the free limits are reached, members can still pass the trip as a file until it is back.
-- A member whose app is closed sees a shared location only when opening the app, unless it was also sent to WhatsApp.
+- A member whose app is closed sees a shared location only when opening the app, within its 15 minutes: the app cannot show notifications while it is closed.
 - Firebase belongs to Google, which runs it under its own terms; the terms are checked before group trips are built (open question 18).
 
 ### 9.6 Leaving, a new phone, and after the trip
@@ -1166,7 +1164,7 @@ Decided on 2026-11-15, and updated on 2026-11-21, 2026-11-22, and 2026-11-23:
 10. ~~Signed changes~~: replaced on 2026-11-21. There are no member keys or signatures; the group key, its seal (AES-GCM), and the write token show that data came from the group.
 11. ~~New group key~~: replaced on 2026-11-21. A new key comes with a new group.
 12. ~~Member IDs and names~~: decided on 2026-11-21, none.
-13. ~~WhatsApp group~~: replaced on 2026-11-23. No WhatsApp group is needed; WhatsApp is used only to send invite links, and optionally to alert members about a shared location.
+13. ~~WhatsApp group~~: replaced on 2026-11-23. No WhatsApp group is needed. Invite links can be sent any way; "Share my location" goes only through Firebase.
 14. ~~What a change carries~~: decided on 2026-11-23, one locked site at a time, merged by each site's ID and last-changed time.
 15. ~~One way of sharing~~: decided on 2026-11-23, Firebase only. The two-stage plan (WhatsApp first, then a hybrid) and the shared Google Sheet were discarded (section 15.1, ideas E and F).
 16. ~~Requests from a group trip~~: decided on 2026-11-22, none. A trip that is or has been in a group cannot be sent in an update request or a new trip request, by any member (section 8.6).
@@ -1657,7 +1655,7 @@ Decision (2026-11-15, confirmed by the app owner): group trips (section 9) are t
 | Step | Build | Try on the phone |
 | --- | --- | --- |
 | 15. Firebase, starting, and joining | The app maker's one-time Firebase setup (section 9.5), anonymous sign-in, "Start a group" with "Choose the trip" and the check, the group key, ID, and write token, the first upload, QR invites (15 minutes), one-use invite links with the typed name and the inviter's approval, the key sent through Firebase locked for the new member, joining, declining and rejecting, the security rules | A group of four is started. Members join by QR code, and by an invite link sent by email that the inviter approves, and see the trip at once. A second use of the same link is refused. An app without the write token cannot change the group. A person who declines leaves no trace. |
-| 16. Sharing in the group | Automatic sharing of every change through Firebase, transactions, live updates, offline queueing, merging, "Looks like the same place?", taking or skipping new legend entries, "Share my location" with "Also send to WhatsApp", privacy checks | Four phones, two of them offline for a while, end with the same trip. Two phones changing the same site at once keep the newer version. A location appears on the others' open apps within seconds and is gone after an hour. |
+| 16. Sharing in the group | Automatic sharing of every change through Firebase, transactions, live updates, offline queueing, merging, "Looks like the same place?", taking or skipping new legend entries, "Share my location" (15 minutes), privacy checks | Four phones, two of them offline for a while, end with the same trip. Two phones changing the same site at once keep the newer version. A location appears on the others' open apps within seconds and is gone after 15 minutes. |
 | 17. Leaving and after the trip | "Leave group", a new phone with a fresh invite, "Delete the group's data", automatic deletion, falling back to "Export trip" when Firebase cannot be reached | A member who leaves keeps the trip as a local trip that cannot be sent in a request. After deletion, nothing of the group is left in Firebase. |
 
 Rough effort for releases B to E together: about four to five weeks, mostly set by testing on real phones. These are planning estimates, not promises.
@@ -1728,7 +1726,7 @@ This list is kept up to date in the dependencies document. An item marked "to be
 | Online service | FOSSGIS routing server (OSRM) | Walking routes | Free | Usage terms: one request per second, no heavy use |
 | Online service | OpenStreetMap search service (Nominatim) | Searching places, streets, and addresses (section 8.5) | Free | Usage policy: at most one request per second for the whole app, no search-as-you-type, credit required. Fallback: another search provider. |
 | Online service | GitHub and GitHub Pages | Storing the code and maps, hosting the app | Free | GitHub terms of service |
-| Other apps | WhatsApp, or another messaging app | Sending invite links and, optionally, shared locations; requests and feedback (sections 8.6, 9) | Free | Used through the phone's share menu. The app never sends anything by itself. |
+| Other apps | WhatsApp, or another messaging app | Sending invite links; requests and feedback (sections 8.6, 9) | Free | Used through the phone's share menu. The app never sends anything by itself. |
 | Group trips | Firebase (Google), on its free plan | Keeping each group trip and passing changes between members' phones (section 9.5) | Free, within the free plan's limits | Set up once by the app's maker; users never see it. Everything stored is locked with each group's key. |
 | Other apps | Google Maps, Apple Maps, and other navigation apps | "Navigate in another app" (section 7.1) | Free | Opened by a link only. No data is copied from them. |
 | Browser features | Location, speech, keeping the screen on, encryption, offline storage, the share menu | GPS position, spoken directions, navigation, locked maps, saved maps, sending messages | Built in | Standard web features of the phone's browser |
