@@ -544,7 +544,7 @@ Decision (2026-11-15): users can also add legends and groups in the app, in the 
 | 11 | ![Promenade](../icons/promenade.svg) | Promenade | `promenade` | seaside walk |
 | 12 | ![Holy place](../icons/holy-place.svg) | Holy place | `holy-place` | church, cathedral |
 | 13 | ![Museum / art](../icons/museum.svg) | Museum / art | `museum` | art museum |
-| 14 | ![History / monument](../icons/history.svg) | History / monument | `history` | ruins, castle |
+| 14 | ![History / monument](../icons/history.svg) | History / monument | `history` | ruins, castle, archaeological site |
 | 15 | ![Park / garden](../icons/park.svg) | Park / garden | `park` | city park |
 | 16 | ![Bar / drinks](../icons/bar.svg) | Bar / drinks | `bar` | cocktail bar |
 | 17 | ![Airport](../icons/airport.svg) | Airport | `airport` | airport |
@@ -765,7 +765,7 @@ Creating a trip with AI is mainly for the person who organizes a trip; the other
 
 The app finds the trip in what was pasted, checks it, adds its `uid`, and adds it as a local trip. If anything is wrong, the app says what, in plain words, with a ready "please fix" text to paste back to the AI.
 
-The plain request works only if the AI can search the web and the search finds the toolkit. "Trip Map" is a common name, so until the app has a distinctive name (open question 16), the "Copy request for AI" line with the address is the reliable way.
+The plain request works only if the AI can search the web and the search finds the toolkit. "Trip Map" is a common name, so until the app has a distinctive name (open question 1), the "Copy request for AI" line with the address is the reliable way.
 
 **Ask for a trip** (for users who do not use AI): "Add trip" → **"Ask for a trip"**, a short form with the place, the dates, and interests. It is sent to the app owner like a new trip request (section 8.6), and the user is told when the trip is ready in the trip list. Users can also start a trip by hand (section 8.1).
 
@@ -917,7 +917,7 @@ A group trip is **one trip that a few people travelling together share on their 
 - **Users never see Firebase.** It is set up once by the app's maker (section 9.5). Group creators and members just tap Start, Invite, and Join: no accounts, no sign-in, no settings.
 - **No WhatsApp group is needed.** An invite link for someone who is not there in person can be sent any way, because it holds no key; the inviter approves each join (section 9.3).
 - **Membership is simply having the group key** (decided 2026-11-21). Only apps that hold the key can read the group's data. The app keeps **no member list, no member IDs, and no names**.
-- **What the group makes stays in the group** (decided 2026-11-22): for now, a group trip cannot update the public trips. It can never be sent in an update request or a new trip request, by any member, also after leaving the group (section 8.6). How a group could publish its trip later is an open question (section 15, question 19).
+- **What the group makes stays in the group** (decided 2026-11-22): for now, a group trip cannot update the public trips. It can never be sent in an update request or a new trip request, by any member, also after leaving the group (section 8.6). How a group could publish its trip later is an open question (section 15, question 2).
 - **Simple for everyone:** joining is scanning a QR code on another member's phone, or opening an invite link, and tapping Join.
 - **A member's device can be a phone or a laptop** (decided 2026-11-23). To plan alone on a laptop and use the trip on the phone, start a group on the laptop and join it from the phone: a group of one person on two devices (section 4.3).
 
@@ -2196,27 +2196,10 @@ For users (shown in the app's help):
 
 ## 15. Open questions
 
-Questions 11, 17, 18, and 20 were removed on 2026-11-23: 11 is answered by group trips (release D), 17 and 18 became checks before release D (section 13.3), and community trips (20) will not be supported. The other numbers are kept, so that references to them stay right.
+Only questions still open are listed here (2026-11-23). Decided questions are recorded in the sections they concern, and in the version history (section 16).
 
-1. ~~Navigation panel~~: decided, the app always asks (section 7.1).
-2. ~~Icon 14~~: decided, it stays "History / monument" and also covers archaeological sites.
-3. ~~After approval~~: decided, an approved site becomes a regular site of the trip, and the sender's local copy is removed (section 8.6).
-4. ~~Sharing extras~~: decided, both "Share a group" and "Share my location" are included (section 9).
-5. ~~New groups~~: decided, users can add local legends and groups in the app (section 5.3).
-6. ~~New contributors~~: decided, a new contributor's first trip waits for the app owner's approval (section 12.1).
-7. ~~App license~~: decided, MIT, with a license notice in every code file (section 14.1).
-8. ~~Public trip content license~~: decided, CC BY 4.0 (section 14.1).
-9. ~~Accommodation location~~: decided, "Home" and "Accommodation" are one icon, "Home / accommodation". Its exact location is fine in trips that only the group sees, and approximate in public trips (section 14.2).
-10. ~~Locked map history~~: no longer applies; locked maps were dropped on 2026-11-21.
-12. ~~Icon details~~: decided, the underground station shows a train in a tunnel. Decided: the transport icon became "Airport" (airplane, now icon 17), and a new icon "Ferry" (boat, now icon 31) is added. "Home" and "Accommodation" are merged into one icon (open question 9). After the merge the set has 31 icons, numbered as in section 5.4.
-13. ~~Members' display names~~: replaced on 2026-11-21: there are no member numbers or names at all; WhatsApp shows who sent each message (section 9).
-14. ~~Security review~~: decided, a separate Claude session before each release, and a human security expert before the app is opened to the public (section 14.3).
-15. ~~Security checklist~~: decided, section 14.4. The copyright line is "The Trip Map authors" (section 14.1).
-16. **A distinctive name (open):** "Trip Map" is a common name, so a web search for "Trip Map app" may not find our AI toolkit. Before the app is announced, choose a name that a search finds uniquely, and check it as in section 14.1. Then "Plan a trip for the <name> app" works by itself (section 8.4).
-19. **Publishing from a group trip (open, for a later version):** for now, a group trip cannot update the public trips: no update request and no new trip request from it, by any member (section 8.6, decided 2026-11-22). Later, a way may be found for a group to agree to send its trip, or some of its sites, to the trip owner, for example with every member's approval. Without a member list or a server the app cannot tell when everyone has approved, so this needs its own design.
-
-
-Approved: simple users can add local sites and send proposals (section 2.1).
+1. **A distinctive name:** "Trip Map" is a common name, so a web search for "Trip Map app" may not find our AI toolkit. Before the app is announced, choose a name that a search finds uniquely, and check it as in section 14.1. Then "Plan a trip for the <name> app" works by itself (section 8.4).
+2. **Publishing from a group trip (for a later version):** for now, a group trip cannot update the public trips: no update request and no new trip request from it, by any member (section 8.6, decided 2026-11-22). Later, a way may be found for a group to agree to send its trip, or some of its sites, to the trip owner, for example with every member's approval. Without a member list or a server the app cannot tell when everyone has approved, so this needs its own design.
 
 ## 16. Version history
 
@@ -2282,3 +2265,4 @@ Approved: simple users can add local sites and send proposals (section 2.1).
 | 2 (design) | 2026-11-23 | New section 14.3.1, risk analysis: attackers, holes H1 to H6 and their fixes, data on the phone, who can learn the user's location, and the phone's inputs and outputs (L1 to L9). Fixes: the test version moves to its own organization `projects-rs-test` (H1); "Renew the group key" (H2); QR codes hold only a one-use code, with approval (H3); backups locked with a password (H4); Firebase write limits before going public (H5); `trip-db` accepts only trip files (H6). |
 | 2 (design) | 2026-11-23 | Section 15.1 (ideas raised on 2026-11-15) removed at the app owner's request; its one open idea, community trips, became open question 20. |
 | 2 (design) | 2026-11-23 | Open questions 11 (answered by release D), 17 and 18 (now checks before release D, section 13.3), and 20 (community trips, not supported) removed. |
+| 2 (design) | 2026-11-23 | Section 15 keeps only the questions still open: the name (now question 1) and publishing from a group trip (now question 2). The decided ones were already recorded in their sections; "archaeological site" added to icon 14. |
