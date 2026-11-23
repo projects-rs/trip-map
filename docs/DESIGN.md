@@ -4,7 +4,7 @@
 
 A phone-first web app that shows the sites of a trip on a real street map, with custom pins, several legends, site cards, and walking navigation. The app is not tied to any trip: each trip is a separate trip file that is shared on its own.
 
-Status: version 1 (basic map) is built. Everything below describes the version 2 design. All proposals and assumptions were approved by the app owner on 2026-11-15. Remaining open questions are listed in section 15. The build plan is in section 13. Group trips (section 9) are built in release E, and the big-screen layout (section 4.3) last, in release F: phones come first.
+Status: version 1 (basic map) is built. Everything below describes the version 2 design. All proposals and assumptions were approved by the app owner on 2026-11-15. Remaining open questions are listed in section 15. The build plan is in section 13. Group trips (section 9) are built in release D, the AI toolkit in release E, and the big-screen layout (section 4.3) last, in release F: phones come first.
 
 Last updated: 2026-11-21
 
@@ -194,7 +194,7 @@ The user needs no account and no password at any step. Installing comes first, s
 | **Trip list** | The public trips, by country and city, each with its title, place, and a short description. The chosen trip is downloaded into "My trips". The user does not see that the list and the trips come from GitHub. | A |
 | **Start a new trip** | A new, empty local trip with a title and a place, ready for "Add site" (section 8.2). | A |
 | **Add local trip** | A trip file saved on the phone, for example one made by an AI agent (sections 8.4, 3.4) | A |
-| **Create a trip with AI** | A guided way to have any AI chat write a trip (section 8.4) | D |
+| **Create a trip with AI** | A guided way to have any AI chat write a trip (section 8.4) | E |
 
 A trip shared inside a group arrives as a group message instead (section 3.1.1, row 7).
 
@@ -356,8 +356,8 @@ The menu, in the first version:
 | Request to add my changes | An update request to the app owner (section 8.6). Not shown for a group trip | C |
 | Request to add this trip | A new trip request to the app owner (goal 9). Not shown for a group trip | C |
 | My requests | The requests sent from this phone and their results (section 8.6) | C |
-| Group | Start a group, invite, share with my group, leave (section 9) | To be decided in the review of section 9 |
-| Create a trip with AI, Copy request for AI | Section 8.4 | D |
+| Group | Start a group, invite, share my location, leave (section 9) | D |
+| Create a trip with AI, Copy request for AI | Section 8.4 | E |
 | Send feedback | Section 13.5 | A |
 | Settings | Includes Offline maps, the restore link, and About (sections 3.3, 7.4, 14.1) | A |
 
@@ -920,7 +920,7 @@ A group trip is **one trip that a few people travelling together share on their 
 - **Simple for everyone:** joining is scanning a QR code on another member's phone, or opening an invite link, and tapping Join.
 - **A member's device can be a phone or a laptop** (decided 2026-11-23). To plan alone on a laptop and use the trip on the phone, start a group on the laptop and join it from the phone: a group of one person on two devices (section 4.3).
 
-Release: group trips are scheduled in release E (section 13.3). Until then, members pass trips as files (section 13.3, release A).
+Release: group trips are scheduled in release D (section 13.3). Until then, members pass trips as files (section 13.3, release A).
 
 ### 9.1 What a group trip stores
 
@@ -1234,7 +1234,7 @@ Decided on 2026-11-15, and updated on 2026-11-21, 2026-11-22, and 2026-11-23:
 6. ~~Group size~~: about 8 members, as a recommendation. The app does not count members.
 7. ~~Checking that copies match~~: replaced on 2026-11-23. Every app reads the same data in Firebase, so a match code is no longer needed.
 8. ~~Locked maps~~: no longer applies; locked maps were dropped on 2026-11-21.
-9. ~~Release~~: decided, group trips are built in release E (section 13.3).
+9. ~~Release~~: decided, group trips are built in release D (section 13.3; moved before the AI toolkit on 2026-11-23).
 10. ~~Signed changes~~: replaced on 2026-11-21. There are no member keys or signatures; the group key, its seal (AES-GCM), and the write token show that data came from the group.
 11. ~~New group key~~: replaced on 2026-11-21. A new key comes with a new group.
 12. ~~Member IDs and names~~: decided on 2026-11-21, none.
@@ -1686,7 +1686,7 @@ The setup steps, with every setting and its reason, are in the separate "Trip Ma
 | Test repository | `projects-rs/trip-map-test`, public, MIT. Ruleset `Protect test`. Published at `https://projects-rs.github.io/trip-map-test/`. |
 | Claude | Claude GitHub App on `projects-rs`, only the selected repositories (`trip-map` and `trip-map-test`, and `trip-db` once created). Claude never gets access to the Firebase project. |
 | Trips repository | `projects-rs/trip-db`, public, CC BY 4.0 (section 12.1): planned on 2026-11-21, created by the owner with the same settings as `trip-map`, "Preserve this repository" off, and added to the Claude GitHub App. |
-| Not yet created | The app's Firebase project, for group trips (build step 15): with the app's own Google account, two-step sign-in, on the free plan; the steps are in section 9.5, "One-time setup by the app owner". |
+| Not yet created | The app's Firebase project, for group trips (build step 14): with the app's own Google account, two-step sign-in, on the free plan; the steps are in section 9.5, "One-time setup by the app owner". |
 | Optional later | "Require signed commits" on `trip-map`, kept only if squash merging still works with it. "Require status checks" once the Check workflow exists (build step 2). |
 
 ## 13. Implementation plan
@@ -1698,7 +1698,7 @@ This section describes how the app is built and tested, in small steps that can 
 | Who | Does |
 | --- | --- |
 | Claude | Writes the code, the automated tests, the trip guide, and the documentation. Converts the Barcelona data to the trip format. Fixes reported problems. Opens a change request for every step. **Takes part in reviews:** explains each change in plain words, including the code (the app owner is not a JavaScript expert), answers questions on change requests, and reviews change requests written by others. Never merges. |
-| App owner | Makes the decisions, does the setup steps that need the owner's identity (accounts, repositories, keys; the Trips repository `trip-db` before step 6, and the Firebase project before release E), tests each step on a real phone, reviews and approves, merges, and publishes. Can also write code or documents (below). |
+| App owner | Makes the decisions, does the setup steps that need the owner's identity (accounts, repositories, keys; the Trips repository `trip-db` before step 6, and the Firebase project before release D), tests each step on a real phone, reviews and approves, merges, and publishes. Can also write code or documents (below). |
 | Contributors | Advanced users, and the app owner too, can write code, tests, or documents themselves, and send them as change requests. The same rules apply to every change request, whoever wrote it: the automated tests must pass, Claude can review it, and only the app owner merges (section 12.3). |
 | Testers | The trip group. Try the test version on their own phones and report what they find. At least one Android phone and one iPhone. |
 
@@ -1719,7 +1719,7 @@ A step is done when its automated tests pass, it works on the test address on bo
 
 #### Release A: trip-ready version
 
-Target: ready and field-tested before the Barcelona trip (December 10, 2026). Rough effort with Claude building: one to two weeks, if the app owner can test every day or two.
+Target (changed 2026-11-23): releases A and B are both ready and field-tested before the Barcelona trip (December 10, 2026). Rough effort with Claude building: one to two weeks for release A and about one more week for release B, if the app owner can test every day or two.
 
 | Step | Build | Try on the phone |
 | --- | --- | --- |
@@ -1733,13 +1733,15 @@ Target: ready and field-tested before the Barcelona trip (December 10, 2026). Ro
 | 6. The trip list | Needs `trip-db` created by the app owner (section 12.1). The registry and trip list built from `trip-db`, by country and city; Download; updates offered and accepted (section 3.1); "Start a new trip" (empty) | The Barcelona trip is downloaded from the trip list on each tester's phone, also in the home-screen app on iPhone. It opens without a connection afterwards. |
 | 7. Updates, feedback, and field test | The browser security policy (section 14.3). Automatic app updates with the "New version available" notice. Settings → About with the notices list. "Send feedback" in its first form: a prepared message through the phone's share menu, with its warning (sections 13.5, 14.2). A walk-through of the whole app. | An update reaches all phones. The app owner walks a route in their own city with the app, on both phone types. |
 
-Not in release A: in-app turn-by-turn navigation, update and new trip requests, error reports, contributed public trips, "Create a trip with AI", the full AI toolkit, and group trips.
+Not in release A: in-app turn-by-turn navigation (release B), update and new trip requests, error reports, contributed public trips, "Create a trip with AI", the full AI toolkit, and group trips.
 
-Fallback: the trip is 25 days after this plan was approved, and setup finished on November 21, leaving 14 days. If release A is not field-tested by December 5, 2026, the trip uses version 1 and the trip already published for it, and release A continues after the trip.
+Fallback: setup finished on November 21, leaving 19 days for releases A and B. Release A comes first and is the minimum for the trip. If release B is not field-tested by December 5, 2026, the trip uses release A, with navigation through "In another app" (Google Maps, Apple Maps), and release B continues after the trip. If release A is not field-tested by December 5, the trip uses version 1 and the trip already published for it.
 
 On the trip, each member adds sites locally. To pass them on, a member uses "Export trip" with their local sites and sends the file through WhatsApp. The others open it with "Add local trip", as a separate local trip (section 3.4). Putting sites from several members into one shared trip is an open gap, for later (section 15, open question 11).
 
 #### Release B: in-app navigation
+
+Target: ready and field-tested before the Barcelona trip, together with release A (see the fallback above).
 
 | Step | Build | Try on the phone |
 | --- | --- | --- |
@@ -1755,21 +1757,21 @@ On the trip, each member adds sites locally. To pass them on, a member uses "Exp
 | 12. Reports | Error reports with consent, sent through the share menu (section 13.5) | An error report reaches the app owner. |
 | 13. Contributed trips | Pull requests to `trip-db` with the automatic checks, "Report this trip" | A second person contributes a trip by pull request; after merging, it appears in the trip list. A report of a trip reaches the app owner. |
 
-#### Release D: AI toolkit
+#### Release D: group trips
 
-| Step | Build | Check |
-| --- | --- | --- |
-| 14. Toolkit and "Create a trip with AI" | The full trip guide, the schema, the entry-point files for AI tools, the architecture description, the Claude skill, "Copy request for AI", the format converter, "Paste trip" and the "not yet verified" mark (section 8.4) | A new trip made by an AI tool other than Claude, from the toolkit alone, passes the checker and opens in the app. A simple user makes a trip by asking a free AI chat and pasting the answer. |
-
-#### Release E: group trips
-
-Decision (2026-11-15, confirmed by the app owner): group trips (section 9) are built after releases A to D, because they are the most complex part of the app; only the big-screen layout (release F) comes after them. Release E starts only after releases A to D are published.
+Decision (2026-11-15, confirmed by the app owner; order changed 2026-11-23): group trips (section 9) are built after releases A to C, because they are the most complex part of the app. The AI toolkit (release E) and the big-screen layout (release F) come after them. Release D starts only after releases A to C are published.
 
 | Step | Build | Try on the phone |
 | --- | --- | --- |
-| 15. Firebase, starting, and joining | The app maker's one-time Firebase setup (section 9.5), anonymous sign-in, "Start a group" with "Choose the trip" and the check, the group key, ID, write token, and manager token, "Use a copy for the group", the first upload, QR invites (15 minutes), one-use invite links with the typed name and the inviter's approval, the key sent through Firebase locked for the new member, joining, declining and rejecting, the security rules | A group of four is started. Members join by QR code, and by an invite link sent by email that the inviter approves, and see the trip at once. A second use of the same link is refused. An app without the write token cannot change the group. A person who declines leaves no trace. |
-| 16. Sharing in the group | Automatic sharing of every change through Firebase, transactions, live updates, offline queueing, merging, "Looks like the same place?", taking or skipping new legend entries, "Share my location" (15 minutes), privacy checks | Four phones, two of them offline for a while, end with the same trip. Two phones changing the same site at once keep the newer version. A location appears on the others' open apps within seconds and is gone after 15 minutes. |
-| 17. Leaving and after the trip | "Leave group", a new phone with a fresh invite, "Delete the group" by the manager only, "Hand over manager" by QR code, the manager token in the backup, automatic deletion, falling back to "Export trip" when Firebase cannot be reached | A member who leaves keeps the trip as a local trip that cannot be sent in a request. After deletion, nothing of the group is left in Firebase. After the manager hands over, only the new manager can delete the group. |
+| 14. Firebase, starting, and joining | The app maker's one-time Firebase setup (section 9.5), anonymous sign-in, "Start a group" with "Choose the trip" and the check, the group key, ID, write token, and manager token, "Use a copy for the group", the first upload, QR invites (15 minutes), one-use invite links with the typed name and the inviter's approval, the key sent through Firebase locked for the new member, joining, declining and rejecting, the security rules | A group of four is started. Members join by QR code, and by an invite link sent by email that the inviter approves, and see the trip at once. A second use of the same link is refused. An app without the write token cannot change the group. A person who declines leaves no trace. |
+| 15. Sharing in the group | Automatic sharing of every change through Firebase, transactions, live updates, offline queueing, merging, "Looks like the same place?", taking or skipping new legend entries, "Share my location" (15 minutes), privacy checks | Four phones, two of them offline for a while, end with the same trip. Two phones changing the same site at once keep the newer version. A location appears on the others' open apps within seconds and is gone after 15 minutes. |
+| 16. Leaving and after the trip | "Leave group", a new phone with a fresh invite, "Delete the group" by the manager only, "Hand over manager" by QR code, the manager token in the backup, automatic deletion, falling back to "Export trip" when Firebase cannot be reached | A member who leaves keeps the trip as a local trip that cannot be sent in a request. After deletion, nothing of the group is left in Firebase. After the manager hands over, only the new manager can delete the group. |
+
+#### Release E: AI toolkit
+
+| Step | Build | Check |
+| --- | --- | --- |
+| 17. Toolkit and "Create a trip with AI" | The full trip guide, the schema, the entry-point files for AI tools, the architecture description, the Claude skill, "Copy request for AI", the format converter, "Paste trip" and the "not yet verified" mark (section 8.4) | A new trip made by an AI tool other than Claude, from the toolkit alone, passes the checker and opens in the app. A simple user makes a trip by asking a free AI chat and pasting the answer. |
 
 #### Release F: big screens
 
@@ -1779,7 +1781,7 @@ Decided (2026-11-23): built only after the phone versions of the earlier release
 | --- | --- | --- |
 | 18. Big screens | The two-pane layout for wide windows, mouse and keyboard, dragging files into the window, hiding navigation, location, and offline maps, installing on a laptop | On a laptop, plan a trip, start a group, and join it from a phone: every change appears on both. On the phone, nothing has changed |
 
-Rough effort for releases B to F together: about five to six weeks, mostly set by testing on real phones, plus the app owner's one-time Firebase setup before release E. These are planning estimates, not promises.
+Rough effort for releases C to F together: about four to five weeks, mostly set by testing on real phones, plus the app owner's one-time Firebase setup before release D. These are planning estimates, not promises.
 
 ### 13.4 Testing
 
@@ -1789,7 +1791,7 @@ Automated tests run on every change request and must pass before merging:
 - **Browser tests** that walk through the main screens at phone size first, and, from release F, also at laptop size, in both Chrome's engine and Safari's engine: open a trip, switch legends, filter, open a card, add a site, export.
 - **Trip checks:** the example trips and the icon set file are checked with every change.
 - **Security tests** (section 14.3): harmful content in every field, broken and oversized links and messages, and the browser security policy.
-- **Firebase tests**, from release E, against Firebase's free emulator on a laptop: the security rules (no reading without the group ID, no writing without the write token, no deleting without the manager token), offline changes, and simultaneous changes (section 9.5).
+- **Firebase tests**, from release D, against Firebase's free emulator on a laptop: the security rules (no reading without the group ID, no writing without the write token, no deleting without the manager token), offline changes, and simultaneous changes (section 9.5).
 - **Conversion tests**, once a format has a conversion step: each step's old file must become exactly the expected new file (section 11.1).
 - **A security review before each release** (section 14.3).
 
@@ -2073,7 +2075,7 @@ For users (shown in the app's help):
 8. ~~Public trip content license~~: decided, CC BY 4.0 (section 14.1).
 9. ~~Accommodation location~~: decided, "Home" and "Accommodation" are one icon, "Home / accommodation". Its exact location is fine in trips that only the group sees, and approximate in public trips (section 14.2).
 10. ~~Locked map history~~: no longer applies; locked maps were dropped on 2026-11-21.
-11. **Combining members' sites during a trip (open gap):** release A has no way to put sites added by several members into one shared trip. Members pass whole trips as files instead. Later: group trips (release E).
+11. **Combining members' sites during a trip (open gap):** release A has no way to put sites added by several members into one shared trip. Members pass whole trips as files instead. Later: group trips (release D).
 12. ~~Icon details~~: decided, the underground station shows a train in a tunnel. Decided: the transport icon became "Airport" (airplane, now icon 17), and a new icon "Ferry" (boat, now icon 31) is added. "Home" and "Accommodation" are merged into one icon (open question 9). After the merge the set has 31 icons, numbered as in section 5.4.
 13. ~~Members' display names~~: replaced on 2026-11-21: there are no member numbers or names at all; WhatsApp shows who sent each message (section 9).
 14. ~~Security review~~: decided, a separate Claude session before each release, and a human security expert before the app is opened to the public (section 14.3).
@@ -2159,3 +2161,4 @@ Three ideas raised during the design, and what was decided about each.
 | 2 (design) | 2026-11-21 | Section 10.1: the AI toolkit's public address, `https://projects-rs.github.io/trip-map/ai/`, its folder layout, plain files, one source, versioned addresses, and where the address is published. |
 | 2 (design) | 2026-11-21 | Section 10.3: where the check runs without a server (app, checker scripts for AI agents, checker page for people, schema, GitHub), and the final step that directs AI agents to the check, with a checklist for agents that cannot run code. |
 | 2 (design) | 2026-11-21 | Section 8.4 rewritten: for organizers; way 1 opens ChatGPT or Claude with a short request pointing to the toolkit, or copies it for any AI; way 2 adds the skill to Claude; "Ask for a trip" for users without AI. Section 10.1: making the toolkit easy to find for search engines and AI agents. |
+| 2 (design) | 2026-11-23 | Section 13.3: releases A and B (in-app navigation) both targeted for the Barcelona trip, with release A as the minimum fallback. Group trips moved before the AI toolkit: group trips are now release D (steps 14–16), the AI toolkit release E (step 17). |
