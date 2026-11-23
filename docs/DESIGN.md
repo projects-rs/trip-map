@@ -1697,8 +1697,9 @@ This section describes how the app is built and tested, in small steps that can 
 
 | Who | Does |
 | --- | --- |
-| Claude | Writes the code, the automated tests, the trip guide, and the documentation. Converts the Barcelona data to the trip format. Fixes reported problems. Opens a change request for every step. |
-| App owner | Makes the decisions, does the setup steps that need the owner's identity (accounts, repositories, keys; the Trips repository `trip-db` before step 6, and the Firebase project before release E), tests each step on a real phone, approves and merges, and publishes. |
+| Claude | Writes the code, the automated tests, the trip guide, and the documentation. Converts the Barcelona data to the trip format. Fixes reported problems. Opens a change request for every step. **Takes part in reviews:** explains each change in plain words, including the code (the app owner is not a JavaScript expert), answers questions on change requests, and reviews change requests written by others. Never merges. |
+| App owner | Makes the decisions, does the setup steps that need the owner's identity (accounts, repositories, keys; the Trips repository `trip-db` before step 6, and the Firebase project before release E), tests each step on a real phone, reviews and approves, merges, and publishes. Can also write code or documents (below). |
+| Contributors | Advanced users, and the app owner too, can write code, tests, or documents themselves, and send them as change requests. The same rules apply to every change request, whoever wrote it: the automated tests must pass, Claude can review it, and only the app owner merges (section 12.3). |
 | Testers | The trip group. Try the test version on their own phones and report what they find. At least one Android phone and one iPhone. |
 
 What sets the pace is not writing code but decisions, setup, and testing on real phones.
