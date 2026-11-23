@@ -1486,7 +1486,7 @@ How the app behaves:
 | --- | --- |
 | Same major, same or older minor | Opens normally |
 | Same major, newer minor | Opens. Unknown fields are ignored. |
-| Older major | Opens. The app converts the file to the current format when loading. |
+| Older major | Opens. The app converts the file to the current format when loading (below, "How conversion works"). |
 | Newer major | Does not open. Shows "This trip needs a newer version of the app", with an Update button. |
 
 Process:
@@ -1494,6 +1494,59 @@ Process:
 - The format changes only when an app feature needs it. The change is decided as part of designing that feature.
 - Every change is recorded in the format history below.
 - The trip guide (section 10.1) states the current format version. An AI tool always writes the current format.
+
+#### How conversion works (decided 2026-11-23)
+
+An older file is converted by a chain of **small conversion steps**, one for each major format change. Each step is written at the time the breaking change is made, by whoever makes it, so it knows exactly which fields changed and how. Nothing is guessed.
+
+Where everything is kept, in the App repository:
+
+| # | What | Where | Example |
+| --- | --- | --- | --- |
+| 1 | **The steps** (code), one small file per major change | `src/format/convert/` | `2-to-3.js`: converts a 2.x file to 3.0 |
+| 2 | **What each step means**, in plain words | The format history below (one row per version), and the same text at the top of each step's file | "3.0: each legend's `groups` renamed to `entries`" |
+| 3 | **The rules of every version**, kept forever | `schema/` | `trip-2.0.json`, `trip-3.0.json` |
+| 4 | **The tests of every step**: an old file, and the exact file it must become | `tests/format/` | `2.0-barcelona.json` → `3.0-barcelona.json` |
+
+The flow, whenever a trip is opened or added (a file, a download, or a trip saved on the phone before an app update):
+
+1. **Read** the file's `formatVersion`, for example "2.0".
+2. **Same major as the app:** go to step 5.
+3. **Newer major than the app:** stop, and show "This trip needs a newer version of the app", with an Update button.
+4. **Older major:** run the steps in order until the file is current. A 2.0 file opened by an app for format 4.0 goes through `2-to-3`, then `3-to-4`. Each step also sets the new `formatVersion`.
+5. **Check** the result with the trip checker (section 10.2), which knows only the current format.
+6. **Save** the converted trip. The original is kept until the converted trip has been checked and saved, so a failed conversion never loses a trip. If it fails, the app keeps the original as it was and says what went wrong.
+
+The converter and the checker are separate: convert first, then check. The checker scripts and the checker page in the AI toolkit (section 10.1) include the same steps, built from the same files, so a file outside the app, for example on GitHub or in an AI chat, is converted exactly as the app would convert it. This is the "format converter" of section 10.1.
+
+What a step can do, for each kind of breaking change:
+
+| # | Kind of change | What the step does | Example |
+| --- | --- | --- | --- |
+| 1 | A field is **renamed** | Moves its value to the new name | `groups` → `entries` |
+| 2 | A field **moves** | Takes it from the old place and puts it in the new one | `timezone` moving into `place` |
+| 3 | A **new required field** | Fills in a sensible default | `"license": "CC-BY-4.0"` |
+| 4 | A field is **removed** | Drops it; if it held something the user may care about, the step keeps it in the site's description, or the app tells the user what was dropped | An old note field |
+| 5 | A value's **meaning changes** | Converts the value | Opening hours written in a new way |
+
+Example of a step, the planned `groups` → `entries` rename (shown in Python for readability; the app's steps are in JavaScript):
+
+```python
+def convert_2_to_3(trip):
+    for legend in trip["legends"]:
+        if "groups" in legend:                        # the old name
+            legend["entries"] = legend.pop("groups")  # moved to the new name
+    trip["formatVersion"] = "3.0"
+    return trip
+```
+
+Rules:
+
+- **Steps are never changed after release**, so an old file always converts the same way. A mistake is fixed by a new step.
+- **Every step has its own tests**, run with every change (section 13.4).
+- **Light to run:** a step is a few lines, and runs once per trip; the converted trip is saved, so it never runs again for that trip. A trip of 35 sites converts in a few thousandths of a second.
+- **Major changes are rare.** A change is made as a minor one whenever possible: a new **optional** field instead of renaming or moving one. Older files then simply lack it, and no step is needed.
+- **Before the first public release, no steps are needed:** changes such as renaming `groups` to `entries` are made directly in the format, the example trips, and the schema, because no trip files exist yet in users' hands.
 
 Format history:
 
