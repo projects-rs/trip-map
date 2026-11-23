@@ -20,7 +20,7 @@ Trips on the map:
 2. Group sites by more than one legend (for example Category and Day) and filter by them.
 3. Tap a site to see its details and navigate to it. Do this inside the app where possible; other navigation apps are a choice, not the default.
 4. Keep the app independent of any trip. Every trip is a JSON file. The app predefines no sites, legends, groups, or colors.
-5. Hold several trips on one phone, and switch between them. Each trip keeps its own local changes.
+5. Hold several trips on one phone, and switch between them. Each trip keeps its own local changes. Plan comfortably on a laptop too, and use the trip on the phone (section 4.3). The phone always comes first.
 
 Getting and changing trips:
 
@@ -124,6 +124,8 @@ Every link is an ordinary web address that starts with the app's address. The us
 | --- | --- | --- |
 | Android | Any up-to-date browser: Chrome, Samsung Internet, Edge, Firefox | Chrome, Samsung Internet, Edge (recommended: Chrome) |
 | iPhone | Any browser (on iPhone they all use Safari's engine) | Safari; on newer iOS versions also Chrome and Edge, through their Share menu |
+
+Laptops and desktops (section 4.3): the app opens in Chrome, Edge, Firefox, or Safari on a Mac, at the same address. Chrome and Edge can install it as a desktop app ("Install app" in the address bar), and Safari on a Mac with "Add to Dock".
 
 - **Links opened inside WhatsApp** open in WhatsApp's own small browser, which can show the map but cannot add it to the home screen. The app detects this and shows "Open in Chrome" (Android) or "Open in Safari" (iPhone), with the menu item to tap.
 - **Security and permissions:** the app runs inside the browser's security sandbox, like any web page. It cannot read the phone's files, contacts, photos, or other apps. The only permission it asks for is location, the first time the user taps "My location" or starts navigation, and the user can refuse or withdraw it in the phone's settings. Sections 14.3 and 14.4 cover the app's own security rules.
@@ -288,6 +290,7 @@ Every way a trip can arrive in the app, leave it, or change on the phone, in one
 | 6 | Join a group trip | Firebase, after an invite | Scan the QR code, or open the invite link and wait for approval | 9.3 | An invite link: Copy, then "Paste invite" in the app |
 | 7 | Restore from a backup | The user's backup file | "Restore" → pick the backup | 3.3 | – |
 | 8 | Advanced users: a file from GitHub | `trip-db` on GitHub | Download the file, then "Add local trip" | 3.1 | – |
+| 8a | Plan on a laptop, then use it on the phone | A laptop, as one more device | Start a group on the laptop, and join it from the phone; or "Export trip" on the laptop and "Add local trip" on the phone | 4.3, 9.3 | – |
 
 **Out of the app**
 
@@ -396,6 +399,8 @@ Behavior:
 
 ### 4.2 Controls and what they do
 
+On a big screen, some controls behave differently with a mouse and keyboard (section 4.3).
+
 Every control in the interface, with what a tap or a long press does. Each has an ID. The architecture description (ARCHITECTURE.md) maps each ID to the code that handles it, and each automated test names the IDs it checks. A new control gets a new ID here first.
 
 Main screen:
@@ -447,6 +452,22 @@ Navigation panel (section 7.1):
 | UI-42 | "In another app" | Tap | Opens Google Maps or Apple Maps with the site as the destination |
 
 The menu items are listed in section 4. Group controls are added with the review of section 9.
+
+### 4.3 Big screens: laptop and tablet (decided 2026-11-23)
+
+The same app also works on a laptop, a desktop, or a tablet held sideways, so that a trip can be planned comfortably on a big screen and used on the phone. It is not a separate app: the same address, the same trips format, and the same code, with a layout made for a wide window.
+
+**Phones come first** (decided 2026-11-23). Every feature is designed, built, tested, and verified on phones first. The big-screen layout is added afterwards (section 13.3, release F), and never changes how the app works on a phone.
+
+| # | Part | On a big screen |
+| --- | --- | --- |
+| 1 | **When it is used** | Automatically, when the window is wide enough. A narrow window shows the phone layout |
+| 2 | **Layout** | The trip on the left (legends, the list of sites, the site card), the map on the right |
+| 3 | **Mouse and keyboard** | Click on the map to add a site; drag a site from one legend entry to another; type comfortably; keyboard shortcuts for search and undo; hovering over a pin shows its name |
+| 4 | **Files** | Drag a trip file, for example from an AI agent, into the window, or open it from Downloads ("Add local trip") |
+| 5 | **Hidden** | In-app navigation, "Share my location", and offline maps: they are for walking around, not for a desk |
+| 6 | **Getting the trip to the phone** | The laptop is simply one more device: start a group on the laptop and join it from the phone, and both stay in step automatically (section 9); or "Export trip" on the laptop and "Add local trip" on the phone (section 3.4) |
+| 7 | **Installing** | Optional: Chrome and Edge "Install app", Safari on a Mac "Add to Dock" (section 3.1.2) |
 
 ## 5. Pins and legends
 
@@ -900,6 +921,7 @@ A group trip is **one trip that a few people travelling together share on their 
 - **Membership is simply having the group key** (decided 2026-11-21). Only apps that hold the key can read the group's data. The app keeps **no member list, no member IDs, and no names**.
 - **What the group makes stays in the group** (decided 2026-11-22): for now, a group trip cannot update the public trips. It can never be sent in an update request or a new trip request, by any member, also after leaving the group (section 8.6). How a group could publish its trip later is an open question (section 15, question 19).
 - **Simple for everyone:** joining is scanning a QR code on another member's phone, or opening an invite link, and tapping Join.
+- **A member's device can be a phone or a laptop** (decided 2026-11-23). To plan alone on a laptop and use the trip on the phone, start a group on the laptop and join it from the phone: a group of one person on two devices (section 4.3).
 
 Release: group trips are scheduled in release E (section 13.3). Until then, members pass trips as files (section 13.3, release A).
 
@@ -1690,6 +1712,14 @@ Decision (2026-11-15, confirmed by the app owner): group trips (section 9) are t
 | 16. Sharing in the group | Automatic sharing of every change through Firebase, transactions, live updates, offline queueing, merging, "Looks like the same place?", taking or skipping new legend entries, "Share my location" (15 minutes), privacy checks | Four phones, two of them offline for a while, end with the same trip. Two phones changing the same site at once keep the newer version. A location appears on the others' open apps within seconds and is gone after 15 minutes. |
 | 17. Leaving and after the trip | "Leave group", a new phone with a fresh invite, "Delete the group" by the manager only, automatic deletion, falling back to "Export trip" when Firebase cannot be reached | A member who leaves keeps the trip as a local trip that cannot be sent in a request. After deletion, nothing of the group is left in Firebase. |
 
+#### Release F: big screens
+
+Decided (2026-11-23): built only after the phone versions of the earlier releases work and are verified on real phones (section 4.3).
+
+| Step | Build | Try it |
+| --- | --- | --- |
+| 18. Big screens | The two-pane layout for wide windows, mouse and keyboard, dragging files into the window, hiding navigation, location, and offline maps, installing on a laptop | On a laptop, plan a trip, start a group, and join it from a phone: every change appears on both. On the phone, nothing has changed |
+
 Rough effort for releases B to E together: about four to five weeks, mostly set by testing on real phones. These are planning estimates, not promises.
 
 ### 13.4 Testing
@@ -1697,7 +1727,7 @@ Rough effort for releases B to E together: about four to five weeks, mostly set 
 Automated tests run on every change request and must pass before merging:
 
 - **Unit tests** for the logic that is easy to get subtly wrong: the map checker, opening hours (time zones, daylight saving time, hours past midnight, closed dates), pin colors and pie-chart segments, legend filtering, the format converter, the icon set version rules, and locking and unlocking a map.
-- **Browser tests** that walk through the main screens at phone size, in both Chrome's engine and Safari's engine: open a map, switch legends, filter, open a card, add a site, export.
+- **Browser tests** that walk through the main screens at phone size first, and, from release F, also at laptop size, in both Chrome's engine and Safari's engine: open a map, switch legends, filter, open a card, add a site, export.
 - **Map checks:** the example maps and the icon set file are checked with every change.
 - **Security tests** (section 14.3): harmful content in every field, broken and oversized links and messages, and the browser security policy.
 - **A security review before each release** (section 14.3).
