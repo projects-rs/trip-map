@@ -1540,6 +1540,15 @@ def convert_2_to_3(trip):
     return trip
 ```
 
+Why it works:
+
+- **Every file says exactly which format it is in** (`formatVersion`), so the app always knows where to start, and never has to guess from the file's contents.
+- **Each step does one known change**, from one version to the next. It was written together with that change, by someone who knew exactly what was renamed, moved, added, or removed. So each step is exact, not a guess.
+- **Steps join into a chain.** If 2 → 3 is right, and 3 → 4 is right, then running them one after the other turns any correct 2.0 file into a correct 4.0 file. No step ever needs to know about versions other than its own two.
+- **Each step is proven by its tests**: a known old file must come out as exactly the expected new file. The tests run with every change to the app, so a step cannot break later without the tests failing.
+- **The result is checked** with the current rules (step 5 of the flow) before it is used, so even an unexpected file cannot slip through as a broken trip.
+- **Nothing is lost on failure:** the original is kept until the converted trip is checked and saved.
+
 Rules:
 
 - **Steps are never changed after release**, so an old file always converts the same way. A mistake is fixed by a new step.
