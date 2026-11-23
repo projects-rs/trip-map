@@ -1704,7 +1704,7 @@ On the trip, each member adds sites locally. To pass them on, a member uses "Exp
 
 #### Release E: group trips
 
-Decision (2026-11-15, confirmed by the app owner): group trips (section 9) are the last feature to be built, because they are the most complex part of the app. Release E starts only after releases A to D are published.
+Decision (2026-11-15, confirmed by the app owner): group trips (section 9) are built after releases A to D, because they are the most complex part of the app; only the big-screen layout (release F) comes after them. Release E starts only after releases A to D are published.
 
 | Step | Build | Try on the phone |
 | --- | --- | --- |
