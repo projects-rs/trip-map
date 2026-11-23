@@ -2,7 +2,7 @@
 
 "Trip Map" is a working name.
 
-A phone-first web app that shows the sites of a trip on a real street map, with custom pins, several legends, site cards, and walking navigation. The app is not tied to any trip: each trip is a separate map file that is shared on its own.
+A phone-first web app that shows the sites of a trip on a real street map, with custom pins, several legends, site cards, and walking navigation. The app is not tied to any trip: each trip is a separate trip file that is shared on its own.
 
 Status: version 1 (basic map) is built. Everything below describes the version 2 design. All proposals and assumptions were approved by the app owner on 2026-11-15. Remaining open questions are listed in section 15. The build plan is in section 13. Group trips (section 9) are built in release E, and the big-screen layout (section 4.3) last, in release F: phones come first.
 
@@ -136,29 +136,27 @@ Adding the app to the home screen does three things: it saves the app's files in
 
 Android (Chrome):
 
-1. Open the map link in Chrome.
+1. Open the app's link in Chrome.
 2. The app shows an "Add to home screen" button. Tap it, or open Chrome's ⋮ menu → **Add to Home screen** (or **Install app**).
-3. Tap **Install**. The icon appears on the home screen, and the map is already inside.
+3. Tap **Install**. The icon appears on the home screen. Trips are then added from inside the app (section 3.4).
 4. To remove it: long-press the icon → **Uninstall** (or remove).
 
 iPhone (Safari):
 
-1. Open the map link in Safari.
-2. In the app's picture guide, tap **Copy map link** (see step 7 below for why).
-3. Tap Safari's **Share** button (the square with an arrow) → **Add to Home Screen** → **Add**.
-4. Open the app from its new icon and tap **Add map**, which pastes the copied link.
-5. To remove it: long-press the icon → **Remove App** → **Delete from Home Screen**.
+1. Open the app's link in Safari.
+2. Tap Safari's **Share** button (the square with an arrow) → **Add to Home Screen** → **Add**.
+3. Open the app from its new icon. Trips are then added from inside the app (section 3.4). On iPhone, the home-screen app does not share saved data with Safari, so the app is always used from its icon.
+4. To remove it: long-press the icon → **Remove App** → **Delete from Home Screen**.
 
 #### 3.1.4 When the browser does not load the app
 
 | Cause | What the user sees or does |
 | --- | --- |
 | No internet on the first visit | "No connection" (table below) |
-| A content blocker or "data saver" blocks parts of the page | The app shows which part failed (map tiles, the map file) and suggests allowing the app's address |
+| A content blocker or "data saver" blocks parts of the page | The app shows which part failed (map tiles, the trip file) and suggests allowing the app's address |
 | A phone managed by an employer blocks the address | The browser shows its own block page; the user needs another phone or the employer's permission |
 | A very old browser or phone | "This browser is too old for Trip Map. Please update it." |
 | The link opened inside WhatsApp | Works for viewing; to add to the home screen, "Open in Chrome / Safari" (section 3.1.2) |
-
 
 #### 3.1.5 Known platform limits
 
@@ -236,10 +234,10 @@ A trip shared inside a group reaches a new member right after joining with an in
 - The app downloads a new version in the background, but uses it only after the user accepts. When a new version is published at the app's address, the app shows "New version of Trip Map available" with a short list of what is new, and **Update** and **Not now**. "Not now" asks again the next time the app is opened.
 - Nothing changes during a walk: the question is never shown during navigation.
 - A user opening the app for the first time always gets the newest version.
-- If a map needs a newer app than the one on the phone, the app says so and offers the update (section 3.1).
-- An update replaces only the app. The user's maps, local sites, and settings stay on the phone.
+- If a trip needs a newer app than the one on the phone, the app says so and offers the update (section 3.1).
+- An update replaces only the app. The user's trips, local sites, and settings stay on the phone.
 - The app's version number is shown in Settings.
-- Each map file records its format version. Newer app versions continue to read older map files (section 11).
+- Each trip file records its format version. Newer app versions continue to read older trip files (section 11).
 - Publishing a new version is the app owner's task. Claude can prepare a version, but only the app owner publishes it (section 12.4). Users do nothing.
 
 ### 3.3 Your data on the phone
@@ -501,33 +499,32 @@ A site in more than one displayed group (decision: pie-chart pin):
 
 All the rules in sections 5.1 to 5.4 are also rules for AI agents that write trips, and are packaged in the trip-author skill (section 10.1).
 
-Principle: a map's legends and their groups are decided by the map's author, not by the app. The app has no built-in legends, groups, or colors. It displays whatever a map defines. "Category" and "Day" in this document are examples only.
+Principle: a trip's legends and their groups are decided by the trip's author, not by the app. The app has no built-in legends, groups, or colors. It displays whatever a trip defines. "Category" and "Day" in this document are examples only.
 
-| Decided by the app | Decided by each map's author |
+| Decided by the app | Decided by each trip's author |
 | --- | --- |
 | The icon set (section 5.4) | Which legends exist, and their names |
 | How pins, chips, and cards look and behave | The groups in each legend, and their names |
 | | Each group's color |
 | | Which sites belong to which groups |
 
-Designing a map's own legends and groups is part of designing the map. It is done outside the app, in the map file, by the map owner, usually together with an AI tool (section 10.1). Users can add local legends and groups of their own on top (below).
+Designing a trip's own legends and groups is part of designing the trip. It is done outside the app, in the trip file, by the trip's author, usually together with an AI tool (section 10.1). Users can add local legends and groups of their own on top (below).
 
 - A legend is a named list of groups, for example Category (Art, Architecture, …) or Day (Thu 10, Fri 11, …).
 - Each group lists the sites it contains.
 - A site can appear in several legends, and in more than one group of the same legend.
-- A map can define any number of legends.
+- A trip can define any number of legends.
 - A legend chip shows its group's color, the group name, and the number of sites in it. The chips are the color key of the map.
 
 #### Adding legends and groups in the app
 
 Decision (2026-11-15): users can also add legends and groups in the app, in the same way as they add sites.
 
-- A user can add a new group to one of the map's legends, with a name and a color, for example "Famous buildings".
+- A user can add a new group to one of the trip's legends, with a name and a color, for example "Famous buildings".
 - A user can add a new legend of their own, with its groups, for example "Who wants to go", with a group per person.
-- These are **local legends and groups**, like local sites (section 8.3). They stay on the user's phone and do not change the map itself. The user can rename, recolor, or delete them.
+- These are **local legends and groups**, like local sites (section 8.3). They stay on the user's phone and do not change the trip itself. The user can rename, recolor, or delete them.
 - They are included in "Export trip" if the user chooses, and in update requests to the trip owner (section 8.6).
 - In a group trip, they are shared with the other members like any other change. Each member decides whether to take a new legend or group (section 9).
-
 
 ### 5.4 Icon set (version 1.0: 31 icons, maximum 50)
 
@@ -565,19 +562,19 @@ Decision (2026-11-15): users can also add legends and groups in the app, in the 
 | 30 | ![Police station](../icons/police.svg) | Police station | `police` | police station |
 | 31 | ![Ferry](../icons/ferry.svg) | Ferry | `ferry` | ferry terminal, ferry crossing |
 
-The icon set belongs to the app, so all maps share it.
+The icon set belongs to the app, so all trips share it.
 
-Icon style (decision): solid, filled symbols in one uniform style, shown in white on the pin. The symbols come from the Material Design Icons collection by Pictogrammers, which is free and open source. The pictures in the table above are the files in the `icons` folder next to this document. The ID column is the value a map file uses in a site's `icon` field.
+Icon style (decision): solid, filled symbols in one uniform style, shown in white on the pin. The symbols come from the Material Design Icons collection by Pictogrammers, which is free and open source. The pictures in the table above are the files in the `icons` folder next to this document. The ID column is the value a trip file uses in a site's `icon` field.
 
 The icon set can be extended:
 
 - The icon set is kept as its own file in the app's repository, `icons/icons.json`, with its own version number (section 11.4). It is not built into the app's code. The pictures are in `icons/`, one SVG file per icon, named by the icon's ID.
 - Each icon has a fixed ID (for example `market`), a display name, a symbol, and the icon set version in which it was added (`since`). One icon file therefore holds the whole history, and no old icon files need to be kept.
 - New icons are added by the app's owner and arrive with an app update.
-- An icon's ID is never reused or deleted. A retired or renamed icon keeps working through an alias, so old maps are not broken.
-- Each map file states the icon set version it was written for (`iconSetVersion`).
+- An icon's ID is never reused or deleted. A retired or renamed icon keeps working through an alias, so old trips are not broken.
+- Each trip file states the icon set version it was written for (`iconSetVersion`).
 - Version 1.0 has 31 icons. The icon set has an upper limit of 50 icons.
-- Decision: a map cannot carry private icons of its own, for now. Maps use only the shared icon set. If this is added later, a map would pick its extra symbols from a built-in symbol library.
+- Decision: a trip cannot carry private icons of its own, for now. Trips use only the shared icon set. If this is added later, a trip would pick its extra symbols from a built-in symbol library.
 
 ## 6. Site card
 
@@ -591,7 +588,7 @@ A short tap on a pin opens the card. It shows these details:
 4. **Webpage link:** the line is hidden when the site has no link.
 5. **Opening hours:** for any site that has them, not only markets. The card shows the current status ("Open now, closes 19:00", "Closing soon, closes in 25 min", or "Closed, opens Tue 10:00") and the weekly hours. A site that never closes shows "Always open". The line is hidden when the hours are unknown.
 
-Open or closed is worked out automatically from the site's hours and the current time at the map's location, not the time zone of the phone.
+Open or closed is worked out automatically from the site's hours and the current time at the trip's location, not the time zone of the phone.
 
 The card also lists the legend entries the site belongs to, in every legend, each with its color (section 5.1), and has a Share button (UI-27).
 
@@ -753,7 +750,7 @@ A user can start a trip from scratch, from anywhere: GPS is not needed, and the 
 - The user can add, change, and remove any site on their phone, including the trip's own sites (goal 7). Changes stay on that phone only. A trip's own site that was changed or removed is marked, so that "Request to add my changes" can send it (section 8.6), and "Undo my change" restores the published version.
 - Local sites survive closing the app and app updates.
 - **Local changes are kept when the trip is updated** (section 3.1). A local site that was approved into the trip is replaced by the published one, matched by its ID, so there are no duplicates. A local change to a site that the update also changed is shown as "changed on both sides", and the user picks which to keep.
-- Export: local sites can be saved as a small JSON file or shared as text, or exported together with the map (section 3.4). This is the backup. Clearing the browser's data, or opening the app in another browser, removes local sites.
+- Export: local sites can be saved as a small JSON file or shared as text, or exported together with the trip (section 3.4). This is the backup. Clearing the browser's data, or opening the app in another browser, removes local sites.
 
 ### 8.4 Create a trip with AI
 
@@ -781,13 +778,13 @@ A built-in AI, where the user types into the app itself, is possible later. Some
 
 ### 8.5 Search
 
-Decision (2026-11-15): the app can search the user's own map, and OpenStreetMap for places, streets, and addresses. The main use is choosing the place for a new site.
+Decision (2026-11-15): the app can search the user's own trip, and OpenStreetMap for places, streets, and addresses. The main use is choosing the place for a new site.
 
 Two sources:
 
-| | Search my map | Search OpenStreetMap |
+| | Search my trip | Search OpenStreetMap |
 | --- | --- | --- |
-| Finds | Sites, groups, and addresses already in the map, including local sites | Any place, street, or address: "Sagrada Família", "pharmacy", "Carrer de Mallorca 401" |
+| Finds | Sites, groups, and addresses already in the trip, including local sites | Any place, street, or address: "Sagrada Família", "pharmacy", "Carrer de Mallorca 401" |
 | Works offline | Yes, on the phone | No, needs a connection |
 | Service | None | OpenStreetMap's search service (Nominatim) |
 
@@ -805,8 +802,8 @@ If the place is not found, the user can still long press on the map or use the c
 #### Searching from the map
 
 - The "Search" button opens a search field over the map.
-- Results from the user's own map come first. A "Search OpenStreetMap" line below them searches more widely.
-- Tapping a result moves the map to it. A site from the map opens its card. A place from OpenStreetMap shows a temporary pin with a small card: name, address, "Add as site", and "Navigate" (section 7.1).
+- Results from the user's own trip come first. A "Search OpenStreetMap" line below them searches more widely.
+- Tapping a result moves the map to it. A site from the trip opens its card. A place from OpenStreetMap shows a temporary pin with a small card: name, address, "Add as site", and "Navigate" (section 7.1).
 
 #### Rules for the OpenStreetMap search service
 
@@ -826,7 +823,7 @@ If the place is not found, the user can still long press on the map or use the c
 #### Privacy
 
 - The words searched, and the area shown on the map, are sent to OpenStreetMap's search service. Nothing else is sent (section 14.2).
-- Searching the user's own map sends nothing.
+- Searching the user's own trip sends nothing.
 
 ### 8.6 Asking to add your changes or your trip to the public trips
 
@@ -1247,9 +1244,9 @@ Decided on 2026-11-15, and updated on 2026-11-21, 2026-11-22, and 2026-11-23:
 16. ~~Requests from a group trip~~: decided on 2026-11-22, none. A trip that is or has been in a group cannot be sent in an update request or a new trip request, by any member (section 8.6).
 17. ~~Starting a group~~: decided on 2026-11-23, always with a trip, chosen or brought in as the first step, and checked.
 
-## 10. Map file format
+## 10. Trip file format
 
-One JSON file per map.
+One JSON file per trip.
 
 ```json
 {
@@ -1305,15 +1302,15 @@ One JSON file per map.
 Rules:
 
 - `formatVersion`, `iconSetVersion`, and `revision` follow section 11.
-- `uid` is the map's permanent identity: a random code (a UUID) made once, when the map is first created, and never changed, even when the map is renamed, moved, or published (section 8.6.1). Two maps never share a `uid`.
-- `id` values are unique, lowercase, with no spaces. The map's own `id` is a readable short name; it is not used to recognize the map, because two people can choose the same name.
+- `uid` is the trip's permanent identity: a random code (a UUID) made once, when the trip is first created, and never changed, even when the trip is renamed, moved, or published (section 8.6.1). Two trips never share a `uid`.
+- `id` values are unique, lowercase, with no spaces. The trip's own `id` is a readable short name; it is not used to recognize the trip, because two people can choose the same name.
 - `icon` must be an icon ID from the icon set version named in `iconSetVersion` (section 5.4).
 - Every legend group has a `color`. Sites have no color of their own.
 - Every site listed in a legend group must exist in `sites`.
 - `address` empty: the card shows `lat, lng`.
 - `url` empty: the card shows no link line.
 - `hours` is optional for every site. A day left out means closed that day. Two periods in one day are written `"09:00-13:00, 16:00-20:00"`. A period that ends earlier than it starts runs past midnight: `"19:00-02:00"` on Friday means open until 02:00 on Saturday morning. `closedDates` lists single closed days. `"hours": "always"` marks a site that is always open, such as a viewpoint or a promenade, and the card shows "Always open". Without `hours`, the hours are unknown and the card shows no hours line.
-- `timezone` is the time zone of the map's location. Open or closed is worked out in that time zone.
+- `timezone` is the time zone of the trip's location. Open or closed is worked out in that time zone.
 - **Copyright, license, and credits** (decided 2026-11-21). They are kept inside the trip file, because a JSON file cannot carry a comment line like the notice at the top of a code file (section 14.1), and because trips will later have different owners (section 15.1, "Community trips").
     - `copyright` is the notice exactly as it is shown, for example `"© 2026 The Trip Map authors"`. For trips in the Trips repository today it is always "The Trip Map authors"; with Community trips it names the trip's owner.
     - `license` is the license's standard short code (SPDX). Today it is always `"CC-BY-4.0"`. A trip built mostly from OpenStreetMap data may need `"ODbL-1.0"` (section 14.1).
@@ -1333,17 +1330,17 @@ Rules:
 
 ### 10.1 AI toolkit
 
-The App repository contains an AI toolkit: the files that let an AI tool help with maps and with the app.
+The App repository contains an AI toolkit: the files that let an AI tool help with trips and with the app.
 
 Requirements:
 
-- **Any AI tool.** Creating and editing maps with AI works with any AI tool, not only Claude.
+- **Any AI tool.** Creating and editing trips with AI works with any AI tool, not only Claude.
 - **Public, at a fixed address.** Everything an AI tool needs is public and can be reached by one address.
-- **A map guide** that explains the map format in plain words, with examples and common mistakes. It is written for people and AI tools alike, and states the current format version.
+- **A trip guide** that explains the trip format in plain words, with examples and common mistakes. It is written for people and AI tools alike, and states the current format version.
 - **A machine-readable description of the format** (a schema), so that editors and AI tools can check a file while writing it.
 - **The icon set** as a file, with each icon's ID, name, and the version it was added in (section 5.4).
-- **Complete example maps.**
-- **The map checker** (section 10.2) and **the format converter** (section 11), usable by people, AI tools, and the automatic checks.
+- **Complete example trips.**
+- **The trip checker** (section 10.2) and **the format converter** (section 11), usable by people, AI tools, and the automatic checks.
 - **An entry point for AI coding tools** in each repository, stating what the repository is, where things are, and the working rules: changes arrive only as change requests, the checks must pass, and only the owner merges and publishes (sections 12.2, 12.3).
 - **A description of how the app is built,** for anyone changing it. This document says what the app does. That one says how.
 - **The agent does the work, the user only answers.** The toolkit's first instruction to an agent is: ask the user where, when, and what they like (and, if they want, how to group the sites: by day, by type of place, or both); then build the trip, run the checker, fix every error, and give the user the finished file. The user never needs to know the format (section 8.4).
@@ -1411,7 +1408,7 @@ Making the toolkit easy to find for search engines and AI agents (decided 2026-1
 
 The rest of the toolkit's file layout is described in the repository's README and architecture description, so that it stays in step with the files.
 
-How an AI tool gets a map's readable JSON:
+How an AI tool gets a trip's readable JSON:
 
 | Situation | How |
 | --- | --- |
@@ -1428,11 +1425,11 @@ What is checked:
 - The file is valid JSON and has a format version the app can read.
 - Required fields are present and of the right kind.
 - IDs are unique.
-- Every icon ID belongs to the icon set version the map names in `iconSetVersion`.
+- Every icon ID belongs to the icon set version the trip names in `iconSetVersion`.
 - Every site listed in a legend group exists.
 - Every group has a valid color.
 - Coordinates, opening hours, time zone, and links are well formed.
-- No private information appears in text fields or links, and in a public map, "Home / accommodation" sites have an approximate location (section 14.2).
+- No private information appears in text fields or links, and in a public trip, "Home / accommodation" sites have an approximate location (section 14.2).
 
 The report lists each problem with its location in the file and a plain explanation, for example: group "Fri 11" lists site "sagarda", which does not exist.
 
@@ -1467,36 +1464,36 @@ Four separate numbers are used. Each answers a different question.
 
 | Number | Where | Answers | Changes when |
 | --- | --- | --- | --- |
-| Format version | `formatVersion` in each map file | Can this app read this file? | The file format changes |
-| Icon set version | In the app's icon set file, and as `iconSetVersion` in each map file | Does this app know all the icons this map uses? | Icons are added or changed |
-| Map revision | `revision` in each map file | Has this map's content changed? | A change to the map's content is published |
+| Format version | `formatVersion` in each trip file | Can this app read this file? | The file format changes |
+| Icon set version | In the app's icon set file, and as `iconSetVersion` in each trip file | Does this app know all the icons this trip uses? | Icons are added or changed |
+| Trip revision | `revision` in each trip file | Has this trip's content changed? | A change to the trip's content is published |
 | App version | Shown in the app's Settings | Which app release is this? | Every app release |
 
 ### 11.1 Format version
 
 Written as `major.minor`, for example `"2.0"`.
 
-- **Major** (2.0 → 3.0): a breaking change. An app that does not know the new format would show the map wrongly or fail. Examples: a field is renamed or removed, the legend structure changes, a field's meaning changes.
+- **Major** (2.0 → 3.0): a breaking change. An app that does not know the new format would show the trip wrongly or fail. Examples: a field is renamed or removed, the legend structure changes, a field's meaning changes.
 - **Minor** (2.0 → 2.1): an addition that older apps can safely ignore. Example: a new optional field.
 
 New icons do not change the format version. They change the icon set version (section 11.4).
 
-The test for deciding: would an app that does not know about this change show the map wrongly? If yes, the change is major. If no, it is minor.
+The test for deciding: would an app that does not know about this change show the trip wrongly? If yes, the change is major. If no, it is minor.
 
 How the app behaves:
 
-| Map file compared with the app | Behavior |
+| Trip file compared with the app | Behavior |
 | --- | --- |
 | Same major, same or older minor | Opens normally |
 | Same major, newer minor | Opens. Unknown fields are ignored. |
 | Older major | Opens. The app converts the file to the current format when loading. |
-| Newer major | Does not open. Shows "This map needs a newer version of the app", with an Update button. |
+| Newer major | Does not open. Shows "This trip needs a newer version of the app", with an Update button. |
 
 Process:
 
 - The format changes only when an app feature needs it. The change is decided as part of designing that feature.
 - Every change is recorded in the format history below.
-- The map guide (section 10.1) states the current format version. An AI tool always writes the current format.
+- The trip guide (section 10.1) states the current format version. An AI tool always writes the current format.
 
 Format history:
 
@@ -1505,12 +1502,12 @@ Format history:
 | 1.0 | 2026-11-14 | First format: sites carry `category` and `day`; legends hold colors | First version |
 | 2.0 | 2026-11-14 | Sites own an `icon`; legends are lists of groups, each with a `color`, that refer to site IDs; `id`, `iconSetVersion`, `revision`, `timezone`, `start`, `address`, `url`, `hours` added | Major: the legend structure changed |
 
-### 11.2 Map revision
+### 11.2 Trip revision
 
-- A whole number that starts at 1 and goes up by one with every change to the map's content.
-- The app compares it with the revision it last saw, to detect "this map was updated" and show what changed.
-- When the map owner approves a proposal, the newest file is fetched, the approved sites are added, and the revision is raised by one.
-- It describes the map's content only. It is unrelated to the format version.
+- A whole number that starts at 1 and goes up by one with every change to the trip's content.
+- The app compares it with the revision it last saw, to detect "this trip was updated" and show what changed.
+- When the trip owner approves a proposal, the newest file is fetched, the approved sites are added, and the revision is raised by one.
+- It describes the trip's content only. It is unrelated to the format version.
 
 ### 11.3 App version
 
@@ -1522,18 +1519,18 @@ Format history:
 
 Written as `major.minor`, for example `"1.0"`.
 
-- **Minor** (1.0 → 1.1): icons are added. Existing maps are not affected.
+- **Minor** (1.0 → 1.1): icons are added. Existing trips are not affected.
 - **Major** (1.0 → 2.0): an icon's meaning changes, or the set is reorganized. This should be rare, because icon IDs are never reused or deleted.
 
-A map's `iconSetVersion` is the icon set version the map was written for. The map may use any icon that existed in that version.
+A trip's `iconSetVersion` is the icon set version the trip was written for. The trip may use any icon that existed in that version.
 
-Example: an old map written for icon set 1.2 and a new map written for icon set 2.6 are both opened in an app that carries icon set 2.6.
+Example: an old trip written for icon set 1.2 and a new trip written for icon set 2.6 are both opened in an app that carries icon set 2.6.
 
-- The old map shows correctly. Every icon from 1.2 still exists in 2.6, directly or through an alias. The old map does not need to be changed.
-- The new map can use every icon up to 2.6.
-- If the old map is later edited to use an icon added after 1.2, its `iconSetVersion` is raised at that time. The checking tool reports an icon that is newer than the version the map names.
+- The old trip shows correctly. Every icon from 1.2 still exists in 2.6, directly or through an alias. The old trip does not need to be changed.
+- The new trip can use every icon up to 2.6.
+- If the old trip is later edited to use an icon added after 1.2, its `iconSetVersion` is raised at that time. The checking tool reports an icon that is newer than the version the trip names.
 
-| Map's icon set version compared with the app's | Behavior |
+| Trip's icon set version compared with the app's | Behavior |
 | --- | --- |
 | Same or older | Opens normally. Retired icons are shown through their aliases. |
 | Newer minor | Opens. An icon the app does not know shows a default pin, and the app suggests an update. |
@@ -1545,13 +1542,13 @@ Icon set history:
 | --- | --- | --- |
 | 1.0 | 2026-11-15 | First set: 31 icons |
 
-The checking tool (section 10.2) checks a map's icons against the icon set version the map names.
+The checking tool (section 10.2) checks a trip's icons against the icon set version the trip names.
 
 ## 12. Repositories, roles, and access
 
 ### 12.1 Repositories
 
-Decision (2026-11-21): three public repositories in the `projects-rs` organization on GitHub. Locked maps and the separate Public maps repository are dropped (section 9).
+Decision (2026-11-21): three public repositories in the `projects-rs` organization on GitHub. Locked maps and the separate Public maps repository were dropped (section 9).
 
 | # | Repository | Name | Contains | Who approves changes |
 | --- | --- | --- | --- | --- |
@@ -1577,40 +1574,39 @@ Decision: the app has a single owner. Only the owner approves and merges changes
 | Role | Who | Can do |
 | --- | --- | --- |
 | Owner | The app's owner | Approve and merge changes, publish a new version |
-| Anyone else | Any person, including advanced users and map contributors | Propose a change as a change request. Cannot merge. |
+| Anyone else | Any person, including advanced users and trip contributors | Propose a change as a change request. Cannot merge. |
 | AI agent (Claude) | Works for the owner | Prepares a change and opens a change request. Does not merge (section 12.4). |
 
 Rules for the app's repository:
 
 - Nothing is changed directly. Every change arrives as a change request (a GitHub pull request).
 - A change request is merged only after the owner approves it.
-- Automatic checks must pass before merging: the app's tests, and the check of the example map and the icon set.
+- Automatic checks must pass before merging: the app's tests, and the check of the example trip and the icon set.
 - Merging is not publishing. The version that users receive is published separately, by the owner, as a deliberate step. A merged change therefore cannot reach users by accident.
 
 ### 12.3 Access control
 
 Access is controlled in two places: GitHub's own settings on each repository, and the automatic checks. There is no server of our own.
 
-| Who | App | Locked maps | Public maps |
-| --- | --- | --- | --- |
-| App owner | Approve, merge, publish | The only writer: approves proposals and publishes from the app | Hide or remove a map that breaks the rules. Approve a new contributor's first map. |
-| Contributor | Propose (pull request) | No access | Own maps only: change, approve proposals |
-| Simple user | Report a problem from the app | Read with a share link, send proposals | Read, send proposals to a contributor they can reach, "Report this map" |
-| Claude | Prepare changes and propose (pull request). Review. | No access to the locked files. Works on a readable copy that the app owner exports and gives it. | Run checks and the adaptation tool, and propose |
+| Who | App repository | Trips repository (`trip-db`) |
+| --- | --- | --- |
+| App owner | Approve, merge, publish | The only one who merges: approves update requests and new trip requests (section 8.6), and hides or removes a trip that breaks the rules |
+| Contributor (advanced user) | Propose (pull request) | Propose (pull request); the automatic checks must pass |
+| Simple user | Report a problem from the app | Download trips; send update requests and new trip requests from the app (section 8.6); "Report this trip" |
+| Claude | Prepare changes and propose (pull request). Review. | Run the checks, prepare example trips, and propose |
 
 Settings on GitHub:
 
 - **App repository:** a rule on the main branch requires a pull request, and passing checks (once they exist) before anything is merged. Only the owner can merge: the rule's "Restrict updates" allows changes to main only for the organization admin (the owner). Required approvals are 0, because GitHub does not let anyone approve a pull request that counts as their own; the owner's merge is the approval. Direct changes, deletions and force-pushes are blocked.
 - **Test repository:** deletions and force-pushes are blocked; Claude publishes test versions to it directly, without a pull request (section 13.2).
-- **Locked maps repository:** only the app owner has write access. The app owner's app publishes to it directly with an access key limited to this repository (section 12.1).
-- **Public maps repository:** only the owner has write access. Contributors send pull requests from their own copy. An automatic check accepts a pull request only if it changes the author's own maps and the map passes the checker. The owner then reviews and merges every pull request; nothing is merged automatically.
+- **Trips repository:** only the owner can merge. Contributors send pull requests from their own copy. The automatic checks must pass: the trip checker, the personal-data check, an unchanged `uid`, and a revision that goes up by one. The owner then reviews and merges every pull request; nothing is merged automatically.
 - **Access keys and tokens** are limited to the one repository they are for, and to the permissions they need.
 - **The owner's GitHub account** uses two-step sign-in, with recovery codes kept safe.
 
 ### 12.4 Claude as a working tool
 
 - Claude is connected through the Claude GitHub App, installed on the organization with access to the selected repositories only (today `trip-map` and `trip-map-test`). Its commits carry a "Co-Authored-By: Claude" line, and its pull requests say they were made with Claude, so its work is always recognizable.
-- Claude can prepare changes on a branch, open pull requests, review pull requests, run the map checks and the adaptation tool, and answer questions about the code.
+- Claude can prepare changes on a branch, open pull requests, review pull requests, run the trip checks and the adaptation tool, and answer questions about the code.
 - Claude cannot merge into the App repository's main branch or publish. The branch rule in section 12.3 lets only the owner update main.
 - Claude has no access to account, organization or repository settings, and no keys or tokens.
 - Emergency stop: uninstalling the Claude GitHub App in the organization's settings removes all of Claude's access at once.
@@ -1639,7 +1635,7 @@ This section describes how the app is built and tested, in small steps that can 
 
 | Who | Does |
 | --- | --- |
-| Claude | Writes the code, the automated tests, the map guide, and the documentation. Converts the Barcelona data to the map format. Fixes reported problems. Opens a change request for every step. |
+| Claude | Writes the code, the automated tests, the trip guide, and the documentation. Converts the Barcelona data to the trip format. Fixes reported problems. Opens a change request for every step. |
 | App owner | Makes the decisions, does the setup steps that need the owner's identity (accounts, repositories, keys), tests each step on a real phone, approves and merges, and publishes. |
 | Testers | The trip group. Try the test version on their own phones and report what they find. At least one Android phone and one iPhone. |
 
@@ -1664,21 +1660,21 @@ Target: ready and field-tested before the Barcelona trip (December 10, 2026). Ro
 
 | Step | Build | Try on the phone |
 | --- | --- | --- |
-| 0. Setup (done 2026-11-21) | The app owner creates a GitHub account with two-step sign-in, the organization, the App and test repositories, and the test address (section 12.5). The Locked maps repository follows in step 6. The notices file (section 14.1) is added with the first code. Claude is connected to the two repositories. | The test address opens on both phones. |
+| 0. Setup (done 2026-11-21) | The app owner creates a GitHub account with two-step sign-in, the organization, the App and test repositories, and the test address (section 12.5). The Trips repository, `trip-db`, is planned (section 12.1). The notices file (section 14.1) is added with the first code. Claude is connected to the two repositories. | The test address opens on both phones. |
 | 1. App and map | Full-screen map with street names, "My location", the app's icon and name for the home screen | The map loads and moves smoothly. The blue dot appears after allowing location. The app can be added to the home screen. |
-| 2. Trip files, the checker, and the trip-author skill | Loading a trip file, the checker with its report and privacy checks, the trip guide, the schema, the trip-author skill (section 10.1), an example trip. The Barcelona trip converted to format 2.0. | "Open map file" opens the Barcelona map. A file with a deliberate mistake shows a clear report. |
+| 2. Trip files, the checker, and the trip-author skill | Loading a trip file, the checker with its report and privacy checks, the trip guide, the schema, the trip-author skill (section 10.1), an example trip. The Barcelona trip converted to format 2.0. | "Add local trip" opens the Barcelona trip. A file with a deliberate mistake shows a clear report. |
 | 3. Pins and legends | The icon set file, pin color from the group, pie-chart pins, the "Other" chip, the legend switch, filtering by chips | Switching legends recolors the pins. A site in two groups shows a split pin. Turning a chip off hides its sites. |
 | 4. Site card and opening hours | The site card (text shown only as plain text, links limited to https), opening hours with open, closing-soon, and closed marks, native copying, the Share button and "Share a group", the navigation panel with "In another app" (Google Maps, Apple Maps). The "In this app" choice is added in release B. | Status text and pin marks are right at different times of day. Copying and sharing work. Navigation opens in Google or Apple Maps. |
 | 5a. Offline maps | The offline region catalog with a Barcelona region built by the automatic check, choosing the area with km² and MB, at most 2 areas on the phone, "Download map for offline use", the offline map display, Settings → Offline maps, the direction and distance to a site without a connection (section 7.4) | In airplane mode, the Barcelona trip shows streets and street names everywhere in its area, all pins and cards, and the blue dot. |
-| 5. My maps and local sites | Several maps and switching between them, each map's saved view, the data protections of section 3.3 (persistent storage, restore link, one-tap backup, recovery after a wipe), Add site, search (section 8.5), local sites, local legends and groups, Export map | Searching "Sagrada Família" in Add site fills in its name, address, and location. A search of the user's own map works offline. Two maps can be switched without losing each one's view. An added site survives closing the app. Export produces a file that opens again. |
-| 6. Locked maps and share links | Locking and unlocking, publishing from the app owner's app to the Locked maps repository, share links, the first-visit and later-visit flows, the iPhone "Add map" flow, saved copies for offline use, "Share this map", "Start a new map" (empty) | A share link sent to each tester opens the Barcelona map on their phone, also from the home-screen app on iPhone. The map opens without a connection after the first visit. A forwarded link opens the same map on a third phone. |
+| 5. My trips and local sites | Several trips and switching between them, each trip's saved view, the data protections of section 3.3 (persistent storage, restore link, one-tap backup, recovery after a wipe), Add site, search (section 8.5), local sites, local legends and groups, "Export trip", "Make a copy" | Searching "Sagrada Família" in Add site fills in its name, address, and location. A search of the user's own trip finds its sites. |
+| 6. The trip list | The registry and trip list built from `trip-db`, by country and city; Download; updates offered and accepted (section 3.1); "Start a new trip" (empty) | The Barcelona trip is downloaded from the trip list on each tester's phone, also in the home-screen app on iPhone. It opens without a connection afterwards. |
 | 7. Updates, feedback, and field test | The browser security policy (section 14.3). Automatic app updates with the "New version available" notice. Settings → About with the notices list. "Send feedback" in its first form: a prepared message through the phone's share menu (section 13.5). A walk-through of the whole app. | An update reaches all phones. The app owner walks a route in their own city with the app, on both phone types. |
 
-Not in release A: in-app turn-by-turn navigation, proposals to the map owner, error reports, public maps, "Create a map with AI", the full AI toolkit, and group trips.
+Not in release A: in-app turn-by-turn navigation, update and new trip requests, error reports, contributed public trips, "Create a trip with AI", the full AI toolkit, and group trips.
 
-Fallback: the trip is 25 days after this plan was approved, and setup finished on November 21, leaving 14 days. If release A is not field-tested by December 5, 2026, the trip uses version 1 and the map already published for it, and release A continues after the trip.
+Fallback: the trip is 25 days after this plan was approved, and setup finished on November 21, leaving 14 days. If release A is not field-tested by December 5, 2026, the trip uses version 1 and the trip already published for it, and release A continues after the trip.
 
-On the trip, each member adds sites locally. To pass them on, a member uses "Export trip" with their local sites and sends the file through WhatsApp. The others open it with "Open map file", as a separate local map (section 3.4). Putting sites from several members into one shared map is an open gap, for later (section 15, open question 11).
+On the trip, each member adds sites locally. To pass them on, a member uses "Export trip" with their local sites and sends the file through WhatsApp. The others open it with "Add local trip", as a separate local trip (section 3.4). Putting sites from several members into one shared trip is an open gap, for later (section 15, open question 11).
 
 #### Release B: in-app navigation
 
@@ -1688,19 +1684,19 @@ On the trip, each member adds sites locally. To pass them on, a member uses "Exp
 | 9. Turn by turn | Follow mode, the turn-by-turn banner and step list, re-routing, the arrival message, keeping the screen on | On a real walk, the banner gives the right turns, and leaving the route triggers a new one. |
 | 10. Voice | Spoken directions with an on/off button | Directions are spoken on both phone types, with the screen on. |
 
-#### Release C: proposals, reports, and public maps
+#### Release C: requests, reports, and contributed trips
 
 | Step | Build | Try on the phone |
 | --- | --- | --- |
-| 11. Proposals for locked maps | "Send my changes" through WhatsApp, "Pending proposals", approval and rejection in the app owner's app, publishing after approval, "Tell the group" | A tester sends a site through WhatsApp. The app owner approves it. All phones show the site and the "Map updated" notice. |
+| 11. Update and new trip requests | "Request to add my changes" and "Request to add this trip", the personal-data check, the share menu to the app's email address, `requests.json` and "My requests" (section 8.6) | A tester sends a request. The app owner accepts it and publishes it; the tester's app shows "accepted" and offers the update. |
 | 12. Reports | Error reports with consent, sent through the share menu (section 13.5) | An error report reaches the app owner. |
-| 13. Public maps | "Publish as a public map" with the contributor's access key, pull requests from the app, the registry, the automatic checks and merging in the Public maps repository, the list of public maps, "Report this map" | A second person publishes a public map, and updates it. A report of a map reaches the app owner. |
+| 13. Contributed trips | Pull requests to `trip-db` with the automatic checks, "Report this trip" | A second person contributes a trip by pull request; after merging, it appears in the trip list. A report of a trip reaches the app owner. |
 
 #### Release D: AI toolkit
 
 | Step | Build | Check |
 | --- | --- | --- |
-| 14. Toolkit and "Create a map with AI" | The full map guide, the schema, the entry-point files for AI tools, the architecture description, the Claude skill, "Copy request for AI", the format converter, "Paste trip" and the "not yet verified" mark (section 8.4) | A new map made by an AI tool other than Claude, from the toolkit alone, passes the checker and opens in the app. A simple user makes a trip by asking a free AI chat and pasting the answer. |
+| 14. Toolkit and "Create a trip with AI" | The full trip guide, the schema, the entry-point files for AI tools, the architecture description, the Claude skill, "Copy request for AI", the format converter, "Paste trip" and the "not yet verified" mark (section 8.4) | A new trip made by an AI tool other than Claude, from the toolkit alone, passes the checker and opens in the app. A simple user makes a trip by asking a free AI chat and pasting the answer. |
 
 #### Release E: group trips
 
@@ -1726,9 +1722,9 @@ Rough effort for releases B to E together: about four to five weeks, mostly set 
 
 Automated tests run on every change request and must pass before merging:
 
-- **Unit tests** for the logic that is easy to get subtly wrong: the map checker, opening hours (time zones, daylight saving time, hours past midnight, closed dates), pin colors and pie-chart segments, legend filtering, the format converter, the icon set version rules, and locking and unlocking a map.
-- **Browser tests** that walk through the main screens at phone size first, and, from release F, also at laptop size, in both Chrome's engine and Safari's engine: open a map, switch legends, filter, open a card, add a site, export.
-- **Map checks:** the example maps and the icon set file are checked with every change.
+- **Unit tests** for the logic that is easy to get subtly wrong: the trip checker, opening hours (time zones, daylight saving time, hours past midnight, closed dates), pin colors and pie-chart segments, legend filtering, the format converter, the icon set version rules, and locking and unlocking group data (section 9.5).
+- **Browser tests** that walk through the main screens at phone size first, and, from release F, also at laptop size, in both Chrome's engine and Safari's engine: open a trip, switch legends, filter, open a card, add a site, export.
+- **Trip checks:** the example trips and the icon set file are checked with every change.
 - **Security tests** (section 14.3): harmful content in every field, broken and oversized links and messages, and the browser security policy.
 - **A security review before each release** (section 14.3).
 
@@ -1749,8 +1745,8 @@ Usability:
     - The message opens in the phone's share menu, ready to send to the app owner by WhatsApp or email. The app owner's feedback address is shown in the app: a dedicated email address for the app, not the owner's personal one.
     - Advanced users can also report a problem directly as an issue in the App repository.
 - **Error reports, with consent.** When something fails, the app records the error on the phone and offers to send it, through the same share menu. Without a server, sending is never fully automatic: the user sees the report and taps Send.
-- **Privacy.** Feedback and error reports never include the user's location, their local sites, or the content of a locked map.
-- **Map problems are not app problems.** A report such as "this restaurant has closed" is sent to the map owner as a proposal (section 8.6). The feedback screen points users to the right place.
+- **Privacy.** Feedback and error reports never include the user's location, their local sites, or the content of their trips.
+- **Trip problems are not app problems.** A report such as "this restaurant has closed" is sent to the trip owner as an update request (section 8.6). The feedback screen points users to the right place.
 
 ### 13.6 Documentation
 
@@ -1758,12 +1754,12 @@ Every part of the project is documented, so that the app owner, testers, contrib
 
 | Document | Where | Explains |
 | --- | --- | --- |
-| README | App repository, first page | What the app is, who it is for, how to open it, how to make a map, how to contribute, the license, and links to the other documents |
+| README | App repository, first page | What the app is, who it is for, how to open it, how to make a trip, how to contribute, the license, and links to the other documents |
 | This design document | App repository | What the app does, and why |
 | Architecture description | App repository | How the app is built, and how its parts work together (section 10.1) |
 | Dependencies and notices | App repository, and Settings → About in the app | Everything the app relies on, as listed below, with each license and credit (section 14.1) |
-| Map guide | App repository | How to write a map file (section 10.1) |
-| Contribution guide | App repository and Public maps repository | How to propose a change or contribute a map, and the rules that apply (section 12) |
+| Trip guide | App repository | How to write a trip file (section 10.1) |
+| Contribution guide | App repository and Trips repository | How to propose a change or contribute a trip, and the rules that apply (section 12) |
 | Help in the app | Inside the app | Short, plain explanations on the screens where they are needed, such as the welcome note and the iPhone install guide (section 3.1) |
 | Comments in the code | Every code file | See below |
 
@@ -1787,13 +1783,13 @@ This list is kept up to date in the dependencies document. An item marked "to be
 | Online service | OpenStreetMap tile server | Map images | Free | Tile usage policy: light use only |
 | Online service | FOSSGIS routing server (OSRM) | Walking routes | Free | Usage terms: one request per second, no heavy use |
 | Online service | OpenStreetMap search service (Nominatim) | Searching places, streets, and addresses (section 8.5) | Free | Usage policy: at most one request per second for the whole app, no search-as-you-type, credit required. Fallback: another search provider. |
-| Online service | GitHub and GitHub Pages | Storing the code and maps, hosting the app | Free | GitHub terms of service |
+| Online service | GitHub and GitHub Pages | Storing the code and trips, hosting the app | Free | GitHub terms of service |
 | Other apps | WhatsApp, or another messaging app | Sending invite links; requests and feedback (sections 8.6, 9) | Free | Used through the phone's share menu. The app never sends anything by itself. |
 | Group trips | Firebase (Google), on its free plan | Keeping each group trip and passing changes between members' phones (section 9.5) | Free, within the free plan's limits | Set up once by the app's maker; users never see it. Everything stored is locked with each group's key. |
 | Other apps | Google Maps, Apple Maps, and other navigation apps | "Navigate in another app" (section 7.1) | Free | Opened by a link only. No data is copied from them. |
-| Browser features | Location, speech, keeping the screen on, encryption, offline storage, the share menu | GPS position, spoken directions, navigation, locked maps, saved maps, sending messages | Built in | Standard web features of the phone's browser |
+| Browser features | Location, speech, keeping the screen on, encryption, offline storage, the share menu | GPS position, spoken directions, navigation, group trips, saved trips, sending messages | Built in | Standard web features of the phone's browser |
 | Development tool | Automated browser testing tool, for example Playwright | Browser tests (section 13.4) | Free | Apache 2.0 |
-| Development tool | JSON Schema checker | The map checker (section 10.2) | Free | To be chosen in step 2, with a permissive license |
+| Development tool | JSON Schema checker | The trip checker (section 10.2) | Free | To be chosen in step 2, with a permissive license |
 | Development tool | Claude | Writing code, tests, and documents | Paid subscription | Anthropic's terms |
 
 Rules:
@@ -1803,7 +1799,7 @@ Rules:
 
 ## 14. Licensing, rights, and privacy
 
-This section is a design guide, not legal advice. Before the app and the Public maps repository are opened to people outside the trip group, the app owner should have it checked by someone qualified.
+This section is a design guide, not legal advice. Before the app and the Trips repository are opened to people outside the trip group, the app owner should have it checked by someone qualified.
 
 ### 14.1 Respecting other people's rights
 
@@ -1816,7 +1812,7 @@ Principle: the app uses only components and data whose licenses allow it, follow
 | FOSSGIS routing server | Walking routes | FOSSGIS usage terms | At most one request per second, no heavy use, credit with a link to report map errors. The app limits how often it asks for a new route, including when re-routing. |
 | OpenStreetMap search service (Nominatim) | Searching places and addresses | Nominatim usage policy | At most one request per second for the whole app, no search-as-you-type, identify the app, show credit. Results kept on the phone to avoid repeated searches. |
 | Leaflet | Map display code | BSD-2 | Keep its license notice |
-| PMTiles and its Leaflet reader (Protomaps) | Reading the offline map files (section 7.4) | BSD-3 | Keep their license notices |
+| PMTiles and its Leaflet reader (Protomaps) | Reading the offline trip files (section 7.4) | BSD-3 | Keep their license notices |
 | The source of the offline map data | Building each trip's offline map file | To be checked in build step 5a: OpenStreetMap data (ODbL) prepared in PMTiles form | Credit "© OpenStreetMap contributors" and the provider, on the map and in Settings → About |
 | Material Design Icons (Pictogrammers) | The icon set | Icons under Apache 2.0, a few under their own licenses | Keep the license text and notice. Check the license of each icon in the set before each release. |
 
@@ -1830,13 +1826,13 @@ Rules:
 - **Contributions to the app.** Anyone who sends a change request agrees that it is published under the app's license. This is stated in the repository's contribution guide.
 - **The name.** Before the app is announced publicly, check that "Trip Map", or the final name, is not a registered trademark of someone else.
 
-Data in maps:
+Data in trips:
 
-- **Write in your own words.** Descriptions are written by the map's author. They are not copied from websites, guidebooks, or review sites.
-- **Never copy from Google Maps.** Its place data, descriptions, reviews, opening hours, and photos may not be copied into maps.
-- **OpenStreetMap data.** Facts such as addresses and opening hours may be taken from OpenStreetMap. A map that does so must credit "© OpenStreetMap contributors", and a public map built substantially from OpenStreetMap data may have to be shared under the ODbL. The map guide explains this.
-- **No photos** are part of the map format, so no image rights arise.
-- **Public map content.** When publishing, the contributor confirms that they have the right to share the map's content, and that it is published under the **CC BY 4.0** license: anyone may reuse it, with credit to the contributor. The notice is kept in the trip file itself, in its `copyright`, `license`, and `credits` fields (section 10).
+- **Write in your own words.** Descriptions are written by the trip's author. They are not copied from websites, guidebooks, or review sites.
+- **Never copy from Google Maps.** Its place data, descriptions, reviews, opening hours, and photos may not be copied into trips.
+- **OpenStreetMap data.** Facts such as addresses and opening hours may be taken from OpenStreetMap. A trip that does so must credit "© OpenStreetMap contributors", and a public trip built substantially from OpenStreetMap data may have to be shared under the ODbL. The trip guide explains this.
+- **No photos** are part of the trip format, so no image rights arise.
+- **Public trip content.** When publishing, the contributor confirms that they have the right to share the trip's content, and that it is published under the **CC BY 4.0** license: anyone may reuse it, with credit to the contributor. The notice is kept in the trip file itself, in its `copyright`, `license`, and `credits` fields (section 10).
 
 ### 14.2 Privacy: keeping private information safe
 
@@ -1865,8 +1861,7 @@ How the screen looks:
 
 #### Keeping private information out of trips
 
-
-Principle: no map, locked or public, contains private information. A locked map is protected from outsiders, but its share link can be forwarded, so the same rule applies to both. The one exception, decided by the app owner, is the location of a "Home / accommodation" site in a map only the group sees (layer 2 below).
+Principle: no trip contains private information. The one exception, decided by the app owner, is the exact location of a "Home / accommodation" site in a trip that only the group, or only the user, sees (layer 2 below).
 
 Private information includes:
 
@@ -1880,14 +1875,14 @@ No single measure can guarantee this, because descriptions are free text. The ap
 
 | Layer | What it does |
 | --- | --- |
-| 1. The format | The map format has no fields for personal data: no phone, email, or people's names. |
-| 2. Home locations | A site with the "Home / accommodation" icon may have its exact location in locked maps, group trips, and local maps, which only the group sees. Because a locked map's link can be forwarded, the review before publishing (layer 4) reminds the owner that the exact location is included. In a public map, it is always stored with an approximate location, rounded to about 150 m, and the checker blocks an exact one. |
-| 3. The checker | The map checker (section 10.2) scans every text field and link for private information: email addresses, phone numbers, card and bank numbers, identity numbers, codes next to words such as "booking", "door", "code", or "password", and links with personal tokens. A finding is either an error, which blocks publishing, or a warning, which the person publishing must confirm one by one. |
-| 4. Review before publishing | Before any map is published, locked or public, the app shows all of its text and the checker's findings, and the person publishing confirms. |
-| 5. Proposals | Sites proposed by other users pass the same checks before they reach the map owner, and again before approval. |
-| 6. The AI toolkit | The map guide tells AI tools never to include private information, and to run the checker before handing a map back. |
-| 7. Public map oversight | The app owner reviews a new contributor's first map (section 12.1). Anyone can tap "Report this map". The app owner can hide a map at once. |
-| 8. Reports and feedback | Feedback and error reports never include the user's location, local sites, or map content (section 13.5). |
+| 1. The format | The trip format has no fields for personal data: no phone, email, or people's names. |
+| 2. Home locations | A site with the "Home / accommodation" icon may have its exact location in group trips and local trips, which only the group or the user sees. In a public trip, it is always stored with an approximate location, rounded to about 150 m, and the checker blocks an exact one. |
+| 3. The checker | The trip checker (section 10.2) scans every text field and link for private information: email addresses, phone numbers, card and bank numbers, identity numbers, codes next to words such as "booking", "door", "code", or "password", and links with personal tokens. A finding is either an error, which blocks publishing, or a warning, which the person publishing must confirm one by one. |
+| 4. Review before publishing | Before any trip is sent in a request, the app shows all of its text and the checker's findings, and the person publishing confirms. |
+| 5. Proposals | Sites proposed by other users pass the same checks before they reach the trip owner, and again before approval. |
+| 6. The AI toolkit | The trip guide tells AI tools never to include private information, and to run the checker before handing a trip back. |
+| 7. Public trip oversight | The app owner reviews a new contributor's first trip (section 12.1). Anyone can tap "Report this trip". The app owner can hide a trip at once. |
+| 8. Reports and feedback | Feedback and error reports never include the user's location, local sites, or trip content (section 13.5). |
 
 Location and other data sent to outside services:
 
@@ -1896,30 +1891,29 @@ Location and other data sent to outside services:
     - **Map images** are requested from the map image server for the area being viewed, which reveals roughly where the user is looking.
     - **Searching OpenStreetMap** sends the search words and the area shown on the map to OpenStreetMap's search service (section 8.5).
     - **"Navigate in another app"** hands the destination, and the app's own location access, to Google Maps, Apple Maps, or the chosen app, under that company's privacy terms.
-- Nothing else about the user, their maps, or their group is sent anywhere, except what the user chooses to send themselves through a messaging app: a shared site or group, a shared location, a proposal, group changes, or feedback (sections 9, 8.6, 13.5).
+- Nothing else about the user, their trips, or their group is sent anywhere, except what the user chooses to send themselves through a messaging app: an invite, a request, or feedback (sections 9, 8.6, 13.5). Group trips go through Firebase, locked (section 9.5).
 
 Limits of removal:
 
 - **Prevention is the main protection.** Once something is published, it may already have been seen or copied.
-- **Public maps.** GitHub keeps the history of every file. Removing private information that was published means rewriting the repository's history and asking GitHub to clear its cached copies. Copies that others made cannot be recalled. The app owner has a written procedure for this.
-- **Locked maps.** Old versions stay encrypted in the repository's history, and anyone with an old share link could read an old version. Decision: the Locked maps repository keeps only the latest published version of each map, so old versions cannot be read later. Exports serve as backups (section 3.4).
+- **Public trips.** GitHub keeps the history of every file. Removing private information that was published means rewriting the repository's history and asking GitHub to clear its cached copies. Copies that others made cannot be recalled. The app owner has a written procedure for this.
 
 ### 14.3 Security
 
-Principle: the app must be safe to use. Nothing a user receives, whether a map, a link, a shared change, or an app update, may harm the user's phone or expose their data.
+Principle: the app must be safe to use. Nothing a user receives, whether a trip, a link, a shared change, or an app update, may harm the user's phone or expose their data.
 
 What the app can and cannot reach:
 
 - The app runs inside the phone's browser, in the browser's protective sandbox. It cannot read the phone's files, photos, contacts, messages, or other apps, and it cannot install anything.
 - It can reach only what the browser allows: location, after the user agrees, and its own storage on the phone.
-- So the worst case of a successful attack on the app is limited to the app's own data on that phone, such as maps, local sites, group details, and keys. That data is still worth protecting, and the measures below do so.
+- So the worst case of a successful attack on the app is limited to the app's own data on that phone, such as trips, local sites, group details, and keys. That data is still worth protecting, and the measures below do so.
 - WhatsApp protects messages while they travel. It does not protect the app from harmful content inside a message. The app protects itself, whatever way the content arrives.
 
 Threats and protections:
 
 | Threat | Protection |
 | --- | --- |
-| A harmful map, link, or shared change that tries to run code inside the app | Everything received is checked against the format before use (section 10.2). Text is always shown as plain text, never as code. A strict browser security policy forbids running any code that is not part of the app. Size limits on everything received. |
+| A harmful trip, link, or shared change that tries to run code inside the app | Everything received is checked against the format before use (section 10.2). Text is always shown as plain text, never as code. A strict browser security policy forbids running any code that is not part of the app. Size limits on everything received. |
 | A link on a site card that leads somewhere harmful | Only ordinary web links (https) are allowed. The card shows the link's address before it is opened. |
 | Someone outside the group reading or faking group messages | Every message is locked and sealed with the group key. A message that fails the seal is rejected. |
 | Group data in Firebase altered, or written by someone outside the group | Every entry is locked and sealed with the group key (AES-GCM), and the security rules require the group's write token for every write. An entry that does not open with the key, or was changed, is rejected (section 9.5). |
@@ -1961,7 +1955,7 @@ For the app owner, when setting up (once):
 
 For the app owner's devices:
 
-6. **Phone:** screen lock with a PIN, fingerprint, or face, since it holds the key for publishing locked maps. Phone and browser kept updated.
+6. **Phone:** screen lock with a PIN, fingerprint, or face, since it holds the app owner's two-step sign-in (section 12.5). Phone and browser kept updated.
 7. **Computer** used for GitHub: updated, with a screen lock.
 
 For every change:
@@ -1981,7 +1975,7 @@ Ongoing:
 
 15. Act on GitHub's security alerts: ask Claude to update the component and publish a fix.
 16. Answer reports of weaknesses.
-17. Keep backups of the repositories and exported maps.
+17. Keep backups of the repositories and exported trips.
 18. Never give anyone, including Claude, the GitHub password or the publishing key.
 
 If something goes wrong, follow a one-page plan kept in the App repository:
@@ -1994,7 +1988,7 @@ If something goes wrong, follow a one-page plan kept in the App repository:
 For users (shown in the app's help):
 
 - Open the app only from its official address. A look-alike address may be a fake copy.
-- Tap map and group links only from people you know.
+- Open invite links only from people you know.
 - Turn on two-step verification in WhatsApp.
 - Keep the phone locked and updated.
 
@@ -2002,15 +1996,15 @@ For users (shown in the app's help):
 
 1. ~~Navigation panel~~: decided, the app always asks (section 7.1).
 2. ~~Icon 14~~: decided, it stays "History / monument" and also covers archaeological sites.
-3. ~~After approval~~: decided, an approved site becomes a regular map site, and the sender's local copy is removed (section 8.6).
+3. ~~After approval~~: decided, an approved site becomes a regular site of the trip, and the sender's local copy is removed (section 8.6).
 4. ~~Sharing extras~~: decided, both "Share a group" and "Share my location" are included (section 9).
 5. ~~New groups~~: decided, users can add local legends and groups in the app (section 5.3).
-6. ~~New contributors~~: decided, a new contributor's first map waits for the app owner's approval (section 12.1).
+6. ~~New contributors~~: decided, a new contributor's first trip waits for the app owner's approval (section 12.1).
 7. ~~App license~~: decided, MIT, with a license notice in every code file (section 14.1).
-8. ~~Public map content license~~: decided, CC BY 4.0 (section 14.1).
-9. ~~Accommodation location~~: decided, "Home" and "Accommodation" are one icon, "Home / accommodation". Its exact location is fine in maps that only the group sees, and approximate in public maps (section 14.2).
-10. ~~Locked map history~~: decided, keep only the latest version of each locked map (section 14.2).
-11. **Combining members' sites during a trip (open gap):** release A has no way to put sites added by several members into one shared map. Members pass whole maps as files instead. Later options: proposals to the map owner (release C) or group trips (release E).
+8. ~~Public trip content license~~: decided, CC BY 4.0 (section 14.1).
+9. ~~Accommodation location~~: decided, "Home" and "Accommodation" are one icon, "Home / accommodation". Its exact location is fine in trips that only the group sees, and approximate in public trips (section 14.2).
+10. ~~Locked map history~~: no longer applies; locked maps were dropped on 2026-11-21.
+11. **Combining members' sites during a trip (open gap):** release A has no way to put sites added by several members into one shared trip. Members pass whole trips as files instead. Later: group trips (release E).
 12. ~~Icon details~~: decided, the underground station shows a train in a tunnel. Decided: the transport icon became "Airport" (airplane, now icon 17), and a new icon "Ferry" (boat, now icon 31) is added. "Home" and "Accommodation" are merged into one icon (open question 9). After the merge the set has 31 icons, numbered as in section 5.4.
 13. ~~Members' display names~~: replaced on 2026-11-21: there are no member numbers or names at all; WhatsApp shows who sent each message (section 9).
 14. ~~Security review~~: decided, a separate Claude session before each release, and a human security expert before the app is opened to the public (section 14.3).
@@ -2026,11 +2020,11 @@ Approved: simple users can add local sites and send proposals (section 2.1).
 
 Three ideas raised during the design, and what was decided about each.
 
-**A. "Create a map with AI".** Accepted on 2026-11-15. Now section 8.4.
+**A. "Create a trip with AI".** Accepted on 2026-11-15. Now section 8.4.
 
 **B. Live group trips: editing together through a server.** Postponed on 2026-11-15. Group trips that share changes through messages (section 9) are used instead. Live group trips may be added later, only if they turn out to be needed. The full proposal is kept in the file `group-maps-proposal.md` next to this document. Reconsidered on 2026-11-21, when the manual WhatsApp steps felt frustrating: decided to keep group trips fully on WhatsApp, with no server.
 
-**C. A server of our own (relay service).** Removed on 2026-11-15. The app works without one: proposals, invites, and feedback travel through WhatsApp or another messaging app, and public map contributions arrive as pull requests. A server would be needed only for: live group trips, phone notifications when the app is closed (not needed, decided 2026-11-15), fully automatic error reports, and proposals to contributors the user does not know (not needed, decided 2026-11-15). If one of these becomes necessary, a server can be added later (for example Cloudflare Workers, free plan; see `group-maps-proposal.md`).
+**C. A server of our own (relay service).** Removed on 2026-11-15. The app works without one: proposals, invites, and feedback travel through WhatsApp or another messaging app, and public trip contributions arrive as pull requests. A server would be needed only for: live group trips, phone notifications when the app is closed (not needed, decided 2026-11-15), fully automatic error reports, and proposals to contributors the user does not know (not needed, decided 2026-11-15). If one of these becomes necessary, a server can be added later (for example Cloudflare Workers, free plan; see `group-maps-proposal.md`).
 
 **D. Community trips: a repository where each contributor owns their trips.** Raised on 2026-11-21, for later. A separate repository, next to `trip-db`, where each contributor owns their trips and approves update requests for them. The app owner keeps only a safety role: hiding or removing a trip that breaks the rules. The trip list in the app would show both, marked by where each trip comes from. The `uid`, the request flow (section 8.6), and the `copyright`, `license`, and `credits` fields (section 10) already work for this, so nothing built now has to change.
 
