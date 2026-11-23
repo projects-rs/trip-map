@@ -1698,7 +1698,7 @@ This section describes how the app is built and tested, in small steps that can 
 | Who | Does |
 | --- | --- |
 | Claude | Writes the code, the automated tests, the trip guide, and the documentation. Converts the Barcelona data to the trip format. Fixes reported problems. Opens a change request for every step. |
-| App owner | Makes the decisions, does the setup steps that need the owner's identity (accounts, repositories, keys), tests each step on a real phone, approves and merges, and publishes. |
+| App owner | Makes the decisions, does the setup steps that need the owner's identity (accounts, repositories, keys; the Trips repository `trip-db` before step 6, and the Firebase project before release E), tests each step on a real phone, approves and merges, and publishes. |
 | Testers | The trip group. Try the test version on their own phones and report what they find. At least one Android phone and one iPhone. |
 
 What sets the pace is not writing code but decisions, setup, and testing on real phones.
@@ -1722,15 +1722,15 @@ Target: ready and field-tested before the Barcelona trip (December 10, 2026). Ro
 
 | Step | Build | Try on the phone |
 | --- | --- | --- |
-| 0. Setup (done 2026-11-21) | The app owner creates a GitHub account with two-step sign-in, the organization, the App and test repositories, and the test address (section 12.5). The Trips repository, `trip-db`, is planned (section 12.1). The notices file (section 14.1) is added with the first code. Claude is connected to the two repositories. | The test address opens on both phones. |
+| 0. Setup (done 2026-11-21) | The app owner creates a GitHub account with two-step sign-in, the organization, the App and test repositories, and the test address (section 12.5). The Trips repository, `trip-db`, is planned (section 12.1). The notices file (section 14.1) is added with the first code. Claude is connected to the App and test repositories, and to `trip-db` once it is created. | The test address opens on both phones. |
 | 1. App and map | Full-screen map with street names, "My location", the app's icon and name for the home screen | The map loads and moves smoothly. The blue dot appears after allowing location. The app can be added to the home screen. |
-| 2. Trip files, the checker, and the trip-author skill | Loading a trip file, the checker with its report and privacy checks, the trip guide, the schema, the trip-author skill (section 10.1), an example trip. The Barcelona trip converted to format 2.0. | "Add local trip" opens the Barcelona trip. A file with a deliberate mistake shows a clear report. |
-| 3. Pins and legends | The icon set file, pin color from the group, pie-chart pins, the "Other" chip, the legend switch, filtering by chips | Switching legends recolors the pins. A site in two groups shows a split pin. Turning a chip off hides its sites. |
-| 4. Site card and opening hours | The site card (text shown only as plain text, links limited to https), opening hours with open, closing-soon, and closed marks, native copying, the Share button and "Share a group", the navigation panel with "In another app" (Google Maps, Apple Maps). The "In this app" choice is added in release B. | Status text and pin marks are right at different times of day. Copying and sharing work. Navigation opens in Google or Apple Maps. |
+| 2. Trip files, the checker, and the trip-author skill | Loading a trip file, the checker with its report and privacy checks, the trip guide, the schema, the trip-author skill (section 10.1), an example trip. **First, the pending format changes of section 10 are made** (for example `groups` renamed to `entries`, and the fields `place`, `dates`, and `published`), while no trip files are in users' hands, so that no conversion step is ever needed for them (section 11.1). The Barcelona trip converted to that format. | "Add local trip" opens the Barcelona trip. A file with a deliberate mistake shows a clear report. |
+| 3. Pins and legends | The icon set file, pin color from the legend entry, pie-chart pins, the "Other" chip, the legend switch, filtering by chips | Switching legends recolors the pins. A site in two legend entries shows a split pin. Turning a chip off hides its sites. |
+| 4. Site card and opening hours | The site card (text shown only as plain text, links limited to https), opening hours with open, closing-soon, and closed marks, native copying, the navigation panel with "In another app" (Google Maps, Apple Maps). The "In this app" choice is added in release B. | Status text and pin marks are right at different times of day. Copying works. Navigation opens in Google or Apple Maps. |
 | 5a. Offline maps | The offline region catalog with a Barcelona region built by the automatic check, choosing the area with km² and MB, at most 2 areas on the phone, "Download map for offline use", the offline map display, Settings → Offline maps, the direction and distance to a site without a connection (section 7.4) | In airplane mode, the Barcelona trip shows streets and street names everywhere in its area, all pins and cards, and the blue dot. |
-| 5. My trips and local sites | Several trips and switching between them, each trip's saved view, the data protections of section 3.3 (persistent storage, restore link, one-tap backup, recovery after a wipe), Add site, search (section 8.5), local sites, local legends and groups, "Export trip", "Make a copy" | Searching "Sagrada Família" in Add site fills in its name, address, and location. A search of the user's own trip finds its sites. |
-| 6. The trip list | The registry and trip list built from `trip-db`, by country and city; Download; updates offered and accepted (section 3.1); "Start a new trip" (empty) | The Barcelona trip is downloaded from the trip list on each tester's phone, also in the home-screen app on iPhone. It opens without a connection afterwards. |
-| 7. Updates, feedback, and field test | The browser security policy (section 14.3). Automatic app updates with the "New version available" notice. Settings → About with the notices list. "Send feedback" in its first form: a prepared message through the phone's share menu (section 13.5). A walk-through of the whole app. | An update reaches all phones. The app owner walks a route in their own city with the app, on both phone types. |
+| 5. My trips and local sites | Several trips and switching between them, each trip's saved view, the data protections of section 3.3 (persistent storage, restore link, one-tap backup, recovery after a wipe), Add site, search (section 8.5), local sites, local legends and legend entries, "Export trip" with its warning (section 14.2), "Make a copy", "Add local trip" with "Replace, keep both, or cancel?" (section 3.4) | Searching "Sagrada Família" in Add site fills in its name, address, and location. A search of the user's own trip finds its sites. |
+| 6. The trip list | Needs `trip-db` created by the app owner (section 12.1). The registry and trip list built from `trip-db`, by country and city; Download; updates offered and accepted (section 3.1); "Start a new trip" (empty) | The Barcelona trip is downloaded from the trip list on each tester's phone, also in the home-screen app on iPhone. It opens without a connection afterwards. |
+| 7. Updates, feedback, and field test | The browser security policy (section 14.3). Automatic app updates with the "New version available" notice. Settings → About with the notices list. "Send feedback" in its first form: a prepared message through the phone's share menu, with its warning (sections 13.5, 14.2). A walk-through of the whole app. | An update reaches all phones. The app owner walks a route in their own city with the app, on both phone types. |
 
 Not in release A: in-app turn-by-turn navigation, update and new trip requests, error reports, contributed public trips, "Create a trip with AI", the full AI toolkit, and group trips.
 
@@ -1750,7 +1750,7 @@ On the trip, each member adds sites locally. To pass them on, a member uses "Exp
 
 | Step | Build | Try on the phone |
 | --- | --- | --- |
-| 11. Update and new trip requests | "Request to add my changes" and "Request to add this trip", the personal-data check, the share menu to the app's email address, `requests.json` and "My requests" (section 8.6) | A tester sends a request. The app owner accepts it and publishes it; the tester's app shows "accepted" and offers the update. |
+| 11. Update and new trip requests | "Request to add my changes" and "Request to add this trip" (not shown for group trips), the personal-data check and the "may become public" warning (section 14.2), the share menu to the app's email address, `requests.json` and "My requests" (section 8.6) | A tester sends a request. The app owner accepts it and publishes it; the tester's app shows "accepted" and offers the update. |
 | 12. Reports | Error reports with consent, sent through the share menu (section 13.5) | An error report reaches the app owner. |
 | 13. Contributed trips | Pull requests to `trip-db` with the automatic checks, "Report this trip" | A second person contributes a trip by pull request; after merging, it appears in the trip list. A report of a trip reaches the app owner. |
 
@@ -1766,9 +1766,9 @@ Decision (2026-11-15, confirmed by the app owner): group trips (section 9) are b
 
 | Step | Build | Try on the phone |
 | --- | --- | --- |
-| 15. Firebase, starting, and joining | The app maker's one-time Firebase setup (section 9.5), anonymous sign-in, "Start a group" with "Choose the trip" and the check, the group key, ID, and write token, the first upload, QR invites (15 minutes), one-use invite links with the typed name and the inviter's approval, the key sent through Firebase locked for the new member, joining, declining and rejecting, the security rules | A group of four is started. Members join by QR code, and by an invite link sent by email that the inviter approves, and see the trip at once. A second use of the same link is refused. An app without the write token cannot change the group. A person who declines leaves no trace. |
+| 15. Firebase, starting, and joining | The app maker's one-time Firebase setup (section 9.5), anonymous sign-in, "Start a group" with "Choose the trip" and the check, the group key, ID, write token, and manager token, "Use a copy for the group", the first upload, QR invites (15 minutes), one-use invite links with the typed name and the inviter's approval, the key sent through Firebase locked for the new member, joining, declining and rejecting, the security rules | A group of four is started. Members join by QR code, and by an invite link sent by email that the inviter approves, and see the trip at once. A second use of the same link is refused. An app without the write token cannot change the group. A person who declines leaves no trace. |
 | 16. Sharing in the group | Automatic sharing of every change through Firebase, transactions, live updates, offline queueing, merging, "Looks like the same place?", taking or skipping new legend entries, "Share my location" (15 minutes), privacy checks | Four phones, two of them offline for a while, end with the same trip. Two phones changing the same site at once keep the newer version. A location appears on the others' open apps within seconds and is gone after 15 minutes. |
-| 17. Leaving and after the trip | "Leave group", a new phone with a fresh invite, "Delete the group" by the manager only, automatic deletion, falling back to "Export trip" when Firebase cannot be reached | A member who leaves keeps the trip as a local trip that cannot be sent in a request. After deletion, nothing of the group is left in Firebase. |
+| 17. Leaving and after the trip | "Leave group", a new phone with a fresh invite, "Delete the group" by the manager only, "Hand over manager" by QR code, the manager token in the backup, automatic deletion, falling back to "Export trip" when Firebase cannot be reached | A member who leaves keeps the trip as a local trip that cannot be sent in a request. After deletion, nothing of the group is left in Firebase. After the manager hands over, only the new manager can delete the group. |
 
 #### Release F: big screens
 
@@ -1778,7 +1778,7 @@ Decided (2026-11-23): built only after the phone versions of the earlier release
 | --- | --- | --- |
 | 18. Big screens | The two-pane layout for wide windows, mouse and keyboard, dragging files into the window, hiding navigation, location, and offline maps, installing on a laptop | On a laptop, plan a trip, start a group, and join it from a phone: every change appears on both. On the phone, nothing has changed |
 
-Rough effort for releases B to E together: about four to five weeks, mostly set by testing on real phones. These are planning estimates, not promises.
+Rough effort for releases B to F together: about five to six weeks, mostly set by testing on real phones, plus the app owner's one-time Firebase setup before release E. These are planning estimates, not promises.
 
 ### 13.4 Testing
 
@@ -1788,9 +1788,11 @@ Automated tests run on every change request and must pass before merging:
 - **Browser tests** that walk through the main screens at phone size first, and, from release F, also at laptop size, in both Chrome's engine and Safari's engine: open a trip, switch legends, filter, open a card, add a site, export.
 - **Trip checks:** the example trips and the icon set file are checked with every change.
 - **Security tests** (section 14.3): harmful content in every field, broken and oversized links and messages, and the browser security policy.
+- **Firebase tests**, from release E, against Firebase's free emulator on a laptop: the security rules (no reading without the group ID, no writing without the write token, no deleting without the manager token), offline changes, and simultaneous changes (section 9.5).
+- **Conversion tests**, once a format has a conversion step: each step's old file must become exactly the expected new file (section 11.1).
 - **A security review before each release** (section 14.3).
 
-Testing on real phones is required for each release, because GPS, voice, home-screen install, sharing to WhatsApp, and iPhone's storage rules only behave truly on a device:
+Testing on real phones is required for each release, because GPS, voice, home-screen install, the camera for QR codes, the share menu, group trips through Firebase while going offline and online, and iPhone's storage rules only behave truly on a device:
 
 - Each release has a short checklist, run on at least one Android phone and one iPhone.
 - Each release is used first on the test address, and published to everyone only after the checklist passes.
@@ -1846,11 +1848,15 @@ This list is kept up to date in the dependencies document. An item marked "to be
 | Online service | FOSSGIS routing server (OSRM) | Walking routes | Free | Usage terms: one request per second, no heavy use |
 | Online service | OpenStreetMap search service (Nominatim) | Searching places, streets, and addresses (section 8.5) | Free | Usage policy: at most one request per second for the whole app, no search-as-you-type, credit required. Fallback: another search provider. |
 | Online service | GitHub and GitHub Pages | Storing the code and trips, hosting the app | Free | GitHub terms of service |
+| Library | Firebase's JavaScript library | Talking to Firebase for group trips (section 9.5) | Free | Apache 2.0 |
+| Library | A QR code maker, for example *qrcode-generator* | Showing invite QR codes (section 9.3) | Free | MIT |
+| Library | A QR code reader, for example *jsQR* | Scanning invite QR codes on iPhone (section 9.3) | Free | Apache 2.0 |
 | Other apps | WhatsApp, or another messaging app | Sending invite links; requests and feedback (sections 8.6, 9) | Free | Used through the phone's share menu. The app never sends anything by itself. |
 | Group trips | Firebase (Google), on its free plan | Keeping each group trip and passing changes between members' phones (section 9.5) | Free, within the free plan's limits | Set up once by the app's maker; users never see it. Everything stored is locked with each group's key. |
 | Other apps | Google Maps, Apple Maps, and other navigation apps | "Navigate in another app" (section 7.1) | Free | Opened by a link only. No data is copied from them. |
 | Browser features | Location, speech, keeping the screen on, encryption, offline storage, the share menu | GPS position, spoken directions, navigation, group trips, saved trips, sending messages | Built in | Standard web features of the phone's browser |
 | Development tool | Automated browser testing tool, for example Playwright | Browser tests (section 13.4) | Free | Apache 2.0 |
+| Development tool | Firebase's emulator | Testing group trips and the security rules on a laptop (section 13.4) | Free | Apache 2.0 |
 | Development tool | JSON Schema checker | The trip checker (section 10.2) | Free | To be chosen in step 2, with a permissive license |
 | Development tool | Claude | Writing code, tests, and documents | Paid subscription | Anthropic's terms |
 
