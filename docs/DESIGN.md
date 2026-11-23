@@ -828,7 +828,7 @@ If the place is not found, the user can still long press on the map or use the c
 
 ### 8.6 Asking to add your changes or your trip to the public trips
 
-Decided (2026-11-21): for now, the app owner approves every change to a public trip and every new trip. Later, a separate repository may let each contributor own their trips (section 15, open question 20).
+Decided (2026-11-21): for now, the app owner approves every change to a public trip and every new trip.
 
 There are two kinds of request:
 
@@ -1173,7 +1173,7 @@ After deletion, each member keeps their own copy of the trip on their phone, as 
 
 #### Free plan limits
 
-As far as known on 2026-11-23, Firebase's free plan allows about 50,000 reads and 20,000 writes a day, and 1 GB of stored data, for the whole app (to be checked: open question 17). A group of four on a busy trip day uses a few hundred reads and writes, so about 100 busy groups fit on the same day, and the stored data has room for thousands of groups. When the free limits are reached, requests stop for the rest of the day: the app says so, and members can still pass the trip as a file ("Export trip", then "Add local trip"). A paid plan, with small prices per 100,000 operations, can be chosen later if the app grows.
+As far as known on 2026-11-23, Firebase's free plan allows about 50,000 reads and 20,000 writes a day, and 1 GB of stored data, for the whole app (to be checked before release D, section 13.3). A group of four on a busy trip day uses a few hundred reads and writes, so about 100 busy groups fit on the same day, and the stored data has room for thousands of groups. When the free limits are reached, requests stop for the rest of the day: the app says so, and members can still pass the trip as a file ("Export trip", then "Add local trip"). A paid plan, with small prices per 100,000 operations, can be chosen later if the app grows.
 
 One group using up the limits for all (decided 2026-11-23, section 14.3.1, hole H5): the daily limits are shared by every group of the app, and App Check does not stop someone using the real app, or a phone with a bug that writes in a loop. Before the app is opened to the public: the security rules limit how often one group can write (for example one write per site per few seconds, and a daily number of writes per group), the app itself never writes the same entry more than once in a short time, and when Firebase refuses, the app shows "Group sharing has paused" and offers "Export trip".
 
@@ -1198,7 +1198,7 @@ Most tests run against Firebase's free emulator on a laptop, without touching th
 
 - Firebase is one hosted service that all groups share. If it is down, or the free limits are reached, members can still pass the trip as a file until it is back.
 - A member whose app is closed sees a shared location only when opening the app, within its 15 minutes: the app cannot show notifications while it is closed.
-- Firebase belongs to Google, which runs it under its own terms; the terms are checked before group trips are built (open question 18).
+- Firebase belongs to Google, which runs it under its own terms; the terms are checked before group trips are built (section 13.3, release D).
 
 ### 9.6 Leaving, a new phone, and after the trip
 
@@ -1307,8 +1307,8 @@ Rules:
 - `url` empty: the card shows no link line.
 - `hours` is optional for every site. A day left out means closed that day. Two periods in one day are written `"09:00-13:00, 16:00-20:00"`. A period that ends earlier than it starts runs past midnight: `"19:00-02:00"` on Friday means open until 02:00 on Saturday morning. `closedDates` lists single closed days. `"hours": "always"` marks a site that is always open, such as a viewpoint or a promenade, and the card shows "Always open". Without `hours`, the hours are unknown and the card shows no hours line.
 - `timezone` is the time zone of the trip's location. Open or closed is worked out in that time zone.
-- **Copyright, license, and credits** (decided 2026-11-21). They are kept inside the trip file, because a JSON file cannot carry a comment line like the notice at the top of a code file (section 14.1), and because trips will later have different owners (section 15, open question 20).
-    - `copyright` is the notice exactly as it is shown, for example `"© 2026 The Trip Map authors"`. For trips in the Trips repository today it is always "The Trip Map authors"; with Community trips it names the trip's owner.
+- **Copyright, license, and credits** (decided 2026-11-21). They are kept inside the trip file, because a JSON file cannot carry a comment line like the notice at the top of a code file (section 14.1).
+    - `copyright` is the notice exactly as it is shown, for example `"© 2026 The Trip Map authors"`. For trips in the Trips repository today it is always "The Trip Map authors".
     - `license` is the license's standard short code (SPDX). Today it is always `"CC-BY-4.0"`. A trip built mostly from OpenStreetMap data may need `"ODbL-1.0"` (section 14.1).
     - `credits` lists who made the trip, including people whose update requests were approved, if they chose to be named. Anyone can stay anonymous.
     - All three are optional in a local trip. The checker refuses a trip for the Trips repository without `copyright` and `license`.
@@ -1737,7 +1737,7 @@ Not in release A: in-app turn-by-turn navigation (release B), update and new tri
 
 Fallback: setup finished on November 21, leaving 19 days for releases A and B. Release A comes first and is the minimum for the trip. If release B is not field-tested by December 5, 2026, the trip uses release A, with navigation through "In another app" (Google Maps, Apple Maps), and release B continues after the trip. If release A is not field-tested by December 5, the trip uses version 1 and the trip already published for it.
 
-On the trip, each member adds sites locally. To pass them on, a member uses "Export trip" with their local sites and sends the file through WhatsApp. The others open it with "Add local trip", as a separate local trip (section 3.4). Putting sites from several members into one shared trip is an open gap, for later (section 15, open question 11).
+On the trip, each member adds sites locally. To pass them on, a member uses "Export trip" with their local sites and sends the file through WhatsApp. The others open it with "Add local trip", as a separate local trip (section 3.4). Sites from several members come together in one shared trip with group trips (release D).
 
 #### Release B: in-app navigation
 
@@ -1760,6 +1760,8 @@ Target: ready and field-tested before the Barcelona trip, together with release 
 #### Release D: group trips
 
 Decision (2026-11-15, confirmed by the app owner; order changed 2026-11-23): group trips (section 9) are built after releases A to C, because they are the most complex part of the app. The AI toolkit (release E) and the big-screen layout (release F) come after them. Release D starts only after releases A to C are published.
+
+Checks before release D starts (decided 2026-11-23): Claude checks by web search, and the app owner confirms, (1) Firebase's current free-plan limits and what happens when they are reached (section 9.5), and (2) Firebase's terms of service and data-processing terms, including where the data is stored. The results are written into section 9.5.
 
 | Step | Build | Try on the phone |
 | --- | --- | --- |
@@ -2194,6 +2196,8 @@ For users (shown in the app's help):
 
 ## 15. Open questions
 
+Questions 11, 17, 18, and 20 were removed on 2026-11-23: 11 is answered by group trips (release D), 17 and 18 became checks before release D (section 13.3), and community trips (20) will not be supported. The other numbers are kept, so that references to them stay right.
+
 1. ~~Navigation panel~~: decided, the app always asks (section 7.1).
 2. ~~Icon 14~~: decided, it stays "History / monument" and also covers archaeological sites.
 3. ~~After approval~~: decided, an approved site becomes a regular site of the trip, and the sender's local copy is removed (section 8.6).
@@ -2204,17 +2208,13 @@ For users (shown in the app's help):
 8. ~~Public trip content license~~: decided, CC BY 4.0 (section 14.1).
 9. ~~Accommodation location~~: decided, "Home" and "Accommodation" are one icon, "Home / accommodation". Its exact location is fine in trips that only the group sees, and approximate in public trips (section 14.2).
 10. ~~Locked map history~~: no longer applies; locked maps were dropped on 2026-11-21.
-11. **Combining members' sites during a trip (open gap):** release A has no way to put sites added by several members into one shared trip. Members pass whole trips as files instead. Later: group trips (release D).
 12. ~~Icon details~~: decided, the underground station shows a train in a tunnel. Decided: the transport icon became "Airport" (airplane, now icon 17), and a new icon "Ferry" (boat, now icon 31) is added. "Home" and "Accommodation" are merged into one icon (open question 9). After the merge the set has 31 icons, numbered as in section 5.4.
 13. ~~Members' display names~~: replaced on 2026-11-21: there are no member numbers or names at all; WhatsApp shows who sent each message (section 9).
 14. ~~Security review~~: decided, a separate Claude session before each release, and a human security expert before the app is opened to the public (section 14.3).
 15. ~~Security checklist~~: decided, section 14.4. The copyright line is "The Trip Map authors" (section 14.1).
 16. **A distinctive name (open):** "Trip Map" is a common name, so a web search for "Trip Map app" may not find our AI toolkit. Before the app is announced, choose a name that a search finds uniquely, and check it as in section 14.1. Then "Plan a trip for the <name> app" works by itself (section 8.4).
-17. **Firebase's free plan (open):** check the current free limits of Firebase's Spark plan, and how the app behaves when they are reached (section 9.5).
-18. **Firebase's terms (open):** check Firebase's terms of service and data-processing terms before group trips are built, including where the data is stored (section 9.5).
 19. **Publishing from a group trip (open, for a later version):** for now, a group trip cannot update the public trips: no update request and no new trip request from it, by any member (section 8.6, decided 2026-11-22). Later, a way may be found for a group to agree to send its trip, or some of its sites, to the trip owner, for example with every member's approval. Without a member list or a server the app cannot tell when everyone has approved, so this needs its own design.
 
-20. **Community trips (open, for later):** a separate repository, next to `trip-db`, where each contributor owns their trips and approves update requests for them. The app owner keeps only a safety role: hiding or removing a trip that breaks the rules. The trip list in the app would show both, marked by where each trip comes from.
 
 Approved: simple users can add local sites and send proposals (section 2.1).
 
@@ -2281,3 +2281,4 @@ Approved: simple users can add local sites and send proposals (section 2.1).
 | 2 (design) | 2026-11-23 | New section 13.5.1: testing feedback and error reports before first use, and their security tests (planted values, allowlist, size and repetition, plain text only); the owner's receiving-side rules. |
 | 2 (design) | 2026-11-23 | New section 14.3.1, risk analysis: attackers, holes H1 to H6 and their fixes, data on the phone, who can learn the user's location, and the phone's inputs and outputs (L1 to L9). Fixes: the test version moves to its own organization `projects-rs-test` (H1); "Renew the group key" (H2); QR codes hold only a one-use code, with approval (H3); backups locked with a password (H4); Firebase write limits before going public (H5); `trip-db` accepts only trip files (H6). |
 | 2 (design) | 2026-11-23 | Section 15.1 (ideas raised on 2026-11-15) removed at the app owner's request; its one open idea, community trips, became open question 20. |
+| 2 (design) | 2026-11-23 | Open questions 11 (answered by release D), 17 and 18 (now checks before release D, section 13.3), and 20 (community trips, not supported) removed. |
