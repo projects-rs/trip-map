@@ -1787,13 +1787,49 @@ Rough effort for releases C to F together: about four to five weeks, mostly set 
 
 Automated tests run on every change request and must pass before merging:
 
-- **Unit tests** for the logic that is easy to get subtly wrong: the trip checker, opening hours (time zones, daylight saving time, hours past midnight, closed dates), pin colors and pie-chart segments, legend filtering, the format converter, the icon set version rules, and locking and unlocking group data (section 9.5).
+- **Interface tests, not obvious unit tests** (decided 2026-11-23). Tests check the interfaces (the APIs): the public functions of each module and, above all, the calls between modules, such as "storage → merging → Firebase" or "trip file → converter → checker". Tests that only repeat what the code plainly does (for example "setting a field sets the field") are not written: they multiply, are hard to maintain, and do not help reviewers. A small internal function gets its own test only when it is easy to get subtly wrong: opening hours (time zones, daylight saving time, hours past midnight, closed dates), pie-chart segments, the icon set version rules, and locking and unlocking group data (section 9.5).
 - **Browser tests** that walk through the main screens at phone size first, and, from release F, also at laptop size, in both Chrome's engine and Safari's engine: open a trip, switch legends, filter, open a card, add a site, export.
 - **Trip checks:** the example trips and the icon set file are checked with every change.
 - **Security tests** (section 14.3): harmful content in every field, broken and oversized links and messages, and the browser security policy.
 - **Firebase tests**, from release D, against Firebase's free emulator on a laptop: the security rules (no reading without the group ID, no writing without the write token, no deleting without the manager token), offline changes, and simultaneous changes (section 9.5).
 - **Conversion tests**, once a format has a conversion step: each step's old file must become exactly the expected new file (section 11.1).
 - **A security review before each release** (section 14.3).
+
+#### 13.4.1 How each test is described
+
+Decided 2026-11-23. Every test starts with a description block. A test without one fails the automatic check, so none slips in.
+
+| Field | For | What it says |
+| --- | --- | --- |
+| **What** | All tests | What it checks, in one or two sentences |
+| **How** | All tests | How it checks it: the input, the action, and the expected result |
+| **Interface** | All tests | Which module and which API it tests, or which cross-module call ("A → B") |
+| **Specifics** | When needed | Anything unusual: fake time, fake GPS, a sample file, iPhone-only behavior |
+| **Flow** | Connectivity and Firebase tests | The steps in order: who does what, when the connection is cut and restored, and what each phone should see |
+| **Usability** | Firebase tests | What the user would notice if this broke, for example "a member's new site never appears for the others" |
+| **Threat** | Security tests | Which attack or gap it checks, and whether it is a known kind (for example cross-site scripting) |
+| **Hazard** | Security tests | What could happen if the protection is bypassed |
+
+Example, a Firebase security test:
+
+```js
+/**
+ * What: A phone without the write token cannot change a group's sites.
+ * How: In the Firebase emulator, start a group, then try to write a site
+ *      from a second app that knows the group ID but not the write token.
+ *      Expect the write to be refused.
+ * Interface: Firebase security rules <- groupSync.writeSite()  (module: group)
+ * Flow: 1. Phone A starts a group.  2. Phone B is given only the group ID.
+ *       3. B calls writeSite().  4. Firebase refuses.  5. A's trip is unchanged.
+ * Threat: Unauthorized write; someone who saw a group ID (for example in a log)
+ *         tries to change the trip. Known kind: broken access control.
+ * Hazard: An outsider could delete or replace the group's sites, or add a fake
+ *         address that sends members to the wrong place.
+ */
+test("write without write token is refused", async () => {
+  // ... test code ...
+});
+```
 
 Testing on real phones is required for each release, because GPS, voice, home-screen install, the camera for QR codes, the share menu, group trips through Firebase while going offline and online, and iPhone's storage rules only behave truly on a device:
 
@@ -2162,3 +2198,4 @@ Three ideas raised during the design, and what was decided about each.
 | 2 (design) | 2026-11-21 | Section 10.3: where the check runs without a server (app, checker scripts for AI agents, checker page for people, schema, GitHub), and the final step that directs AI agents to the check, with a checklist for agents that cannot run code. |
 | 2 (design) | 2026-11-21 | Section 8.4 rewritten: for organizers; way 1 opens ChatGPT or Claude with a short request pointing to the toolkit, or copies it for any AI; way 2 adds the skill to Claude; "Ask for a trip" for users without AI. Section 10.1: making the toolkit easy to find for search engines and AI agents. |
 | 2 (design) | 2026-11-23 | Section 13.3: releases A and B (in-app navigation) both targeted for the Barcelona trip, with release A as the minimum fallback. Group trips moved before the AI toolkit: group trips are now release D (steps 14–16), the AI toolkit release E (step 17). |
+| 2 (design) | 2026-11-23 | Section 13.4: interface tests instead of obvious unit tests; new section 13.4.1, the description block every test starts with (What, How, Interface, Specifics, Flow, Usability, Threat, Hazard). |
