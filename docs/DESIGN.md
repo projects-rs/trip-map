@@ -1851,6 +1851,34 @@ Usability:
 - **Privacy.** Feedback and error reports never include the user's location, their local sites, or the content of their trips.
 - **Trip problems are not app problems.** A report such as "this restaurant has closed" is sent to the trip owner as an update request (section 8.6). The feedback screen points users to the right place.
 
+#### 13.5.1 Testing these channels
+
+Decided 2026-11-23. Feedback and error reports are the only channels where the app itself prepares something that leaves the phone, so both are tested before first use and security-tested.
+
+**Before first use (release A, step 7, and release C, step 12):**
+
+- **Arrives intact:** on both phone types, feedback is sent by WhatsApp and by email, and reaches the app's address with the text unchanged, including Hebrew, emoji, and a very long message.
+- **Shown = sent:** the text the user sees before sending is exactly what arrives, nothing more.
+- **Technical details:** the app version, phone type, and browser are right.
+- **Error report:** a deliberate error makes the app offer a report. The report arrives, and it is sent only after the user taps Send.
+
+**Security tests:**
+
+| # | Test | Threat | Hazard if it fails |
+| --- | --- | --- | --- |
+| 1 | **Hidden-data test with planted values.** The test phone is filled with fake secret values (a group key, write token, manager token, group ID, invite code, a location, and site names). Errors are then forced in every module. The test checks that none of these values appears in any report. | Data leak through error messages: error text often carries whatever the code was handling, such as a URL with an invite code or a site's name. Known kind: sensitive data in logs. | A group key in an email lets its reader open the whole group trip. A location reveals where someone is. |
+| 2 | **Allowlist, not cleanup.** Reports are built only from a fixed list of allowed fields: the message, version, phone type, browser, error type, and the module and line of the error. A test checks that nothing outside that list can enter a report. | Leaks from new code that a cleanup filter did not anticipate | As above, and new features would leak by default |
+| 3 | **Size and repetition.** A huge message, or the same error repeating in a loop, does not freeze the app, does not open the share menu again and again, and does not create a flood of reports. | Accidental denial of service | The app becomes unusable mid-trip, or the owner's inbox floods |
+| 4 | **Plain text only.** The app never attaches files or trip data to feedback. | Leaks through attachments | A trip or backup file sent by mistake |
+
+Planted values work like marked bills: the test hides known fake secrets on the phone, then searches every report for them. If one appears, something leaked, whatever the route was.
+
+**On the receiving side (app owner, not a test):**
+
+- Reports are treated as untrusted messages from strangers: attached files are not opened, and links are checked before clicking.
+- The app's email account has two-step sign-in.
+- Issues opened in the public App repository are visible to everyone, so the "Report a problem" link warns: "This page is public. Don't include personal details."
+
 ### 13.6 Documentation
 
 Every part of the project is documented, so that the app owner, testers, contributors, and AI tools can understand it without asking.
@@ -2199,3 +2227,4 @@ Three ideas raised during the design, and what was decided about each.
 | 2 (design) | 2026-11-21 | Section 8.4 rewritten: for organizers; way 1 opens ChatGPT or Claude with a short request pointing to the toolkit, or copies it for any AI; way 2 adds the skill to Claude; "Ask for a trip" for users without AI. Section 10.1: making the toolkit easy to find for search engines and AI agents. |
 | 2 (design) | 2026-11-23 | Section 13.3: releases A and B (in-app navigation) both targeted for the Barcelona trip, with release A as the minimum fallback. Group trips moved before the AI toolkit: group trips are now release D (steps 14–16), the AI toolkit release E (step 17). |
 | 2 (design) | 2026-11-23 | Section 13.4: interface tests instead of obvious unit tests; new section 13.4.1, the description block every test starts with (What, How, Interface, Specifics, Flow, Usability, Threat, Hazard). |
+| 2 (design) | 2026-11-23 | New section 13.5.1: testing feedback and error reports before first use, and their security tests (planted values, allowlist, size and repetition, plain text only); the owner's receiving-side rules. |
