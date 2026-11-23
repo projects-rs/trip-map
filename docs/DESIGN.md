@@ -276,18 +276,6 @@ Protections:
 
 Every way a trip can arrive in the app, leave it, or change on the phone, in one place. Each row points to the section with the details. All of them work on both Android and iPhone; the last column shows where iPhone needs an extra step.
 
-```mermaid
-flowchart LR
-    TL["Trip list (trip-db)"] -->|"Download, Update"| P["My trips, on the phone"]
-    F["A file on the phone"] -->|"Add local trip"| P
-    AI["An AI chat"] -->|"Paste trip"| P
-    G["The group, in Firebase"] <-->|"Join, then automatic sharing"| P
-    B["The user's backup file"] <-->|"Make a backup, Restore"| P
-    P -->|"Export trip"| F
-    P -->|"Requests"| O["The trip owner"]
-    O -->|"Publishes"| TL
-```
-
 **Into the app**
 
 | # | Way | From | How the user does it | Described in | iPhone difference |
