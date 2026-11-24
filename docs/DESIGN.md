@@ -1808,6 +1808,7 @@ Automated tests run on every change request and must pass before merging:
 - **Interface tests, not obvious unit tests** (decided 2026-11-23). Tests check the interfaces (the APIs): the public functions of each module and, above all, the calls between modules, such as "storage → merging → Firebase" or "trip file → converter → checker". Tests that only repeat what the code plainly does (for example "setting a field sets the field") are not written: they multiply, are hard to maintain, and do not help reviewers. A small internal function gets its own test only when it is easy to get subtly wrong: opening hours (time zones, daylight saving time, hours past midnight, closed dates), pie-chart segments, the icon set version rules, and locking and unlocking group data (section 9.5).
 - **Browser tests** that walk through the main screens at phone size first, and, from release F, also at laptop size, in both Chrome's engine and Safari's engine: open a trip, switch legends, filter, open a card, add a site, export.
 - **Trip checks:** the example trips and the icon set file are checked with every change.
+- **Pull request checks** (section 14.3.3): CodeQL, dependency review, secret scanning, and our lint rules run on every pull request as required checks, and a separate Claude session runs `/security-review` with the repository's checklist.
 - **Storage test** (section 3.3): after every flow, everything left in the phone's storage is listed and compared with the table of what is kept; planted names and locations (section 13.5.1) must not appear where they should not.
 - **Security tests** (section 14.3): harmful content in every field, broken and oversized links and messages, and the browser security policy. Also, from the risk analysis (section 14.3.1): the test version cannot see the real app's storage (H1); a phone with an old key reads nothing after "Renew the group key" (H2); a photographed QR code is refused (H3); a backup does not open without its password and holds no readable key (H4); a group writing in a loop is slowed by the rules and the app says so (H5); `trip-db`'s check refuses any file that is not a trip file (H6); each link rule R1 to R6, and Google's test address for Safe Browsing, is caught (section 14.3.2); the app never loads anything from an address inside a trip (L9).
 - **Firebase tests**, from release D, against Firebase's free emulator on a laptop: the security rules (no reading without the group ID, no writing without the write token, no deleting without the manager token), offline changes, and simultaneous changes (section 9.5).
@@ -2084,7 +2085,7 @@ Threats and protections:
 | 2 | **A link to a harmful website** (phishing, malware, scams), for example on a site card | The trip checker's link rules and harmful-site lists, in four layers, from GitHub to the phone (section 14.3.2). The card shows the address before it is opened. | **Yes**. Only a brand-new harmful site, not yet known to any of the three lists, can pass, as with any such check |
 | 3 | Group data in Firebase altered, or written by someone outside the group | Every entry is locked and sealed with the group key (AES-GCM), and the security rules require the group's write token for every write. An entry that does not open with the key, or was changed, is rejected (section 9.5). | **Yes** |
 | 4 | A harmful app update from a taken-over GitHub account of the app owner | Two-step sign-in and printed recovery codes. Proposed, **signed updates** (open question 3): the app owner signs each release's file list with a key kept off GitHub and off work machines, and the app accepts an update only with a valid signature (section 14.3.1, H7). | **Partly**: signed updates would make it yes; open question 3 (section 15) |
-| 5 | A harmful change in a pull request, by a contributor or Claude | Only the app owner can merge, after reviewing and testing every change (section 12.2); rulesets block direct changes. | **Yes**, as long as every change is reviewed carefully |
+| 5 | A harmful change in a pull request, by a contributor or Claude | Three independent looks before merging: automatic tools, an AI security review, and the app owner's review; only the app owner can merge, and rulesets block direct changes (section 14.3.3). | **Yes**, as long as the red-flag areas get a careful human look |
 | 6 | A compromised outside library (a known kind of attack: "supply chain") | Outside libraries are stored in the App repository at fixed versions, never loaded live from other websites; each update of one is reviewed. | **Partly**: fixed versions and review reduce it, but a well-hidden change in a library can be missed |
 | 7 | The app's code changed on its way to the phone, for example on public Wi-Fi | HTTPS. | **Yes** |
 | 8 | Other code on the app's website | Holes H1 and H6 (section 14.3.1). | **Yes**, once H1 and H6 are built |
@@ -2246,6 +2247,41 @@ Terms: Google Safe Browsing and VirusTotal's free service are for non-commercial
 - A harmful site so new that no list knows it yet. Rules R1 to R6, the address shown before opening, and the app owner's review of public trips still apply.
 - The tests (section 13.4) include a link for each rule R1 to R6, and Google's official test address for Safe Browsing.
 
+### 14.3.3 Reviewing pull requests (decided 2026-11-24)
+
+Every pull request, to the App repository or to `trip-db`, gets three independent looks before it can be merged.
+
+#### Look 1: automatic tools
+
+All are free for public repositories, and all are **required checks**: a pull request cannot be merged while one fails.
+
+| Tool | What it catches |
+| --- | --- |
+| CodeQL code scanning | Known kinds of security bugs in JavaScript, such as received text put into the page as HTML |
+| Dependency review | New or updated libraries with known weaknesses |
+| Secret scanning | Keys or passwords committed by mistake |
+| Our own lint rules (ESLint) | No `innerHTML` with received text, no `eval`, no outside address that is not on the allowed list |
+
+#### Look 2: an AI security review
+
+- A **separate Claude session**, which did not write the change, runs `/security-review` on it, with our checklist saved as a skill in the repository, so every review uses the same list.
+- It only writes comments: it cannot change, approve, or merge anything.
+- The checklist: received text shown only as plain text; links only `https://`; no new outside addresses or libraries; no data leaving the phone beyond section 14.2; the browser security policy unchanged; no `eval`; the change matches this design document.
+- **Pull requests from strangers** (contributors, later): the AI review is advice only, because text hidden in a pull request can try to mislead an AI reviewer ("prompt injection"). The tools and the app owner decide.
+- Cost: a Claude session is covered by the app owner's plan. Anthropic's ready-made GitHub Action for this needs a paid Claude API key; it can be added later.
+
+#### Look 3: the app owner
+
+The app owner reviews every change, and always looks carefully at these **red flags**:
+
+- changes to `.github/` workflows;
+- the browser security policy;
+- the update code (service worker);
+- encryption and keys;
+- network addresses;
+- new or updated libraries;
+- unreadable (minified) code.
+
 ### 14.4 Security checklist
 
 For the app owner, when setting up (once):
@@ -2380,3 +2416,4 @@ Only questions still open are listed here (2026-11-23). Decided questions are re
 | 2 (design) | 2026-11-24 | Section 14.3.2, layer 3: every link in data that arrives or changes is checked; group sites on the phones, before sending and on arrival, never in Firebase. |
 | 2 (design) | 2026-11-24 | Section 14.3: the heading row "Harmful app code" removed from the threat table; what such code could do moved to the text above it; rows renumbered 1 to 14. |
 | 2 (design) | 2026-11-24 | Signed updates (threat row 4, hole H7) made open question 3. |
+| 2 (design) | 2026-11-24 | New section 14.3.3, reviewing pull requests: automatic tools as required checks, an AI security review in a separate Claude session with our checklist, and the app owner's red flags. Threat row 5 now "Yes". |
