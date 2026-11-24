@@ -2076,23 +2076,23 @@ What the app can and cannot reach:
 
 Threats and protections:
 
-| Threat | Protection |
-| --- | --- |
-| **Running code inside the app**, hidden in the text or in a script link (`javascript:`) of a trip, change, proposal, or search result, from any source (a file, `trip-db`, a group member, an AI chat, OpenStreetMap) | Everything received is checked against the format before use (section 10.2), shown only as plain text, never as code, and limited in size. A strict browser security policy forbids running any code that is not part of the app. **No link can run a script** (decided 2026-11-24): only `https://` links are accepted when received, checked again with the browser's own address reader just before a card shows them, and blocked by the security policy if both checks failed. The trip checker treats trips as data only (`json.load`, never `eval` or `exec`). |
-| **A link to a harmful website** (phishing, malware, scams), for example on a site card | The card shows the link's address before it is opened. Checking links against lists of harmful websites: to be decided. |
-| Group data in Firebase altered, or written by someone outside the group | Every entry is locked and sealed with the group key (AES-GCM), and the security rules require the group's write token for every write. An entry that does not open with the key, or was changed, is rejected (section 9.5). |
-| **Harmful app code**, whichever way it gets in (the rows below). It could read and send away everything the app keeps, track the location while the app is open, show fake screens, and damage trips, but it still cannot leave the browser's sandbox | The rows below. |
-| A harmful app update from a taken-over GitHub account of the app owner | Two-step sign-in and printed recovery codes. Before going public, **signed updates**: the app owner signs each release's file list with a key kept off GitHub and off work machines, and the app accepts an update only with a valid signature (section 14.3.1, H7). |
-| A harmful change in a pull request, by a contributor or Claude | Only the app owner can merge, after reviewing and testing every change (section 12.2); rulesets block direct changes. |
-| A compromised outside library (a known kind of attack: "supply chain") | Outside libraries are stored in the App repository at fixed versions, never loaded live from other websites; each update of one is reviewed. |
-| The app's code changed on its way to the phone, for example on public Wi-Fi | HTTPS. |
-| Other code on the app's website | Holes H1 and H6 (section 14.3.1). |
-| A fake copy of the app at another address | One published address; a fake copy cannot read the real app's data. |
-| A harmful browser extension, mostly on a laptop (release F) | Outside the app's control; users are advised to install only trusted extensions. |
-| A known weakness in an outside component | Automatic alerts for known weaknesses in the components the app uses, and prompt updates. |
-| Someone using an unlocked phone | The app relies on the phone's own screen lock. An optional app lock with the phone's fingerprint or face check, where the browser supports it. A lost phone that was in a group: the manager uses "Renew the group key" (section 9.6). |
-| An invite link or QR code reaching the wrong person, forwarded, photographed, or found in a chat backup | Neither holds a key; each works once and expires after 15 minutes. Joining needs the inviter's approval, after seeing the typed name; the key is then sent through Firebase, locked for the new member's app only (section 9.3). |
-| Data lost or damaged on a phone | Saved data is checked when it is loaded. Export gives a backup (section 3.4). |
+| # | Threat | Protection | Good solution? |
+| --- | --- | --- | --- |
+| 1 | **Running code inside the app**, hidden in the text or in a script link (`javascript:`) of a trip, change, proposal, or search result, from any source (a file, `trip-db`, a group member, an AI chat, OpenStreetMap) | Everything received is checked against the format before use (section 10.2), shown only as plain text, never as code, and limited in size. A strict browser security policy forbids running any code that is not part of the app. **No link can run a script** (decided 2026-11-24): only `https://` links are accepted when received, checked again with the browser's own address reader just before a card shows them, and blocked by the security policy if both checks failed. The trip checker treats trips as data only (`json.load`, never `eval` or `exec`). | **Yes** |
+| 2 | **A link to a harmful website** (phishing, malware, scams), for example on a site card | The card shows the link's address before it is opened. Checking links against lists of harmful websites: to be decided. | **Partly**: the address is shown; checking against lists of harmful websites is still to be decided |
+| 3 | Group data in Firebase altered, or written by someone outside the group | Every entry is locked and sealed with the group key (AES-GCM), and the security rules require the group's write token for every write. An entry that does not open with the key, or was changed, is rejected (section 9.5). | **Yes** |
+| 4 | **Harmful app code**, whichever way it gets in (rows 5 to 11). It could read and send away everything the app keeps, track the location while the app is open, show fake screens, and damage trips, but it still cannot leave the browser's sandbox | Rows 5 to 11. | – |
+| 5 | A harmful app update from a taken-over GitHub account of the app owner | Two-step sign-in and printed recovery codes. Before going public, **signed updates**: the app owner signs each release's file list with a key kept off GitHub and off work machines, and the app accepts an update only with a valid signature (section 14.3.1, H7). | **Partly** now; **yes** once signed updates are in place, before going public |
+| 6 | A harmful change in a pull request, by a contributor or Claude | Only the app owner can merge, after reviewing and testing every change (section 12.2); rulesets block direct changes. | **Yes**, as long as every change is reviewed carefully |
+| 7 | A compromised outside library (a known kind of attack: "supply chain") | Outside libraries are stored in the App repository at fixed versions, never loaded live from other websites; each update of one is reviewed. | **Partly**: fixed versions and review reduce it, but a well-hidden change in a library can be missed |
+| 8 | The app's code changed on its way to the phone, for example on public Wi-Fi | HTTPS. | **Yes** |
+| 9 | Other code on the app's website | Holes H1 and H6 (section 14.3.1). | **Yes**, once H1 and H6 are built |
+| 10 | A fake copy of the app at another address | One published address; a fake copy cannot read the real app's data. | **Partly**: a fake copy cannot be prevented, only made harmless to the real app's data |
+| 11 | A harmful browser extension, mostly on a laptop (release F) | Outside the app's control; users are advised to install only trusted extensions. | **No**: outside the app's control |
+| 12 | A known weakness in an outside component | Automatic alerts for known weaknesses in the components the app uses, and prompt updates. | **Yes**, as long as updates are made promptly |
+| 13 | Someone using an unlocked phone | The app relies on the phone's own screen lock. An optional app lock with the phone's fingerprint or face check, where the browser supports it. A lost phone that was in a group: the manager uses "Renew the group key" (section 9.6). | **Partly**: depends on the phone's lock; "Renew the group key" limits the damage |
+| 14 | An invite link or QR code reaching the wrong person, forwarded, photographed, or found in a chat backup | Neither holds a key; each works once and expires after 15 minutes. Joining needs the inviter's approval, after seeing the typed name; the key is then sent through Firebase, locked for the new member's app only (section 9.3). | **Yes** |
+| 15 | Data lost or damaged on a phone | Saved data is checked when it is loaded. Export gives a backup (section 3.4). | **Partly**: changes not yet backed up are lost after a wipe |
 
 Protecting a group's data in Firebase (decided 2026-11-23; section 9.5):
 
@@ -2306,3 +2306,4 @@ Only questions still open are listed here (2026-11-23). Decided questions are re
 | 2 (design) | 2026-11-24 | Section 14.3: the threat row about group messages removed; group data goes only through Firebase, covered by the next row. |
 | 2 (design) | 2026-11-24 | Section 14.3: the merged first threat row split again, by danger: running code inside the app (including script links), and a link to a harmful website. |
 | 2 (design) | 2026-11-24 | Section 14.3: the ways harmful app code could get in, added as rows of the threat table; signed updates before going public (section 14.3.1, hole H7). |
+| 2 (design) | 2026-11-24 | Section 14.3: the threat table numbered, with a column "Good solution?" (yes, partly, or no). |
