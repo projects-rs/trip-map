@@ -283,7 +283,7 @@ Protections:
 3. **Restore link for the trips list.** Every published trip can be downloaded again by its `uid`. Settings offers "Save my restore link": a short link listing the user's trips, which the user can send to themselves, for example in WhatsApp. Tapping it re-downloads every trip on the list.
 4. **Copies inside the group.** A group trip is also kept in Firebase. After a wipe, a fresh invite from any member brings the whole trip back (section 9.6).
 5. **One-tap backup of local changes.** A phone browser does not let a web app save a file by itself, so backup is offered, not silent: when a trip has unsent local changes, the app reminds the user ("You have 6 unsaved changes on Barcelona. Save a backup?"), and one tap saves a backup file to the phone's files or the user's own cloud drive. "Open trip file" restores it. The backup is private: it is not sent to the app owner.
-    - **Locked with a backup password** (decided 2026-11-23, section 14.3, threat row 14). A backup can hold a group's key and the manager token, and backup files end up in Downloads, in chats, or on a computer. So every backup is locked (AES-GCM, with a key made from the password by PBKDF2 with many rounds). The user chooses the password once, in Settings, with "Write it down: without it the backup cannot be opened". The app remembers it on this phone and asks for it on restore. A forgotten password cannot be recovered.
+    - **Locked with a backup password** (decided 2026-11-23, section 14.3, threat row 4). A backup can hold a group's key and the manager token, and backup files end up in Downloads, in chats, or on a computer. So every backup is locked (AES-GCM, with a key made from the password by PBKDF2 with many rounds). The user chooses the password once, in Settings, with "Write it down: without it the backup cannot be opened". The app remembers it on this phone and asks for it on restore. A forgotten password cannot be recovered.
 6. **Warnings.** "Remove from this phone" warns about unsent changes and offers a backup first. Each trip in "My trips" shows the number of its unsent changes.
 7. **After a wipe.** If the app finds its data gone, it opens with "Your trips are not on this phone any more" and three ways back: "Open my restore link", "Open a backup file", and "Download from the trip list".
 8. **Permanent safety.** Changes sent as an update request and approved by the app owner are kept in the Trips repository, and can always be downloaded again.
@@ -999,7 +999,7 @@ Rules:
 
 ### 9.3 Inviting and joining
 
-Any member can invite, at any time. Both ways work the same: the invite holds only a one-use code, the person joining types their name, and the inviter approves (decided 2026-11-23; in person since the risk analysis, section 14.3, threat row 11). Because the app keeps no member list or IDs, it does not matter who invites, how many invite at once, or in which order people join.
+Any member can invite, at any time. Both ways work the same: the invite holds only a one-use code, the person joining types their name, and the inviter approves (decided 2026-11-23; in person since the risk analysis, section 14.3). Because the app keeps no member list or IDs, it does not matter who invites, how many invite at once, or in which order people join.
 
 #### Two ways to invite
 
@@ -1190,7 +1190,7 @@ After deletion, each member keeps their own copy of the trip on their phone, as 
 
 As far as known on 2026-11-23, Firebase's free plan allows about 50,000 reads and 20,000 writes a day, and 1 GB of stored data, for the whole app (to be checked before release D, section 13.3). A group of four on a busy trip day uses a few hundred reads and writes, so about 100 busy groups fit on the same day, and the stored data has room for thousands of groups. When the free limits are reached, requests stop for the rest of the day: the app says so, and members can still pass the trip as a file ("Export trip", then "Add local trip"). A paid plan, with small prices per 100,000 operations, can be chosen later if the app grows.
 
-One group using up the limits for all (decided 2026-11-23, section 14.3, threat row 15): the daily limits are shared by every group of the app, and App Check does not stop someone using the real app, or a phone with a bug that writes in a loop. Before the app is opened to the public: the security rules limit how often one group can write (for example one write per site per few seconds, and a daily number of writes per group), the app itself never writes the same entry more than once in a short time, and when Firebase refuses, the app shows "Group sharing has paused" and offers "Export trip".
+One group using up the limits for all (decided 2026-11-23, section 14.3): the daily limits are shared by every group of the app, and App Check does not stop someone using the real app, or a phone with a bug that writes in a loop. Before the app is opened to the public: the security rules limit how often one group can write (for example one write per site per few seconds, and a daily number of writes per group), the app itself never writes the same entry more than once in a short time, and when Firebase refuses, the app shows "Group sharing has paused" and offers "Export trip".
 
 #### Privacy
 
@@ -1218,7 +1218,7 @@ Most tests run against Firebase's free emulator on a laptop, without touching th
 ### 9.6 Leaving, a new phone, and after the trip
 
 - **Leaving:** a member taps "Leave group". The group, its key, and its ID are removed from that phone; the trip stays as a local trip, marked as a former group trip, so it still cannot be sent in a request (section 8.6).
-- **"Renew the group key"** (decided 2026-11-23, section 14.3, threat row 13; release D, step 16). Leaving relies on the person's own phone, so someone who left, kept an old backup, or lost an unlocked phone may still hold the key, and could go on reading the trip and every shared location without anyone noticing. The manager taps "Renew the group key" after someone leaves or a phone is lost. Each member's app that is still in the group answers with a one-time public key; the manager's app makes a new key, write token, and ID, locks the new key separately for each of those apps, sends it through Firebase, and re-locks the trip under the new ID. The old ID and its data are deleted, and the old key opens nothing new. A member whose app was not open gets a fresh invite.
+- **"Renew the group key"** (decided 2026-11-23, section 14.3, threat row 3; release D, step 16). Leaving relies on the person's own phone, so someone who left, kept an old backup, or lost an unlocked phone may still hold the key, and could go on reading the trip and every shared location without anyone noticing. The manager taps "Renew the group key" after someone leaves or a phone is lost. Each member's app that is still in the group answers with a one-time public key; the manager's app makes a new key, write token, and ID, locks the new key separately for each of those apps, sends it through Firebase, and re-locks the trip under the new ID. The old ID and its data are deleted, and the old key opens nothing new. A member whose app was not open gets a fresh invite.
 - **A new phone:** the member gets a fresh invite from any member; the app reads the trip from Firebase.
 - **After the trip:** the group's manager taps **"Delete the group"** and confirms, with the warning "This removes the group and all its content for everyone. Each member keeps the trip on their own phone." The app deletes the group's sites, locations, and pending invites from Firebase. The other members' apps notice and show "The group was deleted by its manager. Your copy of the trip is kept."; the trip stays on each phone as a local trip, marked as a former group trip.
 - **Keeping the manager token safe:** it is kept in the app's storage, with the protections of section 3.3, and included in the user's backup file if they make one. After a reinstall, restoring the backup brings the manager's right back.
@@ -1229,7 +1229,7 @@ How the invite travels, and its limits (checked against section 14.2):
 
 - **In person,** the QR code passes the invite from screen to camera; it is never sent anywhere.
 - **An invite link holds no key** (decided 2026-11-23), only a one-use code, so it can be sent any way, and a link found later in a chat or a backup is useless. The key is handed over only after the inviter approves, through Firebase, locked for the new member's app.
-- **A QR code holds the same one-use code** as a link, never the key, so a photo of the screen is useless (section 14.3, threat row 11).
+- **A QR code holds the same one-use code** as a link, never the key, so a photo of the screen is useless (section 14.3).
 - **The 15-minute limit** applies to both. Leaving the group does not take the key away. If someone was approved by mistake, or should no longer see the trip, the manager uses "Renew the group key" (above).
 - **Sealed:** every entry is locked and sealed (AES-GCM). An entry that was altered, or not made with the group's key, is rejected (section 14.3).
 
@@ -1833,7 +1833,7 @@ Automated tests run on every change request and must pass before merging:
 - **Pull request checks** (sections 14.3.3 and 14.3.4): Socket, OSV-Scanner, Dependabot, the library-file fingerprint check, CodeQL, dependency review, secret scanning, and our lint rules run on every pull request as required checks, and a separate Claude session runs `/security-review` with the repository's checklist.
 - **Phone tests** (section 13.2): every flow runs in simulated Android and iPhone browsers on GitHub, with touch, a phone-sized screen, and a fake GPS position, using Playwright; screenshots of every screen are attached to the change request.
 - **Storage test** (section 3.3): after every flow, everything left in the phone's storage is listed and compared with the table of what is kept; planted names and locations (section 13.5.1) must not appear where they should not.
-- **Security tests** (section 14.3): harmful content in every field, broken and oversized links and messages, and the browser security policy. Also, from the threat table (section 14.3): a phone with an old key reads nothing after "Renew the group key" (threat row 13); a photographed QR code is refused (threat row 11); a backup does not open without its password and holds no readable key (threat row 14); a group writing in a loop is slowed by the rules and the app says so (threat row 15); `trip-db`'s check refuses any file that is not a trip file (section 12.1); each link rule R1 to R6, and Google's test address for Safe Browsing, is caught (section 14.3.2); the app never loads anything from an address inside a trip (L9).
+- **Security tests** (section 14.3): harmful content in every field, broken and oversized links and messages, and the browser security policy. Also, from the threat table (section 14.3): a phone with an old key reads nothing after "Renew the group key" (threat row 3); a photographed QR code is refused; a backup does not open without its password and holds no readable key (threat row 4); a group writing in a loop is slowed by the rules and the app says so; `trip-db`'s check refuses any file that is not a trip file (section 12.1); each link rule R1 to R6, and Google's test address for Safe Browsing, is caught (section 14.3.2); the app never loads anything from an address inside a trip (L9).
 - **Firebase tests**, from release D, against Firebase's free emulator on a laptop: the security rules (no reading without the group ID, no writing without the write token, no deleting without the manager token), offline changes, and simultaneous changes (section 9.5).
 - **Conversion tests**, once a format has a conversion step: each step's old file must become exactly the expected new file (section 11.1).
 - **A security review before each release** (section 14.3).
@@ -2097,30 +2097,33 @@ What the app can and cannot reach:
 
 - The app runs inside the phone's browser, in the browser's protective sandbox. It cannot read the phone's files, photos, contacts, messages, or other apps, and it cannot install anything.
 - It can reach only what the browser allows: location, after the user agrees, and its own storage on the phone.
-- So the worst case of a successful attack on the app is limited to the app's own data on that phone, such as trips, local sites, group details, and keys. Harmful app code, whichever way it got in (rows 4 to 8 below), could read and send away that data, track the location while the app is open, show fake screens, and damage trips, but still could not leave the sandbox. That data is still worth protecting, and the measures below do so.
+- So the worst case of a successful attack on the app is limited to the app's own data on that phone, such as trips, local sites, group details, and keys. Harmful app code, whichever way it got in (see below), could read and send away that data, track the location while the app is open, show fake screens, and damage trips, but still could not leave the sandbox. That data is still worth protecting, and the measures below do so.
 - WhatsApp protects messages while they travel. It does not protect the app from harmful content inside a message. The app protects itself, whatever way the content arrives.
 
 Threats and protections:
 
 | # | Threat | Protection | Risk (now / public) | Good solution? | When |
 | --- | --- | --- | --- | --- | --- |
-| 1 | **Running code inside the app**, hidden in the text or in a script link (`javascript:`) of a trip, change, proposal, or search result, from any source (a file, `trip-db`, a group member, an AI chat, OpenStreetMap) | Everything received is checked against the format before use (section 10.2), shown only as plain text, never as code, and limited in size. A strict browser security policy forbids running any code that is not part of the app. **No link can run a script** (decided 2026-11-24): only `https://` links are accepted when received, checked again with the browser's own address reader just before a card shows them, and blocked by the security policy if both checks failed. The trip checker treats trips as data only (`json.load`, never `eval` or `exec`). | Low / Medium | **Yes** | Release A |
-| 2 | **A link to a harmful website** (phishing, malware, scams), for example on a site card | The trip checker's link rules and harmful-site lists, in four layers, from GitHub to the phone (section 14.3.2). The card shows the address before it is opened. | Low / Medium | **Yes**. Only a brand-new harmful site, not yet known to any of the three lists, can pass, as with any such check | Release A; `trip-db` check at step 6 |
-| 3 | Group data in Firebase altered, or written by someone outside the group | Every entry is locked and sealed with the group key (AES-GCM), and the security rules require the group's write token for every write. An entry that does not open with the key, or was changed, is rejected (section 9.5). | Very low / Low | **Yes** | Release D |
-| 4 | A harmful app update from a taken-over GitHub account of the app owner | Two-step sign-in and printed recovery codes; never signing in on unknown pages; GitHub's alerts on new sign-ins. Proposed, **signed updates** (open question 3), which make the attack harder but cannot fully stop it in a web app (below). | Low / Low, all users | **Partly, with a gap**: in a web app the browser updates the app's update script by itself, so an attacker holding the account could replace it with one that skips the signature check. Only a store app, checked by the phone's operating system, closes this (open question 3) | Now (two-step sign-in); signed updates: open question 3 |
-| 5 | A harmful change in a pull request, by a contributor or Claude | Three independent looks before merging: automatic tools, an AI security review, and the app owner's review; only the app owner can merge, and rulesets block direct changes (section 14.3.3). | Very low / Medium | **Yes**, as long as the red-flag areas get a careful human look | From build step 1 |
-| 6 | A compromised outside library, even a well-known and trusted one (a known kind of attack: "supply chain") | Few, narrow libraries, copied in at fixed versions and never loaded live; three scanning tools; waiting 4 weeks before a new version; the files checked against the official ones; a fixed list of allowed addresses (section 14.3.4). | Low / Low to medium | **Mostly**: yes for the small libraries; partly for the Firebase library until the decision in release D (the Firebase box). A very well-hidden change can never be fully excluded | Release A; the Firebase box decided in release D |
-| 7 | Someone on the same network, such as a hotel's Wi-Fi, changing the app's files while they download ("man-in-the-middle") | HTTPS: the files are encrypted on the way and the phone checks they really come from github.io. **Signed updates are needed as a second layer** (open question 3): a changed file would then fail its fingerprint even if HTTPS were broken, for example on a phone with a fake certificate authority installed. | Very low / Very low | **Partly**: HTTPS solves the usual case; the second layer is open question 3 | Now (HTTPS); second layer: open question 3 |
-| 8 | A harmful browser extension, mostly on a laptop (release F) | Outside the app's control; users are advised to install only trusted extensions. | Very low / Low | **No**: outside the app's control | – |
-| 9 | A known weakness in an outside component | Automatic alerts for known weaknesses in the components the app uses, and prompt updates. | Low / Medium | **Yes**, as long as updates are made promptly | From release A |
-| 10 | Someone using an unlocked phone | The app relies on the phone's own screen lock. An optional app lock with the phone's fingerprint or face check, where the browser supports it. A lost phone that was in a group: the manager uses "Renew the group key" (section 9.6). | Medium / Medium | **Partly**: depends on the phone's lock; "Renew the group key" limits the damage | Release A; "Renew the group key" in release D |
-| 11 | An invite link or QR code reaching the wrong person, forwarded, photographed, or found in a chat backup (found in the risk analysis: a QR code used to hold the key, so a photo of the screen gave it for good) | Neither holds a key; each works once and expires after 15 minutes. Joining needs the inviter's approval, after seeing the typed name; the key is then sent through Firebase, locked for the new member's app only (section 9.3). | Low / Low | **Yes** | Release D, step 14 |
-| 12 | Data lost or damaged on a phone | Saved data is checked when it is loaded. Export gives a backup (section 3.4). | High / High | **Partly**: changes not yet backed up are lost after a wipe | Release A, step 5 |
-| 13 | A former member, or whoever holds an old backup or a lost phone, keeps the group key (found in the risk analysis), and goes on reading the trip and every shared location without anyone noticing | "Renew the group key" by the manager: a new key for the members still there, the old ID and its data deleted (section 9.6) | Medium / Medium | **Yes**, once built | Release D, step 16 |
-| 14 | A backup file holds secrets, the group key and the manager token, and ends up in Downloads, a chat, or on a computer (found in the risk analysis) | Every backup is locked with the user's backup password (section 3.3) | Medium / Medium | **Yes** | Release A, step 5 |
-| 15 | One group uses up Firebase's free daily limits for every group of the app, through a bug or on purpose (found in the risk analysis); nothing leaks, but group sharing stops until the next day | Write limits per group in the security rules, no repeated writes in the app, "Group sharing has paused" with "Export trip" (section 9.5) | Low / Medium | **Yes**, once built | Before going public |
+| 1 | Someone using an unlocked phone | The app relies on the phone's own screen lock. An optional app lock with the phone's fingerprint or face check, where the browser supports it. A lost phone that was in a group: the manager uses "Renew the group key" (section 9.6). | Medium / Medium | **Partly**: depends on the phone's lock; "Renew the group key" limits the damage | Release A; "Renew the group key" in release D |
+| 2 | Data lost or damaged on a phone | Saved data is checked when it is loaded. Export gives a backup (section 3.4). | High / High | **Partly**: changes not yet backed up are lost after a wipe | Release A, step 5 |
+| 3 | A former member, or whoever holds an old backup or a lost phone, keeps the group key (found in the risk analysis), and goes on reading the trip and every shared location without anyone noticing | "Renew the group key" by the manager: a new key for the members still there, the old ID and its data deleted (section 9.6) | Medium / Medium | **Yes**, once built | Release D, step 16 |
+| 4 | A backup file holds secrets, the group key and the manager token, and ends up in Downloads, a chat, or on a computer (found in the risk analysis) | Every backup is locked with the user's backup password (section 3.3) | Medium / Medium | **Yes** | Release A, step 5 |
 
-Risk is how likely the threat is now (the Barcelona group) and once the app is public. The risk analysis (section 14.3.1) found rows 11, 13, 14, 15, part of row 4, and a shared-website hole closed by not publishing a test version (section 13.2); they were holes in the design, and their fixes are now part of it.
+Risk is how likely the threat is now (the Barcelona group) and once the app is public.
+
+Threats whose risk is low today were removed from this table on 2026-11-24. Their protections stay part of the design:
+
+- **No code from received content:** everything received is checked against the format (section 10.2), shown only as plain text, and limited in size; a strict browser security policy forbids any code that is not part of the app; no link can run a script (only `https://`, checked when received and again before it is shown); the trip checker treats trips as data only (`json.load`, never `eval` or `exec`).
+- **Harmful links:** the link check in four layers (section 14.3.2).
+- **Group data in Firebase:** every entry locked and sealed with the group key, and every write needs the write token (section 9.5).
+- **The app owner's GitHub account:** two-step sign-in, printed recovery codes, alerts on new sign-ins; signed updates are open question 3.
+- **Pull requests:** three independent looks (section 14.3.3).
+- **Outside libraries:** section 14.3.4.
+- **Files changed on the way:** HTTPS; signed updates as a second layer are open question 3.
+- **Known weaknesses in outside components:** automatic alerts and prompt updates.
+- **Invites:** no key in a QR code or link, one use, 15 minutes, the inviter's approval (section 9.3).
+- **Firebase's free limits:** write limits per group and "Group sharing has paused" (section 9.5), before going public.
+- Browser extensions are outside the app's control.
 
 Protecting a group's data in Firebase (decided 2026-11-23; section 9.5):
 
@@ -2162,8 +2165,8 @@ Decided 2026-11-23. Who might attack and what they could reach. The holes it fou
 | What | Where | Who can reach it | Protection |
 | --- | --- | --- | --- |
 | Trips and local sites (which may include where the user is staying) | The browser's storage (section 3.3) | The app; the person holding the unlocked phone | The phone's lock; the browser's sandbox; only the app and `trip-db` published on its website (section 12.1) |
-| Group key, write token, manager token | The browser's storage | As above | As above; "Renew the group key" after a loss (threat row 13) |
-| Backup files | Wherever the user saves them | Anyone with the file | Locked with the backup password (threat row 14) |
+| Group key, write token, manager token | The browser's storage | As above | As above; "Renew the group key" after a loss (threat row 3) |
+| Backup files | Wherever the user saves them | Anyone with the file | Locked with the backup password (threat row 4) |
 | Exported trips | Wherever the user sends them | Anyone with the file | Never hold a key, token, or group ID (section 9.4); the warnings of section 14.2 |
 
 A lost or stolen phone: when locked, its data is safe. When unlocked, the finder sees the trips and, until the manager renews the group key, the group's shared locations. Malware on the phone itself, or a phone with its protections removed, is outside what any web app can defend against.
@@ -2173,8 +2176,8 @@ A lost or stolen phone: when locked, its data is safe. When unlocked, the finder
 | Who | How | Exact or rough | Protection |
 | --- | --- | --- | --- |
 | Group members | "Share my location", for 15 minutes, only when the user taps it | Exact | Intended; locked with the group key (section 9.4) |
-| A former member, or whoever has an old key | The old key (threat row 13) | Exact, while sharing | "Renew the group key" |
-| A bystander with a photo of a QR code | (threat row 11) | – | Closed: the QR code holds no key |
+| A former member, or whoever has an old key | The old key (threat row 3) | Exact, while sharing | "Renew the group key" |
+| A bystander with a photo of a QR code | | – | Closed: the QR code holds no key |
 | The routing server (FOSSGIS) | The start point of an in-app route | Exact, kept in its logs | Explained when location is first used (section 14.2); routes only on request |
 | The map image server | The area being viewed, with the phone's internet address | Rough, but continuous while walking | Offline maps send no requests (section 7.4) |
 | The search service | The area shown on the map | Rough | Only when searching |
@@ -2189,9 +2192,9 @@ A lost or stolen phone: when locked, its data is safe. When unlocked, the finder
 | L1 | GPS | As above | Used only while the app is open and only after the user agrees; never stored in trips, exports, backups, or reports |
 | L2 | Camera | Low | Only while the QR scanner is open; frames are read on the phone and never kept or sent (section 9.3) |
 | L3 | Voice directions | Bystanders hear the destination | Off by default; earphones suggested when it is turned on |
-| L4 | Screen | Shoulder-surfing, photos | "Show this only to the person joining" on the QR screen; QR codes hold no key (threat row 11) |
+| L4 | Screen | Shoulder-surfing, photos | "Show this only to the person joining" on the QR screen; QR codes hold no key |
 | L5 | Clipboard | Other apps can read what is copied | Keys, tokens, and group IDs are never copied; "Paste trip" and "Paste invite" read only when the user taps Paste |
-| L6 | Share menu and files | Sent to the wrong person | The warnings of section 14.2; backups locked (threat row 14) |
+| L6 | Share menu and files | Sent to the wrong person | The warnings of section 14.2; backups locked (threat row 4) |
 | L7 | Screen kept on (navigation) | Battery | Only during turn-by-turn navigation |
 | L8 | Microphone, contacts, photos, Bluetooth, notifications | None | The app never asks for them |
 | L9 | Addresses inside trips | A trip's author learning who opened it, and from where | The app never loads anything from an address inside a trip: links open only when tapped, after showing the address, and trips hold no pictures |
@@ -2206,7 +2209,7 @@ No outside service is needed for these. A link that breaks one is **rejected** (
 
 | # | Rule | Example of what is caught |
 | --- | --- | --- |
-| R1 | Only `https://` links | `javascript:…`, `http://…`, `intent://…` (row 1 of the threat table) |
+| R1 | Only `https://` links | `javascript:…`, `http://…`, `intent://…` (section 14.3) |
 | R2 | No bare internet addresses | `https://185.23.4.9/menu` |
 | R3 | No link shorteners | `https://bit.ly/…`, which hides where the link goes |
 | R4 | No hidden user names in the address | `https://booking.com@evil.com`, which really goes to evil.com |
@@ -2254,7 +2257,7 @@ Terms: Google Safe Browsing and VirusTotal's free service are for non-commercial
 
 - A link on a harmful-site list: "⚠ This link may be harmful (Google Safe Browsing)", with the address. It does not open with a simple tap; the user must tap "Open anyway".
 - A link not checked yet: a small "not checked" mark next to it.
-- Before any link opens: its full address is shown (threat table, row 2).
+- Before any link opens: its full address is shown (section 14.3).
 
 #### Part 5: what is left
 
@@ -2377,7 +2380,7 @@ Only questions still open are listed here (2026-11-23). Decided questions are re
 1. **A distinctive name:** "Trip Map" is a common name, so a web search for "Trip Map app" may not find our AI toolkit. Before the app is announced, choose a name that a search finds uniquely, and check it as in section 14.1. Then "Plan a trip for the <name> app" works by itself (section 8.4).
 2. **Publishing from a group trip (for a later version):** for now, a group trip cannot update the public trips: no update request and no new trip request from it, by any member (section 8.6, decided 2026-11-22). Later, a way may be found for a group to agree to send its trip, or some of its sites, to the trip owner, for example with every member's approval. Without a member list or a server the app cannot tell when everyone has approved, so this needs its own design.
 
-3. **Signed updates (open):** how to make sure phones refuse app code that was changed, on the way (threat row 7) or by someone holding the app owner's GitHub account (threat row 4). Proposed: the app owner signs a list of every release file's fingerprint with a private key kept off GitHub and off work machines; the app checks the signature and the fingerprints before accepting an update, and never accepts an older version. GitHub's own signing features (signed commits, attestations) cannot replace it, because they trust the account itself. **Known gap (2026-11-24):** in a web app the check is done by the app's own update script, and the browser updates that script by itself, so an attacker holding the account could replace it with one that skips the check. App stores avoid this because the phone's operating system checks the signature. Options: signed updates as a strong second layer for row 7 and a partial one for row 4; later, packaging the app as a store app (for example with Capacitor) to close row 4. To decide: whether, when, and how the private key and its backup are kept.
+3. **Signed updates (open):** how to make sure phones refuse app code that was changed, on the way (section 14.3) or by someone holding the app owner's GitHub account (section 14.3). Proposed: the app owner signs a list of every release file's fingerprint with a private key kept off GitHub and off work machines; the app checks the signature and the fingerprints before accepting an update, and never accepts an older version. GitHub's own signing features (signed commits, attestations) cannot replace it, because they trust the account itself. **Known gap (2026-11-24):** in a web app the check is done by the app's own update script, and the browser updates that script by itself, so an attacker holding the account could replace it with one that skips the check. App stores avoid this because the phone's operating system checks the signature. Options: signed updates as a strong second layer for row 7 and a partial one for row 4; later, packaging the app as a store app (for example with Capacitor) to close row 4. To decide: whether, when, and how the private key and its backup are kept.
 
 ## 16. Version history
 
@@ -2463,3 +2466,4 @@ Only questions still open are listed here (2026-11-23). Decided questions are re
 | 2 (design) | 2026-11-24 | Section 13.4: the test rule enforced by a `writing-tests` skill in the App repository and by automatic checks (read-only test workflows, a scan for real addresses, emulator-only Firebase tests). |
 | 2 (design) | 2026-11-24 | No published test version: automated phone tests on GitHub (Playwright, simulated Android and iPhone, screenshots), then "Try new versions first" in the real app with an automatic backup, and the app owner marks a version ready for everyone (sections 3.2, 13.2). The test repository becomes private and unpublished; no `projects-rs-test` organization. Threat row 8 removed; `trip-db` holds only trip files, as designed. Rows renumbered 1 to 16. |
 | 2 (design) | 2026-11-24 | Section 14.3: the threat row "a fake copy of the app" removed at the app owner's request (a fake app cannot reach the real app's data or Firebase); rows renumbered 1 to 15. |
+| 2 (design) | 2026-11-24 | Section 14.3: threats whose risk is low today removed from the threat table at the app owner's request; their protections listed under it in one line each. The table keeps 4 rows: an unlocked phone, data lost on a phone, a former member keeping the key, and a backup holding secrets. |
