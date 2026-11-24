@@ -235,7 +235,8 @@ A trip shared inside a group reaches a new member right after joining with an in
 - Nothing changes during a walk: the question is never shown during navigation.
 - A user opening the app for the first time always gets the newest version.
 - If a trip needs a newer app than the one on the phone, the app says so and offers the update (section 3.1).
-- An update replaces only the app. The user's trips, local sites, and settings stay on the phone.
+- An update replaces only the app. The user's trips, local sites, and settings stay on the phone, and the app saves an automatic backup on the phone just before updating (section 3.3).
+- **"Try new versions first"** (decided 2026-11-24). There is no separate test address: new versions are tried in the real app. A phone with this setting on (the app owner's, and the testers') is offered a new version as soon as it is published. Every other phone is offered it only after the app owner marks the version ready, once it has been tried (section 13.2).
 - The app's version number is shown in Settings.
 - Each trip file records its format version. Newer app versions continue to read older trip files (section 11).
 - Publishing a new version is the app owner's task. Claude can prepare a version, but only the app owner publishes it (section 12.4). Users do nothing.
@@ -282,7 +283,7 @@ Protections:
 3. **Restore link for the trips list.** Every published trip can be downloaded again by its `uid`. Settings offers "Save my restore link": a short link listing the user's trips, which the user can send to themselves, for example in WhatsApp. Tapping it re-downloads every trip on the list.
 4. **Copies inside the group.** A group trip is also kept in Firebase. After a wipe, a fresh invite from any member brings the whole trip back (section 9.6).
 5. **One-tap backup of local changes.** A phone browser does not let a web app save a file by itself, so backup is offered, not silent: when a trip has unsent local changes, the app reminds the user ("You have 6 unsaved changes on Barcelona. Save a backup?"), and one tap saves a backup file to the phone's files or the user's own cloud drive. "Open trip file" restores it. The backup is private: it is not sent to the app owner.
-    - **Locked with a backup password** (decided 2026-11-23, section 14.3, threat row 16). A backup can hold a group's key and the manager token, and backup files end up in Downloads, in chats, or on a computer. So every backup is locked (AES-GCM, with a key made from the password by PBKDF2 with many rounds). The user chooses the password once, in Settings, with "Write it down: without it the backup cannot be opened". The app remembers it on this phone and asks for it on restore. A forgotten password cannot be recovered.
+    - **Locked with a backup password** (decided 2026-11-23, section 14.3, threat row 15). A backup can hold a group's key and the manager token, and backup files end up in Downloads, in chats, or on a computer. So every backup is locked (AES-GCM, with a key made from the password by PBKDF2 with many rounds). The user chooses the password once, in Settings, with "Write it down: without it the backup cannot be opened". The app remembers it on this phone and asks for it on restore. A forgotten password cannot be recovered.
 6. **Warnings.** "Remove from this phone" warns about unsent changes and offers a backup first. Each trip in "My trips" shows the number of its unsent changes.
 7. **After a wipe.** If the app finds its data gone, it opens with "Your trips are not on this phone any more" and three ways back: "Open my restore link", "Open a backup file", and "Download from the trip list".
 8. **Permanent safety.** Changes sent as an update request and approved by the app owner are kept in the Trips repository, and can always be downloaded again.
@@ -349,7 +350,7 @@ The user interface is described across sections 4 to 7.1:
 
 Each part's interactions are described next to the part itself.
 
-Decision (2026-11-21): the interface in sections 4 to 7.1 is a first version, to be improved in several iterations. This applies to the layout below and to every screen, card, and interaction in those sections. Each iteration is tried on real phones at the test address (section 13.2), Android and iPhone; the app owner's feedback leads to the next one, and this section is updated when a layout is settled. Before an iteration, Claude can show the screens as mock-ups to compare options without building them.
+Decision (2026-11-21): the interface in sections 4 to 7.1 is a first version, to be improved in several iterations. This applies to the layout below and to every screen, card, and interaction in those sections. Each iteration is tried on real phones (section 13.2), Android and iPhone; the app owner's feedback leads to the next one, and this section is updated when a layout is settled. Before an iteration, Claude can show the screens as mock-ups to compare options without building them.
 
 First version:
 
@@ -998,7 +999,7 @@ Rules:
 
 ### 9.3 Inviting and joining
 
-Any member can invite, at any time. Both ways work the same: the invite holds only a one-use code, the person joining types their name, and the inviter approves (decided 2026-11-23; in person since the risk analysis, section 14.3, threat row 13). Because the app keeps no member list or IDs, it does not matter who invites, how many invite at once, or in which order people join.
+Any member can invite, at any time. Both ways work the same: the invite holds only a one-use code, the person joining types their name, and the inviter approves (decided 2026-11-23; in person since the risk analysis, section 14.3, threat row 12). Because the app keeps no member list or IDs, it does not matter who invites, how many invite at once, or in which order people join.
 
 #### Two ways to invite
 
@@ -1189,7 +1190,7 @@ After deletion, each member keeps their own copy of the trip on their phone, as 
 
 As far as known on 2026-11-23, Firebase's free plan allows about 50,000 reads and 20,000 writes a day, and 1 GB of stored data, for the whole app (to be checked before release D, section 13.3). A group of four on a busy trip day uses a few hundred reads and writes, so about 100 busy groups fit on the same day, and the stored data has room for thousands of groups. When the free limits are reached, requests stop for the rest of the day: the app says so, and members can still pass the trip as a file ("Export trip", then "Add local trip"). A paid plan, with small prices per 100,000 operations, can be chosen later if the app grows.
 
-One group using up the limits for all (decided 2026-11-23, section 14.3, threat row 17): the daily limits are shared by every group of the app, and App Check does not stop someone using the real app, or a phone with a bug that writes in a loop. Before the app is opened to the public: the security rules limit how often one group can write (for example one write per site per few seconds, and a daily number of writes per group), the app itself never writes the same entry more than once in a short time, and when Firebase refuses, the app shows "Group sharing has paused" and offers "Export trip".
+One group using up the limits for all (decided 2026-11-23, section 14.3, threat row 16): the daily limits are shared by every group of the app, and App Check does not stop someone using the real app, or a phone with a bug that writes in a loop. Before the app is opened to the public: the security rules limit how often one group can write (for example one write per site per few seconds, and a daily number of writes per group), the app itself never writes the same entry more than once in a short time, and when Firebase refuses, the app shows "Group sharing has paused" and offers "Export trip".
 
 #### Privacy
 
@@ -1217,7 +1218,7 @@ Most tests run against Firebase's free emulator on a laptop, without touching th
 ### 9.6 Leaving, a new phone, and after the trip
 
 - **Leaving:** a member taps "Leave group". The group, its key, and its ID are removed from that phone; the trip stays as a local trip, marked as a former group trip, so it still cannot be sent in a request (section 8.6).
-- **"Renew the group key"** (decided 2026-11-23, section 14.3, threat row 15; release D, step 16). Leaving relies on the person's own phone, so someone who left, kept an old backup, or lost an unlocked phone may still hold the key, and could go on reading the trip and every shared location without anyone noticing. The manager taps "Renew the group key" after someone leaves or a phone is lost. Each member's app that is still in the group answers with a one-time public key; the manager's app makes a new key, write token, and ID, locks the new key separately for each of those apps, sends it through Firebase, and re-locks the trip under the new ID. The old ID and its data are deleted, and the old key opens nothing new. A member whose app was not open gets a fresh invite.
+- **"Renew the group key"** (decided 2026-11-23, section 14.3, threat row 14; release D, step 16). Leaving relies on the person's own phone, so someone who left, kept an old backup, or lost an unlocked phone may still hold the key, and could go on reading the trip and every shared location without anyone noticing. The manager taps "Renew the group key" after someone leaves or a phone is lost. Each member's app that is still in the group answers with a one-time public key; the manager's app makes a new key, write token, and ID, locks the new key separately for each of those apps, sends it through Firebase, and re-locks the trip under the new ID. The old ID and its data are deleted, and the old key opens nothing new. A member whose app was not open gets a fresh invite.
 - **A new phone:** the member gets a fresh invite from any member; the app reads the trip from Firebase.
 - **After the trip:** the group's manager taps **"Delete the group"** and confirms, with the warning "This removes the group and all its content for everyone. Each member keeps the trip on their own phone." The app deletes the group's sites, locations, and pending invites from Firebase. The other members' apps notice and show "The group was deleted by its manager. Your copy of the trip is kept."; the trip stays on each phone as a local trip, marked as a former group trip.
 - **Keeping the manager token safe:** it is kept in the app's storage, with the protections of section 3.3, and included in the user's backup file if they make one. After a reinstall, restoring the backup brings the manager's right back.
@@ -1228,7 +1229,7 @@ How the invite travels, and its limits (checked against section 14.2):
 
 - **In person,** the QR code passes the invite from screen to camera; it is never sent anywhere.
 - **An invite link holds no key** (decided 2026-11-23), only a one-use code, so it can be sent any way, and a link found later in a chat or a backup is useless. The key is handed over only after the inviter approves, through Firebase, locked for the new member's app.
-- **A QR code holds the same one-use code** as a link, never the key, so a photo of the screen is useless (section 14.3, threat row 13).
+- **A QR code holds the same one-use code** as a link, never the key, so a photo of the screen is useless (section 14.3, threat row 12).
 - **The 15-minute limit** applies to both. Leaving the group does not take the key away. If someone was approved by mistake, or should no longer see the trip, the manager uses "Renew the group key" (above).
 - **Sealed:** every entry is locked and sealed (AES-GCM). An entry that was altered, or not made with the group's key, is rejected (section 14.3).
 
@@ -1627,16 +1628,15 @@ Decision (2026-11-21): three public repositories in the `projects-rs` organizati
 | --- | --- | --- | --- | --- |
 | 1 | App | `trip-map` | The app, the icon set, the checker page, the AI toolkit (section 10.1), this document | The app owner only |
 | 2 | Trips | `trip-db` | All public trips, one file per trip, and the registry for the trip list (below). Content under CC BY 4.0 (section 14.1). | The app owner only |
-| 3 | Test | `trip-map-test`, in its own organization `projects-rs-test` (below) | Test versions of the app, test trips, and test data | The app owner; Claude publishes test versions to it directly (section 12.5) |
+| 3 | Test | `trip-map-test`, **private**, never published | Test trips and test data for the automated tests | The app owner; Claude |
 
 - All three use the same settings: squash merging only, and a ruleset on the main branch that requires a pull request and lets only the app owner merge (section 12.5). `trip-db` is also left out of GitHub's long-term archive ("Preserve this repository" off), so that a trip removed for privacy reasons is not kept in an archived copy (section 14.2).
 - The app owner's access key, used by the app owner's app to open pull requests with approved trips, is limited to `trip-db`. It gives no access to the app.
 - Claude's GitHub app is installed on these three repositories only.
-- **One website per organization address** (decided 2026-11-23, section 14.3, threat row 8). A browser keeps data per website, and every repository published by an organization shares its website (`projects-rs.github.io`). Code from any page on that website could read the real app's trips and keys. So:
-    - The **test version** moves to its own organization, `projects-rs-test` (free plan), published at `https://projects-rs-test.github.io/trip-map-test/`, before the first test version is published (build step 1). Its code is published without review, so it must never share the real app's website. As a second guard, each version names its storage after its address ("trip-map" or "trip-map-test"), and the test version shows a "TEST" band. Testers keep no real group trips in the test version.
+- **Only the App repository and `trip-db` are published** (decided 2026-11-24). A browser keeps data per website, and every repository published by an organization shares its website (`projects-rs.github.io`), so:
+    - Nothing else in `projects-rs` turns on GitHub Pages; the test repository is private and never published (section 13.2).
     - **`trip-db` checks every link** before publishing and every week (section 14.3.2, layers 1 and 2). The keys for the harmful-site services are GitHub secrets set by the app owner.
-    - **`trip-db` publishes only trip files.** It is published on the same website as the app, and receives contributions from strangers, so its automatic check accepts only `.json` files in `trips/`, the registry, and `requests.json`. Any other file (for example `.html`, `.svg`, or `.js`, which a browser could run as code) fails the check and cannot be merged.
-    - No other repository in `projects-rs` turns on GitHub Pages.
+    - **`trip-db` holds only trip files**, as it was designed: its automatic check accepts only `.json` files in `trips/`, the registry, and `requests.json`, and refuses any other file.
 
 How `trip-db` is organized:
 
@@ -1676,14 +1676,14 @@ Access is controlled in two places: GitHub's own settings on each repository, an
 Settings on GitHub:
 
 - **App repository:** a rule on the main branch requires a pull request, and passing checks (once they exist) before anything is merged. Only the owner can merge: the rule's "Restrict updates" allows changes to main only for the organization admin (the owner). Required approvals are 0, because GitHub does not let anyone approve a pull request that counts as their own; the owner's merge is the approval. Direct changes, deletions and force-pushes are blocked.
-- **Test repository:** deletions and force-pushes are blocked; Claude publishes test versions to it directly, without a pull request (section 13.2).
+- **Test repository:** private; deletions and force-pushes are blocked. Nothing in it is ever published.
 - **Trips repository:** only the owner can merge. Contributors send pull requests from their own copy. The automatic checks must pass: the trip checker, the personal-data check, an unchanged `uid`, and a revision that goes up by one. The owner then reviews and merges every pull request; nothing is merged automatically.
 - **Access keys and tokens** are limited to the one repository they are for, and to the permissions they need.
 - **The owner's GitHub account** uses two-step sign-in, with recovery codes kept safe.
 
 ### 12.4 Claude as a working tool
 
-- Claude is connected through the Claude GitHub App, installed on the organization with access to the selected repositories only (today `trip-map` and `trip-map-test`). Its commits carry a "Co-Authored-By: Claude" line, and its pull requests say they were made with Claude, so its work is always recognizable.
+- Claude is connected through the Claude GitHub App, installed on the organization with access to the selected repositories only (today `trip-map` and `trip-map-test`, and `trip-db` once created). Its commits carry a "Co-Authored-By: Claude" line, and its pull requests say they were made with Claude, so its work is always recognizable.
 - Claude can prepare changes on a branch, open pull requests, review pull requests, run the trip checks and the adaptation tool, and answer questions about the code.
 - Claude cannot merge into the App repository's main branch or publish. The branch rule in section 12.3 lets only the owner update main.
 - Claude has no access to account, organization or repository settings, and no keys or tokens.
@@ -1699,7 +1699,7 @@ The setup steps, with every setting and its reason, are in the separate "Trip Ma
 | Owner's account | A personal GitHub account on the owner's private email, used only on the owner's private laptop and phone, with nothing connecting it to work. Two-step sign-in with an authenticator app; recovery codes printed. |
 | Organization | `projects-rs`, on the GitHub Team plan, owned by that account. Membership private, two-step sign-in required, members cannot create, delete or change the visibility of repositories, only GitHub's own and our own Actions may run. |
 | App repository | `projects-rs/trip-map`, public, MIT. Ruleset `Protect main` (section 12.3). Squash merging only. Published at `https://projects-rs.github.io/trip-map/`. |
-| Test repository | `projects-rs/trip-map-test`, public, MIT. Ruleset `Protect test`. Published at `https://projects-rs.github.io/trip-map-test/`. **To move** (decided 2026-11-23, section 12.1): a new organization `projects-rs-test`, free plan, same owner account and two-step sign-in, the repository transferred to it, published at `https://projects-rs-test.github.io/trip-map-test/`, and the Claude GitHub App installed there on this repository only. |
+| Test repository | `projects-rs/trip-map-test`. Ruleset `Protect test`. **To change** (decided 2026-11-24): made private, and GitHub Pages turned off for it, so the test address is no longer published. |
 | Claude | Claude GitHub App on `projects-rs`, only the selected repositories (`trip-map` and `trip-map-test`, and `trip-db` once created). Claude never gets access to the Firebase project. |
 | Trips repository | `projects-rs/trip-db`, public, CC BY 4.0 (section 12.1): planned on 2026-11-21, created by the owner with the same settings as `trip-map`, "Preserve this repository" off, and added to the Claude GitHub App. |
 | Not yet created | The app's Firebase project, for group trips (build step 14): with the app's own Google account, two-step sign-in, on the free plan; the steps are in section 9.5, "One-time setup by the app owner". |
@@ -1716,20 +1716,23 @@ This section describes how the app is built and tested, in small steps that can 
 | Claude | Writes the code, the automated tests, the trip guide, and the documentation. Converts the Barcelona data to the trip format. Fixes reported problems. Opens a change request for every step. **Takes part in reviews:** explains each change in plain words, including the code (the app owner is not a JavaScript expert), answers questions on change requests, and reviews change requests written by others. Never merges. |
 | App owner | Makes the decisions, does the setup steps that need the owner's identity (accounts, repositories, keys; the Trips repository `trip-db` before step 6, and the Firebase project before release D), tests each step on a real phone, reviews and approves, merges, and publishes. Can also write code or documents (below). |
 | Contributors | Advanced users, and the app owner too, can write code, tests, or documents themselves, and send them as change requests. The same rules apply to every change request, whoever wrote it: the automated tests must pass, Claude can review it, and only the app owner merges (section 12.3). |
-| Testers | The trip group. Try the test version on their own phones and report what they find. At least one Android phone and one iPhone. |
+| Testers | The trip group. With "Try new versions first" on, they get each new version before everyone else, try it in the real app, and report what they find. At least one Android phone and one iPhone. |
 
 What sets the pace is not writing code but decisions, setup, and testing on real phones.
 
 ### 13.2 How each step works
 
-1. Claude builds the step and opens a change request in the App repository.
-2. The automated tests run (section 13.4). They must pass.
-3. The step is published to the **test address**, `https://projects-rs-test.github.io/trip-map-test/`, a separate website used only for testing, so that test code can never reach the real app's data (section 12.1).
-4. The app owner, and testers where useful, try it on real phones, using the step's "Try on the phone" list.
-5. Problems are reported to Claude, with a screenshot where possible, and fixed in the same change request.
-6. The app owner approves and merges. Publishing to everyone is a separate decision (section 12.2).
+Decided 2026-11-24: there is no published test version. New code is tried by automated tests on GitHub first, then in the real app by the app owner and the testers, before anyone else gets it.
 
-A step is done when its automated tests pass, it works on the test address on both an Android phone and an iPhone, and this document is updated where the step changed a decision.
+1. Claude builds the step and opens a change request in the App repository.
+2. The automated tests run on GitHub (section 13.4), including the **phone tests**: the app runs in simulated phone browsers (Chrome as on Android, Safari's engine as on iPhone), with touch, a phone-sized screen, and a fake GPS position. Screenshots of every screen are attached to the change request. All tests must pass.
+3. The app owner reviews the change and the screenshots, and merges.
+4. The app owner publishes the version (section 12.2). Only phones with "Try new versions first" are offered it (section 3.2); the app saves an automatic backup before updating.
+5. The app owner, and testers where useful, try it on their phones, using the step's "Try on the phone" list, including real walks where the step needs them.
+6. Problems are reported to Claude, with a screenshot where possible, and fixed in a new change request.
+7. When it works, the app owner marks the version ready, and every other phone is offered it.
+
+A step is done when its automated tests pass, it works in the real app on both an Android phone and an iPhone, and this document is updated where the step changed a decision.
 
 ### 13.3 Steps
 
@@ -1739,7 +1742,7 @@ Target (changed 2026-11-23): releases A and B are both ready and field-tested be
 
 | Step | Build | Try on the phone |
 | --- | --- | --- |
-| 0. Setup (done 2026-11-21) | The app owner creates a GitHub account with two-step sign-in, the organization, the App and test repositories, and the test address (section 12.5). The Trips repository, `trip-db`, is planned (section 12.1). Still to do before step 1: the test organization `projects-rs-test` and moving the test repository to it (section 12.5). The notices file (section 14.1) is added with the first code. Claude is connected to the App and test repositories, and to `trip-db` once it is created. | The test address opens on both phones. |
+| 0. Setup (done 2026-11-21) | The app owner creates a GitHub account with two-step sign-in, the organization, the App and test repositories (section 12.5). The Trips repository, `trip-db`, is planned (section 12.1). Still to do before step 1: making the test repository private and turning off its GitHub Pages (section 12.5). The notices file (section 14.1) is added with the first code. Claude is connected to the App and test repositories, and to `trip-db` once it is created. | The test repository is private and not published. |
 | 1. App and map | Full-screen map with street names, "My location", the app's icon and name for the home screen | The map loads and moves smoothly. The blue dot appears after allowing location. The app can be added to the home screen. |
 | 2. Trip files, the checker, and the trip-author skill | Loading a trip file, the checker with its report and privacy checks, the trip guide, the schema, the trip-author skill (section 10.1), an example trip. **First, the pending format changes of section 10 are made** (for example `groups` renamed to `entries`, and the fields `place`, `dates`, and `published`), while no trip files are in users' hands, so that no conversion step is ever needed for them (section 11.1). The Barcelona trip converted to that format. | "Add local trip" opens the Barcelona trip. A file with a deliberate mistake shows a clear report. |
 | 3. Pins and legends | The icon set file, pin color from the legend entry, pie-chart pins, the "Other" chip, the legend switch, filtering by chips | Switching legends recolors the pins. A site in two legend entries shows a split pin. Turning a chip off hides its sites. |
@@ -1812,7 +1815,7 @@ Rough effort for releases C to F together: about four to five weeks, mostly set 
 - Tests only read the App repository; they never write to it, merge, or publish.
 - Tests never write to `trip-db`: the checker's tests use test trips kept with the tests.
 - Firebase tests run only against the Firebase emulator, a local copy on the test machine, never against the real Firebase project.
-- The test version (section 12.5) is not test code: it is a preview of the next app version, tried on phones, and kept on its own website (threat row 8) so that a bug in it cannot reach the real app.
+- There is no published test version: new versions are tried in the real app by phones with "Try new versions first", after an automatic backup (sections 3.2 and 13.2).
 
 How the rule is enforced:
 
@@ -1828,8 +1831,9 @@ Automated tests run on every change request and must pass before merging:
 - **Browser tests** that walk through the main screens at phone size first, and, from release F, also at laptop size, in both Chrome's engine and Safari's engine: open a trip, switch legends, filter, open a card, add a site, export.
 - **Trip checks:** the example trips and the icon set file are checked with every change.
 - **Pull request checks** (sections 14.3.3 and 14.3.4): Socket, OSV-Scanner, Dependabot, the library-file fingerprint check, CodeQL, dependency review, secret scanning, and our lint rules run on every pull request as required checks, and a separate Claude session runs `/security-review` with the repository's checklist.
+- **Phone tests** (section 13.2): every flow runs in simulated Android and iPhone browsers on GitHub, with touch, a phone-sized screen, and a fake GPS position, using Playwright; screenshots of every screen are attached to the change request.
 - **Storage test** (section 3.3): after every flow, everything left in the phone's storage is listed and compared with the table of what is kept; planted names and locations (section 13.5.1) must not appear where they should not.
-- **Security tests** (section 14.3): harmful content in every field, broken and oversized links and messages, and the browser security policy. Also, from the threat table (section 14.3): the test version cannot see the real app's storage (threat row 8); a phone with an old key reads nothing after "Renew the group key" (threat row 15); a photographed QR code is refused (threat row 13); a backup does not open without its password and holds no readable key (threat row 16); a group writing in a loop is slowed by the rules and the app says so (threat row 17); `trip-db`'s check refuses any file that is not a trip file (threat row 8); each link rule R1 to R6, and Google's test address for Safe Browsing, is caught (section 14.3.2); the app never loads anything from an address inside a trip (L9).
+- **Security tests** (section 14.3): harmful content in every field, broken and oversized links and messages, and the browser security policy. Also, from the threat table (section 14.3): a phone with an old key reads nothing after "Renew the group key" (threat row 14); a photographed QR code is refused (threat row 12); a backup does not open without its password and holds no readable key (threat row 15); a group writing in a loop is slowed by the rules and the app says so (threat row 16); `trip-db`'s check refuses any file that is not a trip file (section 12.1); each link rule R1 to R6, and Google's test address for Safe Browsing, is caught (section 14.3.2); the app never loads anything from an address inside a trip (L9).
 - **Firebase tests**, from release D, against Firebase's free emulator on a laptop: the security rules (no reading without the group ID, no writing without the write token, no deleting without the manager token), offline changes, and simultaneous changes (section 9.5).
 - **Conversion tests**, once a format has a conversion step: each step's old file must become exactly the expected new file (section 11.1).
 - **A security review before each release** (section 14.3).
@@ -1873,7 +1877,7 @@ test("write without write token is refused", async () => {
 Testing on real phones is required for each release, because GPS, voice, home-screen install, the camera for QR codes, the share menu, group trips through Firebase while going offline and online, and iPhone's storage rules only behave truly on a device:
 
 - Each release has a short checklist, run on at least one Android phone and one iPhone.
-- Each release is used first on the test address, and published to everyone only after the checklist passes.
+- Each release is used first by phones with "Try new versions first", and offered to everyone only after the checklist passes.
 
 Usability:
 
@@ -2093,7 +2097,7 @@ What the app can and cannot reach:
 
 - The app runs inside the phone's browser, in the browser's protective sandbox. It cannot read the phone's files, photos, contacts, messages, or other apps, and it cannot install anything.
 - It can reach only what the browser allows: location, after the user agrees, and its own storage on the phone.
-- So the worst case of a successful attack on the app is limited to the app's own data on that phone, such as trips, local sites, group details, and keys. Harmful app code, whichever way it got in (rows 4 to 10 below), could read and send away that data, track the location while the app is open, show fake screens, and damage trips, but still could not leave the sandbox. That data is still worth protecting, and the measures below do so.
+- So the worst case of a successful attack on the app is limited to the app's own data on that phone, such as trips, local sites, group details, and keys. Harmful app code, whichever way it got in (rows 4 to 9 below), could read and send away that data, track the location while the app is open, show fake screens, and damage trips, but still could not leave the sandbox. That data is still worth protecting, and the measures below do so.
 - WhatsApp protects messages while they travel. It does not protect the app from harmful content inside a message. The app protects itself, whatever way the content arrives.
 
 Threats and protections:
@@ -2107,18 +2111,17 @@ Threats and protections:
 | 5 | A harmful change in a pull request, by a contributor or Claude | Three independent looks before merging: automatic tools, an AI security review, and the app owner's review; only the app owner can merge, and rulesets block direct changes (section 14.3.3). | Very low / Medium | **Yes**, as long as the red-flag areas get a careful human look | From build step 1 |
 | 6 | A compromised outside library, even a well-known and trusted one (a known kind of attack: "supply chain") | Few, narrow libraries, copied in at fixed versions and never loaded live; three scanning tools; waiting 4 weeks before a new version; the files checked against the official ones; a fixed list of allowed addresses (section 14.3.4). | Low / Low to medium | **Mostly**: yes for the small libraries; partly for the Firebase library until the decision in release D (the Firebase box). A very well-hidden change can never be fully excluded | Release A; the Firebase box decided in release D |
 | 7 | Someone on the same network, such as a hotel's Wi-Fi, changing the app's files while they download ("man-in-the-middle") | HTTPS: the files are encrypted on the way and the phone checks they really come from github.io. **Signed updates are needed as a second layer** (open question 3): a changed file would then fail its fingerprint even if HTTPS were broken, for example on a phone with a fake certificate authority installed. | Very low / Very low | **Partly**: HTTPS solves the usual case; the second layer is open question 3 | Now (HTTPS); second layer: open question 3 |
-| 8 | Other code on the app's website (found in the risk analysis): the test version, published without review, shared the real app's website, and `trip-db`, which receives files from strangers, is published on it too; a browser lets any page of a website read that website's data | The test version moves to its own organization and website, `projects-rs-test.github.io`, with storage named per address, a "TEST" band, and no real group trips in it; `trip-db`'s check accepts only trip files, so no `.html`, `.svg`, or `.js` can be published; no other repository in `projects-rs` turns on GitHub Pages (section 12.1) | High until fixed / Closed | **Yes**, once built | Test organization before build step 1; `trip-db` file check at step 6 |
-| 9 | A fake copy of the app at another address | One published address; a fake copy cannot read the real app's data. | Very low / Low | **Partly**: a fake copy cannot be prevented, only made harmless to the real app's data | – |
-| 10 | A harmful browser extension, mostly on a laptop (release F) | Outside the app's control; users are advised to install only trusted extensions. | Very low / Low | **No**: outside the app's control | – |
-| 11 | A known weakness in an outside component | Automatic alerts for known weaknesses in the components the app uses, and prompt updates. | Low / Medium | **Yes**, as long as updates are made promptly | From release A |
-| 12 | Someone using an unlocked phone | The app relies on the phone's own screen lock. An optional app lock with the phone's fingerprint or face check, where the browser supports it. A lost phone that was in a group: the manager uses "Renew the group key" (section 9.6). | Medium / Medium | **Partly**: depends on the phone's lock; "Renew the group key" limits the damage | Release A; "Renew the group key" in release D |
-| 13 | An invite link or QR code reaching the wrong person, forwarded, photographed, or found in a chat backup (found in the risk analysis: a QR code used to hold the key, so a photo of the screen gave it for good) | Neither holds a key; each works once and expires after 15 minutes. Joining needs the inviter's approval, after seeing the typed name; the key is then sent through Firebase, locked for the new member's app only (section 9.3). | Low / Low | **Yes** | Release D, step 14 |
-| 14 | Data lost or damaged on a phone | Saved data is checked when it is loaded. Export gives a backup (section 3.4). | High / High | **Partly**: changes not yet backed up are lost after a wipe | Release A, step 5 |
-| 15 | A former member, or whoever holds an old backup or a lost phone, keeps the group key (found in the risk analysis), and goes on reading the trip and every shared location without anyone noticing | "Renew the group key" by the manager: a new key for the members still there, the old ID and its data deleted (section 9.6) | Medium / Medium | **Yes**, once built | Release D, step 16 |
-| 16 | A backup file holds secrets, the group key and the manager token, and ends up in Downloads, a chat, or on a computer (found in the risk analysis) | Every backup is locked with the user's backup password (section 3.3) | Medium / Medium | **Yes** | Release A, step 5 |
-| 17 | One group uses up Firebase's free daily limits for every group of the app, through a bug or on purpose (found in the risk analysis); nothing leaks, but group sharing stops until the next day | Write limits per group in the security rules, no repeated writes in the app, "Group sharing has paused" with "Export trip" (section 9.5) | Low / Medium | **Yes**, once built | Before going public |
+| 8 | A fake copy of the app at another address | One published address; a fake copy cannot read the real app's data. | Very low / Low | **Partly**: a fake copy cannot be prevented, only made harmless to the real app's data | – |
+| 9 | A harmful browser extension, mostly on a laptop (release F) | Outside the app's control; users are advised to install only trusted extensions. | Very low / Low | **No**: outside the app's control | – |
+| 10 | A known weakness in an outside component | Automatic alerts for known weaknesses in the components the app uses, and prompt updates. | Low / Medium | **Yes**, as long as updates are made promptly | From release A |
+| 11 | Someone using an unlocked phone | The app relies on the phone's own screen lock. An optional app lock with the phone's fingerprint or face check, where the browser supports it. A lost phone that was in a group: the manager uses "Renew the group key" (section 9.6). | Medium / Medium | **Partly**: depends on the phone's lock; "Renew the group key" limits the damage | Release A; "Renew the group key" in release D |
+| 12 | An invite link or QR code reaching the wrong person, forwarded, photographed, or found in a chat backup (found in the risk analysis: a QR code used to hold the key, so a photo of the screen gave it for good) | Neither holds a key; each works once and expires after 15 minutes. Joining needs the inviter's approval, after seeing the typed name; the key is then sent through Firebase, locked for the new member's app only (section 9.3). | Low / Low | **Yes** | Release D, step 14 |
+| 13 | Data lost or damaged on a phone | Saved data is checked when it is loaded. Export gives a backup (section 3.4). | High / High | **Partly**: changes not yet backed up are lost after a wipe | Release A, step 5 |
+| 14 | A former member, or whoever holds an old backup or a lost phone, keeps the group key (found in the risk analysis), and goes on reading the trip and every shared location without anyone noticing | "Renew the group key" by the manager: a new key for the members still there, the old ID and its data deleted (section 9.6) | Medium / Medium | **Yes**, once built | Release D, step 16 |
+| 15 | A backup file holds secrets, the group key and the manager token, and ends up in Downloads, a chat, or on a computer (found in the risk analysis) | Every backup is locked with the user's backup password (section 3.3) | Medium / Medium | **Yes** | Release A, step 5 |
+| 16 | One group uses up Firebase's free daily limits for every group of the app, through a bug or on purpose (found in the risk analysis); nothing leaks, but group sharing stops until the next day | Write limits per group in the security rules, no repeated writes in the app, "Group sharing has paused" with "Export trip" (section 9.5) | Low / Medium | **Yes**, once built | Before going public |
 
-Risk is how likely the threat is now (the Barcelona group) and once the app is public. The risk analysis (section 14.3.1) found rows 8, 13, 15, 16, 17, and part of row 4; they were holes in the design, and their fixes are now part of it.
+Risk is how likely the threat is now (the Barcelona group) and once the app is public. The risk analysis (section 14.3.1) found rows 12, 14, 15, 16, part of row 4, and a shared-website hole closed by not publishing a test version (section 13.2); they were holes in the design, and their fixes are now part of it.
 
 Protecting a group's data in Firebase (decided 2026-11-23; section 9.5):
 
@@ -2159,9 +2162,9 @@ Decided 2026-11-23. Who might attack and what they could reach. The holes it fou
 
 | What | Where | Who can reach it | Protection |
 | --- | --- | --- | --- |
-| Trips and local sites (which may include where the user is staying) | The browser's storage (section 3.3) | The app; the person holding the unlocked phone | The phone's lock; the browser's sandbox; one website for the app only (threat row 8) |
-| Group key, write token, manager token | The browser's storage | As above | As above; "Renew the group key" after a loss (threat row 15) |
-| Backup files | Wherever the user saves them | Anyone with the file | Locked with the backup password (threat row 16) |
+| Trips and local sites (which may include where the user is staying) | The browser's storage (section 3.3) | The app; the person holding the unlocked phone | The phone's lock; the browser's sandbox; only the app and `trip-db` published on its website (section 12.1) |
+| Group key, write token, manager token | The browser's storage | As above | As above; "Renew the group key" after a loss (threat row 14) |
+| Backup files | Wherever the user saves them | Anyone with the file | Locked with the backup password (threat row 15) |
 | Exported trips | Wherever the user sends them | Anyone with the file | Never hold a key, token, or group ID (section 9.4); the warnings of section 14.2 |
 
 A lost or stolen phone: when locked, its data is safe. When unlocked, the finder sees the trips and, until the manager renews the group key, the group's shared locations. Malware on the phone itself, or a phone with its protections removed, is outside what any web app can defend against.
@@ -2171,8 +2174,8 @@ A lost or stolen phone: when locked, its data is safe. When unlocked, the finder
 | Who | How | Exact or rough | Protection |
 | --- | --- | --- | --- |
 | Group members | "Share my location", for 15 minutes, only when the user taps it | Exact | Intended; locked with the group key (section 9.4) |
-| A former member, or whoever has an old key | The old key (threat row 15) | Exact, while sharing | "Renew the group key" |
-| A bystander with a photo of a QR code | (threat row 13) | – | Closed: the QR code holds no key |
+| A former member, or whoever has an old key | The old key (threat row 14) | Exact, while sharing | "Renew the group key" |
+| A bystander with a photo of a QR code | (threat row 12) | – | Closed: the QR code holds no key |
 | The routing server (FOSSGIS) | The start point of an in-app route | Exact, kept in its logs | Explained when location is first used (section 14.2); routes only on request |
 | The map image server | The area being viewed, with the phone's internet address | Rough, but continuous while walking | Offline maps send no requests (section 7.4) |
 | The search service | The area shown on the map | Rough | Only when searching |
@@ -2187,9 +2190,9 @@ A lost or stolen phone: when locked, its data is safe. When unlocked, the finder
 | L1 | GPS | As above | Used only while the app is open and only after the user agrees; never stored in trips, exports, backups, or reports |
 | L2 | Camera | Low | Only while the QR scanner is open; frames are read on the phone and never kept or sent (section 9.3) |
 | L3 | Voice directions | Bystanders hear the destination | Off by default; earphones suggested when it is turned on |
-| L4 | Screen | Shoulder-surfing, photos | "Show this only to the person joining" on the QR screen; QR codes hold no key (threat row 13) |
+| L4 | Screen | Shoulder-surfing, photos | "Show this only to the person joining" on the QR screen; QR codes hold no key (threat row 12) |
 | L5 | Clipboard | Other apps can read what is copied | Keys, tokens, and group IDs are never copied; "Paste trip" and "Paste invite" read only when the user taps Paste |
-| L6 | Share menu and files | Sent to the wrong person | The warnings of section 14.2; backups locked (threat row 16) |
+| L6 | Share menu and files | Sent to the wrong person | The warnings of section 14.2; backups locked (threat row 15) |
 | L7 | Screen kept on (navigation) | Battery | Only during turn-by-turn navigation |
 | L8 | Microphone, contacts, photos, Bluetooth, notifications | None | The app never asks for them |
 | L9 | Addresses inside trips | A trip's author learning who opened it, and from where | The app never loads anything from an address inside a trip: links open only when tapped, after showing the address, and trips hold no pictures |
@@ -2459,3 +2462,4 @@ Only questions still open are listed here (2026-11-23). Decided questions are re
 | 2 (design) | 2026-11-24 | Section 14.3: the threat table and the holes table merged into one table of 17 rows, with columns for risk now and once public, whether there is a good solution, and when it is built. Holes H1, H3, H6, and H7 folded into rows 8, 13, and 4; H2, H4, and H5 became rows 15 to 17. References updated. |
 | 2 (design) | 2026-11-24 | Section 13.4: rule that tests can never change or harm the app's code or any real data (fake data only, clean browser, read-only App repository, never writing to `trip-db`, Firebase emulator only); the test version explained as a preview, not test code. |
 | 2 (design) | 2026-11-24 | Section 13.4: the test rule enforced by a `writing-tests` skill in the App repository and by automatic checks (read-only test workflows, a scan for real addresses, emulator-only Firebase tests). |
+| 2 (design) | 2026-11-24 | No published test version: automated phone tests on GitHub (Playwright, simulated Android and iPhone, screenshots), then "Try new versions first" in the real app with an automatic backup, and the app owner marks a version ready for everyone (sections 3.2, 13.2). The test repository becomes private and unpublished; no `projects-rs-test` organization. Threat row 8 removed; `trip-db` holds only trip files, as designed. Rows renumbered 1 to 16. |
