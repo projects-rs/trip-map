@@ -1805,6 +1805,15 @@ Rough effort for releases C to F together: about four to five weeks, mostly set 
 
 ### 13.4 Testing
 
+**Rule: tests can never change or harm the app's code or any real data** (decided 2026-11-24):
+
+- Tests use only fake data: test trips, test groups, planted values (section 13.5.1). They never open, read, or change a user's real trips, keys, or locations.
+- Tests run in a clean browser profile, on GitHub or on Claude's machine, never on the real app's address and never on a user's phone.
+- Tests only read the App repository; they never write to it, merge, or publish.
+- Tests never write to `trip-db`: the checker's tests use test trips kept with the tests.
+- Firebase tests run only against the Firebase emulator, a local copy on the test machine, never against the real Firebase project.
+- The test version (section 12.5) is not test code: it is a preview of the next app version, tried on phones, and kept on its own website (threat row 8) so that a bug in it cannot reach the real app.
+
 Automated tests run on every change request and must pass before merging:
 
 - **Interface tests, not obvious unit tests** (decided 2026-11-23). Tests check the interfaces (the APIs): the public functions of each module and, above all, the calls between modules, such as "storage → merging → Firebase" or "trip file → converter → checker". Tests that only repeat what the code plainly does (for example "setting a field sets the field") are not written: they multiply, are hard to maintain, and do not help reviewers. A small internal function gets its own test only when it is easy to get subtly wrong: opening hours (time zones, daylight saving time, hours past midnight, closed dates), pie-chart segments, the icon set version rules, and locking and unlocking group data (section 9.5).
@@ -2440,3 +2449,4 @@ Only questions still open are listed here (2026-11-23). Decided questions are re
 | 2 (design) | 2026-11-24 | New section 14.3.4, outside libraries: Socket, OSV-Scanner, and Dependabot; the 4-week waiting rule; the library list and fingerprint check; the allowed address list; few, narrow libraries; the Firebase box, decided in release D. Threat row 6 now "Mostly". |
 | 2 (design) | 2026-11-24 | Threat row 7 reworded (man-in-the-middle); signed updates needed as its second layer. Threat row 4 and hole H7: a known gap even with signed updates, because the browser updates the update script itself; open question 3 updated. |
 | 2 (design) | 2026-11-24 | Section 14.3: the threat table and the holes table merged into one table of 17 rows, with columns for risk now and once public, whether there is a good solution, and when it is built. Holes H1, H3, H6, and H7 folded into rows 8, 13, and 4; H2, H4, and H5 became rows 15 to 17. References updated. |
+| 2 (design) | 2026-11-24 | Section 13.4: rule that tests can never change or harm the app's code or any real data (fake data only, clean browser, read-only App repository, never writing to `trip-db`, Firebase emulator only); the test version explained as a preview, not test code. |
