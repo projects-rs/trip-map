@@ -248,9 +248,23 @@ Where the app keeps its data:
 
 | Storage | What it holds | Cleared by "clear browser cache"? |
 | --- | --- | --- |
-| The app's database in the browser (IndexedDB) | Trips, local changes, groups, member names, settings | No |
+| The app's database in the browser (IndexedDB) | Trips, local changes, groups, settings (what exactly, below) | No |
 | The app's private folder (Origin Private File System) | Each trip as a file, and the latest backup | No |
 | The app's program files (Cache Storage) | The app itself, so it opens without a connection | No; and if lost, they reload from the app's address |
+
+What is kept, and for how long (decided 2026-11-24). Rule: the app keeps only what a feature needs, for only as long as it needs it; anything temporary lives only in memory and is gone when the app closes.
+
+| Data | Kept | Until |
+| --- | --- | --- |
+| Trips, local sites, local changes | Stored | The user removes them |
+| Group key, write token, group ID; manager token (manager's phone only) | Stored | Leaving the group, renewing the key, or handing over |
+| Invite labels; the private names list (section 14.2) | Stored, on this phone only | The invite is used or expires; the group is left |
+| Latest backup | Stored, locked with the backup password | The next backup |
+| "My requests" | Title, date, and result only | The last 20 |
+| Copy kept during a format conversion (section 11.1) | Stored | 30 days after a successful conversion |
+| Own GPS position, members' shared locations, names typed when joining or asking to join, search words, routes, error details | **Memory only**; Firebase's offline copy of locations and invites also in memory only | The task ends or the app closes |
+
+Settings has **"Delete everything on this phone"**, with the warnings and the backup offer of protection 6 below.
 
 What can delete the data:
 
@@ -1425,7 +1439,7 @@ What is checked:
 - Every site listed in a legend group exists.
 - Every group has a valid color.
 - Coordinates, opening hours, time zone, and links are well formed.
-- No private information appears in text fields or links, and in a public trip, "Home / accommodation" sites have an approximate location (section 14.2).
+- No private information appears in text fields or links, and in a public trip, "Home / accommodation" sites have an approximate location. What blocks and what only asks is in section 14.2; `trip-db`'s automatic check runs the same rules.
 
 The report lists each problem with its location in the file and a plain explanation, for example: group "Fri 11" lists site "sagarda", which does not exist.
 
@@ -1792,6 +1806,7 @@ Automated tests run on every change request and must pass before merging:
 - **Interface tests, not obvious unit tests** (decided 2026-11-23). Tests check the interfaces (the APIs): the public functions of each module and, above all, the calls between modules, such as "storage → merging → Firebase" or "trip file → converter → checker". Tests that only repeat what the code plainly does (for example "setting a field sets the field") are not written: they multiply, are hard to maintain, and do not help reviewers. A small internal function gets its own test only when it is easy to get subtly wrong: opening hours (time zones, daylight saving time, hours past midnight, closed dates), pie-chart segments, the icon set version rules, and locking and unlocking group data (section 9.5).
 - **Browser tests** that walk through the main screens at phone size first, and, from release F, also at laptop size, in both Chrome's engine and Safari's engine: open a trip, switch legends, filter, open a card, add a site, export.
 - **Trip checks:** the example trips and the icon set file are checked with every change.
+- **Storage test** (section 3.3): after every flow, everything left in the phone's storage is listed and compared with the table of what is kept; planted names and locations (section 13.5.1) must not appear where they should not.
 - **Security tests** (section 14.3): harmful content in every field, broken and oversized links and messages, and the browser security policy. Also, from the risk analysis (section 14.3.1): the test version cannot see the real app's storage (H1); a phone with an old key reads nothing after "Renew the group key" (H2); a photographed QR code is refused (H3); a backup does not open without its password and holds no readable key (H4); a group writing in a loop is slowed by the rules and the app says so (H5); `trip-db`'s check refuses any file that is not a trip file (H6); the app never loads anything from an address inside a trip (L9).
 - **Firebase tests**, from release D, against Firebase's free emulator on a laptop: the security rules (no reading without the group ID, no writing without the write token, no deleting without the manager token), offline changes, and simultaneous changes (section 9.5).
 - **Conversion tests**, once a format has a conversion step: each step's old file must become exactly the expected new file (section 11.1).
@@ -2014,12 +2029,25 @@ No single measure can guarantee this, because descriptions are free text. The ap
 | --- | --- |
 | 1. The format | The trip format has no fields for personal data: no phone, email, or people's names. |
 | 2. Home locations | A site with the "Home / accommodation" icon may have its exact location in group trips and local trips, which only the group or the user sees. In a public trip, it is always stored with an approximate location, rounded to about 150 m, and the checker blocks an exact one. |
-| 3. The checker | The trip checker (section 10.2) scans every text field and link for private information: email addresses, phone numbers, card and bank numbers, identity numbers, codes next to words such as "booking", "door", "code", or "password", and links with personal tokens. A finding is either an error, which blocks publishing, or a warning, which the person publishing must confirm one by one. |
+| 3. The checker | Blocks or asks before anything leaves the phone (below). The trip checker (section 10.2) scans every text field and link for private information: email addresses, phone numbers, card and bank numbers, identity numbers, codes next to words such as "booking", "door", "code", or "password", and links with personal tokens. A finding is either an error, which blocks publishing, or a warning, which the person publishing must confirm one by one. |
 | 4. Review before publishing | Before any trip is sent in a request, the app shows all of its text and the checker's findings, and the person publishing confirms. |
 | 5. Proposals | Sites proposed by other users pass the same checks before they reach the trip owner, and again before approval. |
 | 6. The AI toolkit | The trip guide tells AI tools never to include private information, and to run the checker before handing a trip back. |
 | 7. Public trip oversight | The app owner reviews a new contributor's first trip (section 12.1). Anyone can tap "Report this trip". The app owner can hide a trip at once. |
 | 8. Reports and feedback | Feedback and error reports never include the user's location, local sites, or trip content (section 13.5). |
+
+The checker: block or ask (decided 2026-11-24). The more certain the finding and the more public the operation, the stronger the action. **Blocked**: Send stays off until the text is edited, each finding highlighted. **Asked**: each finding is shown with "Remove" or "Keep, it's public information".
+
+| Finding | Public request (rows 5, 6 of the first table) | Group, export, feedback (rows 2, 7, 8) |
+| --- | --- | --- |
+| Card number, bank account (IBAN), or identity number, each confirmed by its check digit | Blocked | Blocked |
+| A code or password next to a keyword ("door code 4471", "wifi:", "קוד כניסה"); a link with a personal token; a name from the private names list | Blocked | Asked |
+| Exact location of a "Home / accommodation" site | Rounded to about 150 m | Kept |
+| A phone number or email address; a booking-like code; an apartment or floor number; a site added "where I am" | Asked | Asked |
+
+- **The private names list:** names the user typed in the app (their own name when joining, the names of people asking to join, invite labels) are kept on this phone only and checked against every text.
+- **The same checker in `trip-db`:** its automatic check runs the same rules, so a request sent outside the app, or from an older version, is stopped too. The app owner's review comes after it.
+- **Its limit:** free text can never be checked perfectly; the checker catches the common mistakes, and the review the rest.
 
 Location and other data sent to outside services:
 
@@ -2266,3 +2294,4 @@ Only questions still open are listed here (2026-11-23). Decided questions are re
 | 2 (design) | 2026-11-23 | Section 15.1 (ideas raised on 2026-11-15) removed at the app owner's request; its one open idea, community trips, became open question 20. |
 | 2 (design) | 2026-11-23 | Open questions 11 (answered by release D), 17 and 18 (now checks before release D, section 13.3), and 20 (community trips, not supported) removed. |
 | 2 (design) | 2026-11-23 | Section 15 keeps only the questions still open: the name (now question 1) and publishing from a group trip (now question 2). The decided ones were already recorded in their sections; "archaeological site" added to icon 14. |
+| 2 (design) | 2026-11-24 | Section 14.2: the checker blocks or asks, by finding and by operation; the private names list; the same checker in `trip-db`. Section 3.3: what is kept on the phone and for how long, memory-only data, "Delete everything on this phone". Section 13.4: storage test. |
