@@ -2188,16 +2188,29 @@ Terms: Google Safe Browsing and VirusTotal's free service are for non-commercial
 **Layer 4. The browser, when the link is opened.**
 - Chrome and Safari have their own harmful-site protection. It is not ours, but it is a last layer.
 
-#### Part 4: what the user sees
+#### Part 4: when a harmful link is found
 
-- A link on a harmful-site list: "⚠ This link may be harmful (Google Safe Browsing)", with the address. It does not open with a simple tap; the user must tap "Open anyway".
-- A link not checked yet: a small "not checked" mark next to it.
-- Before any link opens: its full address is shown (threat row 2).
+When a link is on a harmful-site list, the link is **blocked at once**: it cannot be opened from the app, and the site card shows "⚠ This link may be harmful (Google Safe Browsing)" with its address. The app then asks the user what to do:
+
+| Choice | What happens |
+| --- | --- |
+| **Remove the link** (recommended) | The link is deleted; the site card and the rest of the trip stay |
+| **Delete the site card** | The whole site is removed from the trip (kept as a removed note, section 9.4) |
+| **Delete the trip** | The whole trip is removed from the phone, after the usual warning and backup offer (section 3.3). When a trip is being opened or downloaded, this choice reads **"Don't open this trip"**. |
+| **Keep it blocked** | Nothing is deleted; the link stays blocked and marked, and the app asks again next time the trip is opened |
+
+Then, depending on where the trip came from:
+
+- **A group trip:** removing the link or the site is shared with the group like any change, so the other members are protected too.
+- **A public trip:** the app offers **"Report to the trip owner"**, which sends a report with the link (section 8.6), so it is fixed in `trip-db` for everyone.
+- **A file someone sent:** the app suggests telling the sender.
+
+Other marks: a link not checked yet has a small "not checked" mark, and before any link opens, its full address is shown (threat row 2).
 
 #### Part 5: what is left
 
-- A harmful site so new that no list knows it yet. Rules R1 to R6, the address shown before opening, and the app owner's review of public trips still apply.
-- The tests (section 13.4) include a link for each rule R1 to R6, and Google's official test address for Safe Browsing.
+- A harmful site so new that no list knows it yet. Rules R1 to R6, the address shown before opening, and the app owner's review of public trips still apply. When a link is found harmful later, by the weekly check or a later check on the phone, the user is asked the same way the next time the trip is opened.
+- The tests (section 13.4) include a link for each rule R1 to R6, Google's official test address for Safe Browsing, and each of the four choices above.
 
 ### 14.4 Security checklist
 
@@ -2343,3 +2356,4 @@ Only questions still open are listed here (2026-11-23). Decided questions are re
 | 2 (design) | 2026-11-24 | At the app owner's request, everything connected to the removed low-risk threats removed: sections 14.3.2 (checking links), 14.3.3 (reviewing pull requests), and 14.3.4 (outside libraries); open question 3 (signed updates); the Firebase protections table and the list of kept protections in 14.3; and their references and tests in sections 10.2, 12.1, 13.3, and 13.4. The core design of sections 9.3, 9.5, and 10.2 is unchanged. |
 | 2 (design) | 2026-11-24 | Restored at the app owner's request, rated Medium: threat rows 1 (running code inside the app, including script links) and 2 (a link to a harmful website), and section 14.3.2 (checking links) with its references in sections 10.2, 12.1, and 13.4. Rows renumbered 1 to 6. |
 | 2 (design) | 2026-11-24 | Section 14.3.1 reduced to the phone's inputs and outputs (rules L1 to L9). The analysis-only tables removed: who might attack, data on the phone (covered by section 3.3), and who can learn where the user is (covered by sections 14.2 and 9.5). The lost-phone paragraph moved into threat row 3. |
+| 2 (design) | 2026-11-24 | Section 14.3.2, Parts 4 and 5: a harmful link is blocked at once and the user chooses: remove the link, delete the site card, delete the trip (or don't open it), or keep it blocked; group changes are shared, public trips can be reported to the trip owner. "Open anyway" dropped. |
