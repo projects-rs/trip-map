@@ -2081,7 +2081,7 @@ Threats and protections:
 | **Running code inside the app**, hidden in the text or in a script link (`javascript:`) of a trip, change, proposal, or search result, from any source (a file, `trip-db`, a group member, an AI chat, OpenStreetMap) | Everything received is checked against the format before use (section 10.2), shown only as plain text, never as code, and limited in size. A strict browser security policy forbids running any code that is not part of the app. **No link can run a script** (decided 2026-11-24): only `https://` links are accepted when received, checked again with the browser's own address reader just before a card shows them, and blocked by the security policy if both checks failed. The trip checker treats trips as data only (`json.load`, never `eval` or `exec`). |
 | **A link to a harmful website** (phishing, malware, scams), for example on a site card | The card shows the link's address before it is opened. Checking links against lists of harmful websites: to be decided. |
 | Group data in Firebase altered, or written by someone outside the group | Every entry is locked and sealed with the group key (AES-GCM), and the security rules require the group's write token for every write. An entry that does not open with the key, or was changed, is rejected (section 9.5). |
-| A harmful app update reaching all users | Only the app owner can publish (section 12.2). Two-step sign-in on the owner's GitHub account. Every change is reviewed and tested before merging. Outside libraries are stored in the App repository at fixed versions, not loaded from other websites. |
+| A harmful app update reaching all users | Only the app owner can publish (section 12.2). Before going public, signed updates (section 14.3.1, H7, and ways C1 to C7). Two-step sign-in on the owner's GitHub account. Every change is reviewed and tested before merging. Outside libraries are stored in the App repository at fixed versions, not loaded from other websites. |
 | A known weakness in an outside component | Automatic alerts for known weaknesses in the components the app uses, and prompt updates. |
 | Someone using an unlocked phone | The app relies on the phone's own screen lock. An optional app lock with the phone's fingerprint or face check, where the browser supports it. A lost phone that was in a group: the manager uses "Renew the group key" (section 9.6). |
 | An invite link or QR code reaching the wrong person, forwarded, photographed, or found in a chat backup | Neither holds a key; each works once and expires after 15 minutes. Joining needs the inviter's approval, after seeing the typed name; the key is then sent through Firebase, locked for the new member's app only (section 9.3). |
@@ -2132,6 +2132,21 @@ Decided 2026-11-23. Who might attack, what they could reach, and how each hole i
 | H4 | The backup file holds secrets | The file is found in Downloads, a chat, or on a computer | Whoever has it opens the group, or deletes it with the manager token | Medium | Every backup locked with the user's backup password (section 3.3) | Release A, step 5 |
 | H5 | One group can use up Firebase's free daily limits for all | A phone with a bug, or someone on purpose, writes in a loop | Group sharing stops for everyone until the next day. Nothing leaks; phones keep their copies | Low now, Medium when public | Write limits in the rules, no repeated writes in the app, "Group sharing has paused" and "Export trip" (section 9.5) | Before going public |
 | H6 | `trip-db` is published on the app's own website and receives files from strangers | A contribution hides an `.html` or `.svg` file with code; once published, it runs on the app's website | Everything the app keeps on the phone exposed | Medium | The check accepts only trip files (section 12.1) | Release A, step 6 |
+| H7 | A taken-over GitHub account publishes harmful app code | Every phone installs it quietly at the next update | All users' trips and keys sent away, locations tracked while the app is open, fake screens inside the trusted app | Low, but affects all users | **Signed updates**: the app owner signs each release's file list with a key kept off GitHub and off work machines; the app accepts an update only with a valid signature, and otherwise keeps its current version | Before going public |
+
+#### How the app's code could be changed
+
+Harmful app code could read and send away everything the app keeps, track the location while the app is open, show fake screens, and damage trips. It still cannot leave the browser's sandbox: no access to the phone's files, photos, contacts, or other apps.
+
+| # | Way | Protection | Risk |
+| --- | --- | --- | --- |
+| C1 | Taking over the app owner's GitHub account | Two-step sign-in, printed recovery codes; signed updates (H7) | Low, all users |
+| C2 | A harmful change in a pull request, by a contributor or Claude | Only the app owner merges, after review; rulesets block direct changes | Low |
+| C3 | A compromised outside library (supply chain) | Stored in the App repository at fixed versions, never loaded live; alerts for known weaknesses; each update reviewed | Low to medium |
+| C4 | Changing the code on its way to the phone | HTTPS | Very low |
+| C5 | Other code on the same website | Holes H1 and H6 | Closed |
+| C6 | A fake copy of the app at another address | One published address; a fake copy cannot read the real app's data | Low |
+| C7 | A harmful browser extension (mostly on a laptop, release F) | Outside the app's control; the user is advised to use only trusted extensions | Outside our control |
 
 #### Data on the phone
 
@@ -2297,3 +2312,4 @@ Only questions still open are listed here (2026-11-23). Decided questions are re
 | 2 (design) | 2026-11-24 | Section 14.3: threat rows 1 and 2 merged (one source, two dangers); "no link can run a script", in three layers; the trip checker treats trips as data only. |
 | 2 (design) | 2026-11-24 | Section 14.3: the threat row about group messages removed; group data goes only through Firebase, covered by the next row. |
 | 2 (design) | 2026-11-24 | Section 14.3: the merged first threat row split again, by danger: running code inside the app (including script links), and a link to a harmful website. |
+| 2 (design) | 2026-11-24 | Section 14.3.1: hole H7 (a taken-over GitHub account), fixed by signed updates before going public; new table "How the app's code could be changed" (C1 to C7). |
