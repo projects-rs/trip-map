@@ -999,7 +999,7 @@ Rules:
 
 ### 9.3 Inviting and joining
 
-Any member can invite, at any time. Both ways work the same: the invite holds only a one-use code, the person joining types their name, and the inviter approves (decided 2026-11-23; in person since the risk analysis, section 14.3). Because the app keeps no member list or IDs, it does not matter who invites, how many invite at once, or in which order people join.
+Any member can invite, at any time. Both ways work the same: the invite holds only a one-use code, the person joining types their name, and the inviter approves (decided 2026-11-23; in person since 2026-11-23, section 14.3). Because the app keeps no member list or IDs, it does not matter who invites, how many invite at once, or in which order people join.
 
 #### Two ways to invite
 
@@ -2103,10 +2103,10 @@ Threats and protections:
 | --- | --- | --- | --- | --- | --- |
 | 1 | **Running code inside the app**, hidden in the text or in a script link (`javascript:`) of a trip, change, proposal, or search result, from any source (a file, `trip-db`, a group member, an AI chat, OpenStreetMap) | Everything received is checked against the format before use (section 10.2), shown only as plain text, never as code, and limited in size. A strict browser security policy forbids running any code that is not part of the app. **No link can run a script** (decided 2026-11-24): only `https://` links are accepted when received, checked again with the browser's own address reader just before a card shows them, and blocked by the security policy if both checks failed. The trip checker treats trips as data only (`json.load`, never `eval` or `exec`). | Medium / Medium | **Yes** | Release A |
 | 2 | **A link to a harmful website** (phishing, malware, scams), for example on a site card | The trip checker's link rules and harmful-site lists, in four layers, from GitHub to the phone (section 14.3.2). The card shows the address before it is opened. | Medium / Medium | **Yes**. Only a brand-new harmful site, not yet known to any of the three lists, can pass, as with any such check | Release A; `trip-db` check at step 6 |
-| 3 | Someone using an unlocked phone | The app relies on the phone's own screen lock. An optional app lock with the phone's fingerprint or face check, where the browser supports it. A lost phone that was in a group: the manager uses "Renew the group key" (section 9.6). | Medium / Medium | **Partly**: depends on the phone's lock; "Renew the group key" limits the damage | Release A; "Renew the group key" in release D |
+| 3 | Someone using an unlocked phone | The app relies on the phone's own screen lock. An optional app lock with the phone's fingerprint or face check, where the browser supports it. A lost phone that was in a group: the manager uses "Renew the group key" (section 9.6). When the phone is locked, its data is safe. When it is unlocked, the finder sees the trips and, until the manager renews the group key, the group's shared locations. Malware on the phone itself, or a phone with its protections removed, is outside what any web app can defend against. | Medium / Medium | **Partly**: depends on the phone's lock; "Renew the group key" limits the damage | Release A; "Renew the group key" in release D |
 | 4 | Data lost or damaged on a phone | Saved data is checked when it is loaded. Export gives a backup (section 3.4). | High / High | **Partly**: changes not yet backed up are lost after a wipe | Release A, step 5 |
-| 5 | A former member, or whoever holds an old backup or a lost phone, keeps the group key (found in the risk analysis), and goes on reading the trip and every shared location without anyone noticing | "Renew the group key" by the manager: a new key for the members still there, the old ID and its data deleted (section 9.6) | Medium / Medium | **Yes**, once built | Release D, step 16 |
-| 6 | A backup file holds secrets, the group key and the manager token, and ends up in Downloads, a chat, or on a computer (found in the risk analysis) | Every backup is locked with the user's backup password (section 3.3) | Medium / Medium | **Yes** | Release A, step 5 |
+| 5 | A former member, or whoever holds an old backup or a lost phone, keeps the group key, and goes on reading the trip and every shared location without anyone noticing | "Renew the group key" by the manager: a new key for the members still there, the old ID and its data deleted (section 9.6) | Medium / Medium | **Yes**, once built | Release D, step 16 |
+| 6 | A backup file holds secrets, the group key and the manager token, and ends up in Downloads, a chat, or on a computer | Every backup is locked with the user's backup password (section 3.3) | Medium / Medium | **Yes** | Release A, step 5 |
 
 Risk is how likely the threat is now (the Barcelona group) and once the app is public.
 
@@ -2118,51 +2118,13 @@ Process:
 - **Reporting a weakness:** the App repository says how to report a security problem privately to the app owner, and promises a reply.
 - **No absolute guarantee.** No app can promise to be completely safe. These measures make an attack hard and limit the damage if one happens.
 
-### 14.3.1 Risk analysis (2026-11-23)
+### 14.3.1 The phone's inputs and outputs (decided 2026-11-23)
 
-Decided 2026-11-23. Who might attack and what they could reach. The holes it found are fixed in the design; those still worth watching are in the threat table above (section 14.3). Reviewed again before each release, together with the security review.
-
-#### Who might attack
-
-| Attacker | Example | What they have |
-| --- | --- | --- |
-| Stranger on the internet | Sends a harmful trip or link, or sets up a fake copy of the app | Nothing of the user's |
-| Bystander | Someone at the next table, or a thief | Sight of the screen, a photo of it, or the phone itself |
-| Former group member | Someone who left the group | Possibly the group key |
-| Current group member | A curious or angry member | The key and the write token |
-| Outside services | Map images, routing, and search (OpenStreetMap, FOSSGIS), Firebase (Google) | The requests and the phone's internet address |
-| Bad code | A compromised library, unreviewed test code, or a harmful file in `trip-db` | Runs inside the app's website |
-
-#### Data on the phone
-
-| What | Where | Who can reach it | Protection |
-| --- | --- | --- | --- |
-| Trips and local sites (which may include where the user is staying) | The browser's storage (section 3.3) | The app; the person holding the unlocked phone | The phone's lock; the browser's sandbox; only the app and `trip-db` published on its website (section 12.1) |
-| Group key, write token, manager token | The browser's storage | As above | As above; "Renew the group key" after a loss (threat row 5) |
-| Backup files | Wherever the user saves them | Anyone with the file | Locked with the backup password (threat row 6) |
-| Exported trips | Wherever the user sends them | Anyone with the file | Never hold a key, token, or group ID (section 9.4); the warnings of section 14.2 |
-
-A lost or stolen phone: when locked, its data is safe. When unlocked, the finder sees the trips and, until the manager renews the group key, the group's shared locations. Malware on the phone itself, or a phone with its protections removed, is outside what any web app can defend against.
-
-#### Who can learn where the user is
-
-| Who | How | Exact or rough | Protection |
-| --- | --- | --- | --- |
-| Group members | "Share my location", for 15 minutes, only when the user taps it | Exact | Intended; locked with the group key (section 9.4) |
-| A former member, or whoever has an old key | The old key (threat row 5) | Exact, while sharing | "Renew the group key" |
-| A bystander with a photo of a QR code | | – | Closed: the QR code holds no key |
-| The routing server (FOSSGIS) | The start point of an in-app route | Exact, kept in its logs | Explained when location is first used (section 14.2); routes only on request |
-| The map image server | The area being viewed, with the phone's internet address | Rough, but continuous while walking | Offline maps send no requests (section 7.4) |
-| The search service | The area shown on the map | Rough | Only when searching |
-| Google Maps, Apple Maps | "Navigate in another app" | Exact | Only on request, under their terms |
-| Google (Firebase) | The phone's internet address and the times of writes; the content stays locked | The city, and when the user shares | Stated in section 9.5, Privacy |
-| A trip's author | Only if the app loaded something from an address inside a trip | The internet address | Rule L9 below |
-
-#### The phone's inputs and outputs
+What the app may do with each of the phone's inputs and outputs, so that none of them exposes the user.
 
 | # | Channel | Risk | Rule |
 | --- | --- | --- | --- |
-| L1 | GPS | As above | Used only while the app is open and only after the user agrees; never stored in trips, exports, backups, or reports |
+| L1 | GPS | Reveals where the user is (section 14.2) | Used only while the app is open and only after the user agrees; never stored in trips, exports, backups, or reports |
 | L2 | Camera | Low | Only while the QR scanner is open; frames are read on the phone and never kept or sent (section 9.3) |
 | L3 | Voice directions | Bystanders hear the destination | Off by default; earphones suggested when it is turned on |
 | L4 | Screen | Shoulder-surfing, photos | "Show this only to the person joining" on the QR screen; QR codes hold no key |
@@ -2380,3 +2342,4 @@ Only questions still open are listed here (2026-11-23). Decided questions are re
 | 2 (design) | 2026-11-24 | Section 14.3: threats whose risk is low today removed from the threat table at the app owner's request; their protections listed under it in one line each. The table keeps 4 rows: an unlocked phone, data lost on a phone, a former member keeping the key, and a backup holding secrets. |
 | 2 (design) | 2026-11-24 | At the app owner's request, everything connected to the removed low-risk threats removed: sections 14.3.2 (checking links), 14.3.3 (reviewing pull requests), and 14.3.4 (outside libraries); open question 3 (signed updates); the Firebase protections table and the list of kept protections in 14.3; and their references and tests in sections 10.2, 12.1, 13.3, and 13.4. The core design of sections 9.3, 9.5, and 10.2 is unchanged. |
 | 2 (design) | 2026-11-24 | Restored at the app owner's request, rated Medium: threat rows 1 (running code inside the app, including script links) and 2 (a link to a harmful website), and section 14.3.2 (checking links) with its references in sections 10.2, 12.1, and 13.4. Rows renumbered 1 to 6. |
+| 2 (design) | 2026-11-24 | Section 14.3.1 reduced to the phone's inputs and outputs (rules L1 to L9). The analysis-only tables removed: who might attack, data on the phone (covered by section 3.3), and who can learn where the user is (covered by sections 14.2 and 9.5). The lost-phone paragraph moved into threat row 3. |
