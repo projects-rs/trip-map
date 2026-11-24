@@ -1440,7 +1440,6 @@ What is checked:
 - Every site listed in a legend group exists.
 - Every group has a valid color.
 - Coordinates, opening hours, time zone, and links are well formed.
-- Every link passes the link check (section 14.3.2).
 - No private information appears in text fields or links, and in a public trip, "Home / accommodation" sites have an approximate location. What blocks and what only asks is in section 14.2; `trip-db`'s automatic check runs the same rules.
 
 The report lists each problem with its location in the file and a plain explanation, for example: group "Fri 11" lists site "sagarda", which does not exist.
@@ -1635,7 +1634,6 @@ Decision (2026-11-21): three public repositories in the `projects-rs` organizati
 - Claude's GitHub app is installed on these three repositories only.
 - **Only the App repository and `trip-db` are published** (decided 2026-11-24). A browser keeps data per website, and every repository published by an organization shares its website (`projects-rs.github.io`), so:
     - Nothing else in `projects-rs` turns on GitHub Pages; the test repository is private and never published (section 13.2).
-    - **`trip-db` checks every link** before publishing and every week (section 14.3.2, layers 1 and 2). The keys for the harmful-site services are GitHub secrets set by the app owner.
     - **`trip-db` holds only trip files**, as it was designed: its automatic check accepts only `.json` files in `trips/`, the registry, and `requests.json`, and refuses any other file.
 
 How `trip-db` is organized:
@@ -1780,8 +1778,6 @@ Target: ready and field-tested before the Barcelona trip, together with release 
 
 Decision (2026-11-15, confirmed by the app owner; order changed 2026-11-23): group trips (section 9) are built after releases A to C, because they are the most complex part of the app. The AI toolkit (release E) and the big-screen layout (release F) come after them. Release D starts only after releases A to C are published.
 
-Decision in release D, step 14 (2026-11-24): whether to run the Firebase library in the Firebase box (section 14.3.4).
-
 Checks before release D starts (decided 2026-11-23): Claude checks by web search, and the app owner confirms, (1) Firebase's current free-plan limits and what happens when they are reached (section 9.5), and (2) Firebase's terms of service and data-processing terms, including where the data is stored. The results are written into section 9.5.
 
 | Step | Build | Try on the phone |
@@ -1819,7 +1815,7 @@ Rough effort for releases C to F together: about four to five weeks, mostly set 
 
 How the rule is enforced:
 
-- **A skill, `writing-tests`**, kept in the App repository (`.claude/skills/writing-tests/SKILL.md`), which Claude loads before writing or changing any test. It holds this rule, the description block of section 13.4.1, the "interface tests, not obvious unit tests" rule, and examples. A separate Claude review session (section 14.3.3) checks new tests against it.
+- **A skill, `writing-tests`**, kept in the App repository (`.claude/skills/writing-tests/SKILL.md`), which Claude loads before writing or changing any test. It holds this rule, the description block of section 13.4.1, the "interface tests, not obvious unit tests" rule, and examples.
 - **Automatic checks** on every pull request, as required checks:
     - The test workflows run with read-only permission to the repository (`permissions: contents: read`) and without any publishing key or Firebase key, so a test could not write, merge, or publish even by mistake.
     - A scan of the test files fails if one contains the real app's address, the real Firebase project's name, or `trip-db`'s address for writing.
@@ -1830,10 +1826,9 @@ Automated tests run on every change request and must pass before merging:
 - **Interface tests, not obvious unit tests** (decided 2026-11-23). Tests check the interfaces (the APIs): the public functions of each module and, above all, the calls between modules, such as "storage → merging → Firebase" or "trip file → converter → checker". Tests that only repeat what the code plainly does (for example "setting a field sets the field") are not written: they multiply, are hard to maintain, and do not help reviewers. A small internal function gets its own test only when it is easy to get subtly wrong: opening hours (time zones, daylight saving time, hours past midnight, closed dates), pie-chart segments, the icon set version rules, and locking and unlocking group data (section 9.5).
 - **Browser tests** that walk through the main screens at phone size first, and, from release F, also at laptop size, in both Chrome's engine and Safari's engine: open a trip, switch legends, filter, open a card, add a site, export.
 - **Trip checks:** the example trips and the icon set file are checked with every change.
-- **Pull request checks** (sections 14.3.3 and 14.3.4): Socket, OSV-Scanner, Dependabot, the library-file fingerprint check, CodeQL, dependency review, secret scanning, and our lint rules run on every pull request as required checks, and a separate Claude session runs `/security-review` with the repository's checklist.
 - **Phone tests** (section 13.2): every flow runs in simulated Android and iPhone browsers on GitHub, with touch, a phone-sized screen, and a fake GPS position, using Playwright; screenshots of every screen are attached to the change request.
 - **Storage test** (section 3.3): after every flow, everything left in the phone's storage is listed and compared with the table of what is kept; planted names and locations (section 13.5.1) must not appear where they should not.
-- **Security tests** (section 14.3): harmful content in every field, broken and oversized links and messages, and the browser security policy. Also, from the threat table (section 14.3): a phone with an old key reads nothing after "Renew the group key" (threat row 3); a photographed QR code is refused; a backup does not open without its password and holds no readable key (threat row 4); a group writing in a loop is slowed by the rules and the app says so; `trip-db`'s check refuses any file that is not a trip file (section 12.1); each link rule R1 to R6, and Google's test address for Safe Browsing, is caught (section 14.3.2); the app never loads anything from an address inside a trip (L9).
+- **Security tests** (section 14.3): harmful content in every field, broken and oversized links and messages, and the browser security policy. Also, from the threat table (section 14.3): a phone with an old key reads nothing after "Renew the group key" (threat row 3); a backup does not open without its password and holds no readable key (threat row 4); `trip-db`'s check refuses any file that is not a trip file (section 12.1); the app never loads anything from an address inside a trip (L9).
 - **Firebase tests**, from release D, against Firebase's free emulator on a laptop: the security rules (no reading without the group ID, no writing without the write token, no deleting without the manager token), offline changes, and simultaneous changes (section 9.5).
 - **Conversion tests**, once a format has a conversion step: each step's old file must become exactly the expected new file (section 11.1).
 - **A security review before each release** (section 14.3).
@@ -2097,7 +2092,7 @@ What the app can and cannot reach:
 
 - The app runs inside the phone's browser, in the browser's protective sandbox. It cannot read the phone's files, photos, contacts, messages, or other apps, and it cannot install anything.
 - It can reach only what the browser allows: location, after the user agrees, and its own storage on the phone.
-- So the worst case of a successful attack on the app is limited to the app's own data on that phone, such as trips, local sites, group details, and keys. Harmful app code, whichever way it got in (see below), could read and send away that data, track the location while the app is open, show fake screens, and damage trips, but still could not leave the sandbox. That data is still worth protecting, and the measures below do so.
+- So the worst case of a successful attack on the app is limited to the app's own data on that phone, such as trips, local sites, group details, and keys. Harmful app code, whichever way it got in, could read and send away that data, track the location while the app is open, show fake screens, and damage trips, but still could not leave the sandbox. That data is still worth protecting, and the measures below do so.
 - WhatsApp protects messages while they travel. It does not protect the app from harmful content inside a message. The app protects itself, whatever way the content arrives.
 
 Threats and protections:
@@ -2110,32 +2105,6 @@ Threats and protections:
 | 4 | A backup file holds secrets, the group key and the manager token, and ends up in Downloads, a chat, or on a computer (found in the risk analysis) | Every backup is locked with the user's backup password (section 3.3) | Medium / Medium | **Yes** | Release A, step 5 |
 
 Risk is how likely the threat is now (the Barcelona group) and once the app is public.
-
-Threats whose risk is low today were removed from this table on 2026-11-24. Their protections stay part of the design:
-
-- **No code from received content:** everything received is checked against the format (section 10.2), shown only as plain text, and limited in size; a strict browser security policy forbids any code that is not part of the app; no link can run a script (only `https://`, checked when received and again before it is shown); the trip checker treats trips as data only (`json.load`, never `eval` or `exec`).
-- **Harmful links:** the link check in four layers (section 14.3.2).
-- **Group data in Firebase:** every entry locked and sealed with the group key, and every write needs the write token (section 9.5).
-- **The app owner's GitHub account:** two-step sign-in, printed recovery codes, alerts on new sign-ins; signed updates are open question 3.
-- **Pull requests:** three independent looks (section 14.3.3).
-- **Outside libraries:** section 14.3.4.
-- **Files changed on the way:** HTTPS; signed updates as a second layer are open question 3.
-- **Known weaknesses in outside components:** automatic alerts and prompt updates.
-- **Invites:** no key in a QR code or link, one use, 15 minutes, the inviter's approval (section 9.3).
-- **Firebase's free limits:** write limits per group and "Group sharing has paused" (section 9.5), before going public.
-- Browser extensions are outside the app's control.
-
-Protecting a group's data in Firebase (decided 2026-11-23; section 9.5):
-
-| # | Protection | What it guards against |
-| --- | --- | --- |
-| 1 | **Every entry is locked with the group key**, which never goes to Firebase | Google, or anyone who reached the data, cannot read the trip or the locations |
-| 2 | **The group's long random ID**, and no listing of groups | No one can find a group without an invite |
-| 3 | **The write token**, derived from the group key, required by the security rules for every write | Someone who learned only the group ID cannot change or delete anything |
-| 4 | **QR codes and invite links that hold no key**, and the inviter's approval | The key never enters a QR code, a chat, a backup, or the browser; it is sent only after the inviter approves |
-| 5 | **Every phone keeps its full copy** of the trip | If the group's data were damaged or deleted, any member can write it back |
-| 6 | **App Check** | Only the real app can talk to the project |
-| 7 | **Automatic deletion** after the trip | Data does not stay at Google longer than needed |
 
 Process:
 
@@ -2199,131 +2168,6 @@ A lost or stolen phone: when locked, its data is safe. When unlocked, the finder
 | L8 | Microphone, contacts, photos, Bluetooth, notifications | None | The app never asks for them |
 | L9 | Addresses inside trips | A trip's author learning who opened it, and from where | The app never loads anything from an address inside a trip: links open only when tapped, after showing the address, and trips hold no pictures |
 
-### 14.3.2 Checking links (decided 2026-11-24)
-
-Every link in a trip passes the same link check, part of the trip checker (section 10.2). It runs in four layers, so that a harmful link is caught whichever way it arrives.
-
-#### Part 1: rules the checker applies itself
-
-No outside service is needed for these. A link that breaks one is **rejected** (the trip or change is not accepted until it is fixed), except lookalike addresses, which are **asked** (section 14.2).
-
-| # | Rule | Example of what is caught |
-| --- | --- | --- |
-| R1 | Only `https://` links | `javascript:…`, `http://…`, `intent://…` (section 14.3) |
-| R2 | No bare internet addresses | `https://185.23.4.9/menu` |
-| R3 | No link shorteners | `https://bit.ly/…`, which hides where the link goes |
-| R4 | No hidden user names in the address | `https://booking.com@evil.com`, which really goes to evil.com |
-| R5 | No unusual ports | `https://example.com:8080/` |
-| R6 | Lookalike addresses are asked | `bookіng.com` written with a Cyrillic "і" (an address with international characters, shown in its real form) |
-
-#### Part 2: lists of harmful websites
-
-| Service | What it knows | Used in |
-| --- | --- | --- |
-| Google Safe Browsing (v5) | Phishing, malware, and unwanted software | All layers |
-| VirusTotal | One question checks the link against more than 70 antivirus engines and lists | Layers 1 and 2 only, because its key must stay secret |
-| URLhaus (abuse.ch, with Spamhaus) | Links that spread malware | Layers 1 and 2 only, because its key must stay secret |
-
-Why these three (decided 2026-11-24): each finds new harmful sites through its own sources, so a site one list does not know yet may already be on another. PhishTank was left out because it accepts no new users; OpenPhish adds little, since VirusTotal already includes many such lists.
-
-Terms: Google Safe Browsing and VirusTotal's free service are for non-commercial use only, which fits a free app; if the app ever earned money, both would move to paid services. VirusTotal's free service allows 500 questions a day, 4 a minute, so the weekly check is spread over the week. Warnings must say "may be harmful" and name Google Safe Browsing, with a link to its advisory.
-
-#### Part 3: the four layers
-
-**Layer 1. GitHub, before publishing.**
-- When: every update request and new trip request to `trip-db`.
-- What: rules R1 to R6, Google Safe Browsing, VirusTotal, and URLhaus.
-- Result: a harmful link fails the check, so the request cannot be merged until it is fixed.
-
-**Layer 2. GitHub, every week.**
-- When: once a week, every link in every published trip, with the same three services.
-- Why: a safe link can turn harmful later, for example when its domain expires and someone else buys it.
-- Result: a finding opens an issue for the app owner, and the link is marked "not checked" in the trip until it is fixed.
-
-**Layer 3. The phone, when something arrives.**
-- Rule: **every time data arrives or changes and holds a link, that link is checked**: a trip opened or downloaded, a group update, a proposal, a site added or edited, a search result. Only new or changed links are checked; a link checked in the last 7 days is not asked again.
-- Group sites are checked on the phones, before sending and again on arrival, never in Firebase, which cannot read them (they are locked with the group key, section 9.5).
-- When: a trip is opened or downloaded, a group site arrives, a proposal arrives, a site is added (including from OpenStreetMap search or an AI-written trip).
-- Why: files sent on WhatsApp, group trips, and the user's own sites never pass through GitHub.
-- What: rules R1 to R6, and Google Safe Browsing.
-- Privacy: the app sends only short hash prefixes of the links, from which Google cannot tell which link was checked, through Google's privacy relay (Oblivious HTTP), which hides the phone's internet address.
-- Key: the Safe Browsing key in the app cannot be secret, so it is limited to work only from the app's own address.
-- Offline, or no answer: the link is marked "not checked yet" and checked again later. Nothing is blocked only because a check could not run.
-
-**Layer 4. The browser, when the link is opened.**
-- Chrome and Safari have their own harmful-site protection. It is not ours, but it is a last layer.
-
-#### Part 4: what the user sees
-
-- A link on a harmful-site list: "⚠ This link may be harmful (Google Safe Browsing)", with the address. It does not open with a simple tap; the user must tap "Open anyway".
-- A link not checked yet: a small "not checked" mark next to it.
-- Before any link opens: its full address is shown (section 14.3).
-
-#### Part 5: what is left
-
-- A harmful site so new that no list knows it yet. Rules R1 to R6, the address shown before opening, and the app owner's review of public trips still apply.
-- The tests (section 13.4) include a link for each rule R1 to R6, and Google's official test address for Safe Browsing.
-
-### 14.3.3 Reviewing pull requests (decided 2026-11-24)
-
-Every pull request, to the App repository or to `trip-db`, gets three independent looks before it can be merged.
-
-#### Look 1: automatic tools
-
-All are free for public repositories, and all are **required checks**: a pull request cannot be merged while one fails.
-
-| Tool | What it catches |
-| --- | --- |
-| CodeQL code scanning | Known kinds of security bugs in JavaScript, such as received text put into the page as HTML |
-| Dependency review | New or updated libraries with known weaknesses |
-| Socket, OSV-Scanner, Dependabot | Harmful or weak library versions (section 14.3.4) |
-| Secret scanning | Keys or passwords committed by mistake |
-| Our own lint rules (ESLint) | No `innerHTML` with received text, no `eval`, no outside address that is not on the allowed list |
-
-#### Look 2: an AI security review
-
-- A **separate Claude session**, which did not write the change, runs `/security-review` on it, with our checklist saved as a skill in the repository, so every review uses the same list.
-- It only writes comments: it cannot change, approve, or merge anything.
-- The checklist: received text shown only as plain text; links only `https://`; no new outside addresses or libraries; no data leaving the phone beyond section 14.2; the browser security policy unchanged; no `eval`; the change matches this design document.
-- **Pull requests from strangers** (contributors, later): the AI review is advice only, because text hidden in a pull request can try to mislead an AI reviewer ("prompt injection"). The tools and the app owner decide.
-- Cost: a Claude session is covered by the app owner's plan. Anthropic's ready-made GitHub Action for this needs a paid Claude API key; it can be added later.
-
-#### Look 3: the app owner
-
-The app owner reviews every change, and always looks carefully at these **red flags**:
-
-- changes to `.github/` workflows;
-- the browser security policy;
-- the update code (service worker);
-- encryption and keys;
-- network addresses;
-- new or updated libraries;
-- unreadable (minified) code.
-
-### 14.3.4 Outside libraries (decided 2026-11-24)
-
-Well-known, trusted libraries have been taken over before (for example event-stream in 2018, ua-parser-js in 2021, xz-utils and polyfill.io in 2024, chalk and debug in 2025), so trust alone is not a protection.
-
-#### From release A
-
-| # | Action | What it stops |
-| --- | --- | --- |
-| L1 | **Three scanning tools**, on every pull request and every week, as required checks: **Socket** (looks at what a new version does: new network or storage access, hidden code, a new maintainer), **OSV-Scanner** (known weaknesses and known harmful packages), and **Dependabot** (known weaknesses and malware reports, with fix pull requests) | Known weaknesses, and most harmful versions |
-| L2 | **The waiting rule**: a new library version is adopted only after it has been out for 4 weeks, unless it fixes a known weakness | Most harmful versions are found and removed within days |
-| L3 | **The library list** (`package.json` and `package-lock.json`) with exact versions, so the tools know what is used, and a check that the copied library files match the official ones by fingerprint | A tool judging something other than what the app really ships |
-| L4 | **A fixed list of allowed addresses** in the browser security policy: the app's own website, the map image, routing, and search services, the harmful-site check (section 14.3.2), and Firebase | Harmful code sending data to any other address |
-| L5 | **Few, narrow libraries**: today Leaflet, Firebase, qrcode-generator, and jsQR. A new library only with a written reason, reviewed as a red flag (section 14.3.3) | Fewer doors; a narrow library that suddenly needs the network or storage stands out |
-
-#### The Firebase gap, decided in release D
-
-The Firebase library is meant to send data over the network, to an address shared by every Firebase project. A harmful version could send the app's data to the attacker's own Firebase project through the same allowed address, and neither the tools nor the security policy could tell.
-
-The proposed fix, **the Firebase box**: the Firebase library runs in an isolated frame served from another website address. The browser keeps the two apart, so code in the frame cannot read the app's storage or the group key. The app locks each entry with the group key first and hands only locked data to the frame. To be decided when group trips are built (release D, step 14).
-
-#### What is left
-
-A very well-hidden change, like xz-utils, which experts missed for two years, can still pass. With narrow libraries, the tools, the waiting rule, and the Firebase box, that becomes hard.
-
 ### 14.4 Security checklist
 
 For the app owner, when setting up (once):
@@ -2379,8 +2223,6 @@ Only questions still open are listed here (2026-11-23). Decided questions are re
 
 1. **A distinctive name:** "Trip Map" is a common name, so a web search for "Trip Map app" may not find our AI toolkit. Before the app is announced, choose a name that a search finds uniquely, and check it as in section 14.1. Then "Plan a trip for the <name> app" works by itself (section 8.4).
 2. **Publishing from a group trip (for a later version):** for now, a group trip cannot update the public trips: no update request and no new trip request from it, by any member (section 8.6, decided 2026-11-22). Later, a way may be found for a group to agree to send its trip, or some of its sites, to the trip owner, for example with every member's approval. Without a member list or a server the app cannot tell when everyone has approved, so this needs its own design.
-
-3. **Signed updates (open):** how to make sure phones refuse app code that was changed, on the way (section 14.3) or by someone holding the app owner's GitHub account (section 14.3). Proposed: the app owner signs a list of every release file's fingerprint with a private key kept off GitHub and off work machines; the app checks the signature and the fingerprints before accepting an update, and never accepts an older version. GitHub's own signing features (signed commits, attestations) cannot replace it, because they trust the account itself. **Known gap (2026-11-24):** in a web app the check is done by the app's own update script, and the browser updates that script by itself, so an attacker holding the account could replace it with one that skips the check. App stores avoid this because the phone's operating system checks the signature. Options: signed updates as a strong second layer for row 7 and a partial one for row 4; later, packaging the app as a store app (for example with Capacitor) to close row 4. To decide: whether, when, and how the private key and its backup are kept.
 
 ## 16. Version history
 
@@ -2467,3 +2309,4 @@ Only questions still open are listed here (2026-11-23). Decided questions are re
 | 2 (design) | 2026-11-24 | No published test version: automated phone tests on GitHub (Playwright, simulated Android and iPhone, screenshots), then "Try new versions first" in the real app with an automatic backup, and the app owner marks a version ready for everyone (sections 3.2, 13.2). The test repository becomes private and unpublished; no `projects-rs-test` organization. Threat row 8 removed; `trip-db` holds only trip files, as designed. Rows renumbered 1 to 16. |
 | 2 (design) | 2026-11-24 | Section 14.3: the threat row "a fake copy of the app" removed at the app owner's request (a fake app cannot reach the real app's data or Firebase); rows renumbered 1 to 15. |
 | 2 (design) | 2026-11-24 | Section 14.3: threats whose risk is low today removed from the threat table at the app owner's request; their protections listed under it in one line each. The table keeps 4 rows: an unlocked phone, data lost on a phone, a former member keeping the key, and a backup holding secrets. |
+| 2 (design) | 2026-11-24 | At the app owner's request, everything connected to the removed low-risk threats removed: sections 14.3.2 (checking links), 14.3.3 (reviewing pull requests), and 14.3.4 (outside libraries); open question 3 (signed updates); the Firebase protections table and the list of kept protections in 14.3; and their references and tests in sections 10.2, 12.1, 13.3, and 13.4. The core design of sections 9.3, 9.5, and 10.2 is unchanged. |
