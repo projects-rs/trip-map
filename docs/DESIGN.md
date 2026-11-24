@@ -1714,7 +1714,7 @@ This section describes how the app is built and tested, in small steps that can 
 | Who | Does |
 | --- | --- |
 | Claude | Writes the code, the automated tests, the trip guide, and the documentation. Converts the Barcelona data to the trip format. Fixes reported problems. Opens a change request for every step. **Takes part in reviews:** explains each change in plain words, including the code (the app owner is not a JavaScript expert), answers questions on change requests, and reviews change requests written by others. Never merges. |
-| App owner | Makes the decisions, does the setup steps that need the owner's identity (accounts, repositories, keys; the Trips repository `trip-db` before step 6, and the Firebase project before release C), tests each step on a real phone, reviews and approves, merges, and publishes. Can also write code or documents (below). |
+| App owner | Makes the decisions, does the setup steps that need the owner's identity (accounts, repositories, keys; the Trips repository `trip-db` before step 6 (part A3, after the trip), and the Firebase project before release C), tests each step on a real phone, reviews and approves, merges, and publishes. Can also write code or documents (below). |
 | Contributors | Advanced users, and the app owner too, can write code, tests, or documents themselves, and send them as change requests. The same rules apply to every change request, whoever wrote it: the automated tests must pass, Claude can review it, and only the app owner merges (section 12.3). |
 | Testers | The trip group. With "Try new versions first" on, they get each new version before everyone else, try it in the real app, and report what they find. At least one Android phone and one iPhone. |
 
@@ -1736,37 +1736,53 @@ A step is done when its automated tests pass, it works in the real app on both a
 
 ### 13.3 Steps
 
-#### Release A: trip-ready version
+#### Release A: trip-ready version, in three parts
 
-Target (changed 2026-11-23): releases A and B are both ready and field-tested before the Barcelona trip (December 10, 2026). Rough effort with Claude building: one to two weeks for release A and about one more week for release B, if the app owner can test every day or two.
+Decided 2026-11-24: release A is split into three parts, each usable and testable on the phone on its own. Parts A1 and A2 and release B are targeted for the Barcelona trip (December 10, 2026); part A3 comes after it. Rough effort with Claude building, if the app owner can test every day or two: about a week for A1, a few days for A2, and about a week for release B.
+
+#### Part A1: map and the trip (target: about December 1)
+
+Enough to use on the trip: the Barcelona trip opened from a file sent on WhatsApp, with pins, legends, site cards, opening hours, and navigation in Google Maps or Apple Maps.
 
 | Step | Build | Try on the phone |
 | --- | --- | --- |
 | 0. Setup (done 2026-11-21) | The app owner creates a GitHub account with two-step sign-in, the organization, the App and test repositories (section 12.5). The Trips repository, `trip-db`, is planned (section 12.1). Still to do before step 1: making the test repository private and turning off its GitHub Pages (section 12.5). The notices file (section 14.1) is added with the first code. Claude is connected to the App and test repositories, and to `trip-db` once it is created. | The test repository is private and not published. |
-| 1. App and map | Full-screen map with street names, "My location", the app's icon and name for the home screen | The map loads and moves smoothly. The blue dot appears after allowing location. The app can be added to the home screen. |
+| 1. App, map, and updates | Full-screen map with street names, "My location", the app's icon and name for the home screen. From the start, so that every later step reaches the phones: the browser security policy (section 14.3), app updates with the "New version available" notice, "Try new versions first", and the automatic backup before updating (section 3.2) | The map loads and moves smoothly. The blue dot appears after allowing location. The app can be added to the home screen. A new version reaches a phone with "Try new versions first" and is installed after tapping Update. |
 | 2. Trip files, the checker, and the trip-author skill | Loading a trip file, the checker with its report and privacy checks, the trip guide, the schema, the trip-author skill (section 10.1), an example trip. **First, the pending format changes of section 10 are made** (for example `groups` renamed to `entries`, and the fields `place`, `dates`, and `published`), while no trip files are in users' hands, so that no conversion step is ever needed for them (section 11.1). The Barcelona trip converted to that format. | "Add local trip" opens the Barcelona trip. A file with a deliberate mistake shows a clear report. |
 | 3. Pins and legends | The icon set file, pin color from the legend entry, pie-chart pins, the "Other" chip, the legend switch, filtering by chips | Switching legends recolors the pins. A site in two legend entries shows a split pin. Turning a chip off hides its sites. |
 | 4. Site card and opening hours | The site card (text shown only as plain text, links limited to https), opening hours with open, closing-soon, and closed marks, native copying, the navigation panel with "In another app" (Google Maps, Apple Maps). The "In this app" choice is added in release B. | Status text and pin marks are right at different times of day. Copying works. Navigation opens in Google or Apple Maps. |
+
+#### Part A2: offline maps, my trips, and local sites (target: about December 4)
+
+| Step | Build | Try on the phone |
+| --- | --- | --- |
 | 5a. Offline maps | The offline region catalog with a Barcelona region built by the automatic check, choosing the area with km² and MB, at most 2 areas on the phone, "Download map for offline use", the offline map display, Settings → Offline maps, the direction and distance to a site without a connection (section 7.4) | In airplane mode, the Barcelona trip shows streets and street names everywhere in its area, all pins and cards, and the blue dot. |
 | 5. My trips and local sites | Several trips and switching between them, each trip's saved view, the data protections of section 3.3 (persistent storage, restore link, one-tap backup locked with the backup password, recovery after a wipe), Add site, search (section 8.5), local sites, local legends and legend entries, "Export trip" with its warning (section 14.2), "Make a copy", "Add local trip" with "Replace, keep both, or cancel?" (section 3.4) | Searching "Sagrada Família" in Add site fills in its name, address, and location. A search of the user's own trip finds its sites. |
-| 6. The trip list | Needs `trip-db` created by the app owner (section 12.1). The registry and trip list built from `trip-db`, by country and city; Download; updates offered and accepted (section 3.1); "Start a new trip" (empty) | The Barcelona trip is downloaded from the trip list on each tester's phone, also in the home-screen app on iPhone. It opens without a connection afterwards. |
-| 7. Updates, feedback, and field test | The browser security policy (section 14.3). Automatic app updates with the "New version available" notice. Settings → About with the notices list. "Send feedback" in its first form: a prepared message through the phone's share menu, with its warning (sections 13.5, 14.2). A walk-through of the whole app. | An update reaches all phones. The app owner walks a route in their own city with the app, on both phone types. |
+| 7. Feedback and field test | Settings → About with the notices list. "Send feedback" in its first form: a prepared message through the phone's share menu, with its warning (sections 13.5, 14.2). A walk-through of the whole app. | "Send feedback" reaches the app owner. The app owner walks a route in their own city with the app, on both phone types. |
 
 Not in release A: in-app turn-by-turn navigation (release B), update and new trip requests, error reports, contributed public trips, "Create a trip with AI", the full AI toolkit, and group trips.
 
-Fallback: setup finished on November 21, leaving 19 days for releases A and B. Release A comes first and is the minimum for the trip. If release B is not field-tested by December 5, 2026, the trip uses release A, with navigation through "In another app" (Google Maps, Apple Maps), and release B continues after the trip. If release A is not field-tested by December 5, the trip uses version 1 and the trip already published for it.
+Fallback: part A1 is the minimum for the trip; part A2 and release B are additions. If release B is not field-tested by December 5, 2026, the trip uses navigation through "In another app" (Google Maps, Apple Maps), and release B continues after the trip. If part A2 is not ready, local sites and offline maps wait until after the trip. If part A1 is not field-tested by December 5, the trip uses version 1 and the trip already published for it.
 
-On the trip, each member adds sites locally. To pass them on, a member uses "Export trip" with their local sites and sends the file through WhatsApp. The others open it with "Add local trip", as a separate local trip (section 3.4). Sites from several members come together in one shared trip with group trips (release C).
+On the trip, each member adds sites locally (part A2). To pass them on, a member uses "Export trip" with their local sites and sends the file through WhatsApp. The others open it with "Add local trip", as a separate local trip (section 3.4). Sites from several members come together in one shared trip with group trips (release C).
 
 #### Release B: in-app navigation
 
-Target: ready and field-tested before the Barcelona trip, together with release A (see the fallback above).
+Target: about December 9, field-tested before the Barcelona trip (see the fallback above).
 
 | Step | Build | Try on the phone |
 | --- | --- | --- |
 | 8. Route | Walking route on the app's map, with distance and time, from the "In this app" choice | A route is drawn from the blue dot to a site. |
 | 9. Turn by turn | Follow mode, the turn-by-turn banner and step list, re-routing, the arrival message, keeping the screen on | On a real walk, the banner gives the right turns, and leaving the route triggers a new one. |
 | 10. Voice | Spoken directions with an on/off button | Directions are spoken on both phone types, with the screen on. |
+
+#### Part A3: the trip list (after the trip)
+
+Not needed for Barcelona, where the trip is sent as a file, so `trip-db` is also not needed before the trip.
+
+| Step | Build | Try on the phone |
+| --- | --- | --- |
+| 6. The trip list | Needs `trip-db` created by the app owner (section 12.1). The registry and trip list built from `trip-db`, by country and city; Download; updates offered and accepted (section 3.1); "Start a new trip" (empty) | The Barcelona trip is downloaded from the trip list on each tester's phone, also in the home-screen app on iPhone. It opens without a connection afterwards. |
 
 #### Release C: group trips
 
@@ -1895,7 +1911,7 @@ Usability:
 
 Decided 2026-11-23. Feedback and error reports are the only channels where the app itself prepares something that leaves the phone, so both are tested before first use and security-tested.
 
-**Before first use (release A, step 7, and release D, step 15):**
+**Before first use (part A2, step 7, and release D, step 15):**
 
 - **Arrives intact:** on both phone types, feedback is sent by WhatsApp and by email, and reaches the app's address with the text unchanged, including Hebrew, emoji, and a very long message.
 - **Shown = sent:** the text the user sees before sending is exactly what arrives, nothing more.
@@ -2358,3 +2374,4 @@ Only questions still open are listed here (2026-11-23). Decided questions are re
 | 2 (design) | 2026-11-24 | Section 14.3.1 reduced to the phone's inputs and outputs (rules L1 to L9). The analysis-only tables removed: who might attack, data on the phone (covered by section 3.3), and who can learn where the user is (covered by sections 14.2 and 9.5). The lost-phone paragraph moved into threat row 3. |
 | 2 (design) | 2026-11-24 | Section 14.3.2, Parts 4 and 5: a harmful link is blocked at once and the user chooses: remove the link, delete the site card, delete the trip (or don't open it), or keep it blocked; group changes are shared, public trips can be reported to the trip owner. "Open anyway" dropped. |
 | 2 (design) | 2026-11-24 | Section 13.3: releases C and D swapped at the app owner's request. Group trips are now release C (steps 11 to 13), built after releases A and B; requests, reports, and contributed trips are release D (steps 14 to 16). References updated. |
+| 2 (design) | 2026-11-24 | Section 13.3: release A split into parts A1 (map and the trip, about December 1; now with updates and the security policy from step 1), A2 (offline maps, my trips, and local sites, about December 4), and A3 (the trip list, after the trip). Release B targeted for about December 9. Fallback updated. |
