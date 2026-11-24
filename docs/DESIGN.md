@@ -2224,6 +2224,8 @@ Terms: Google Safe Browsing and VirusTotal's free service are for non-commercial
 - Result: a finding opens an issue for the app owner, and the link is marked "not checked" in the trip until it is fixed.
 
 **Layer 3. The phone, when something arrives.**
+- Rule: **every time data arrives or changes and holds a link, that link is checked**: a trip opened or downloaded, a group update, a proposal, a site added or edited, a search result. Only new or changed links are checked; a link checked in the last 7 days is not asked again.
+- Group sites are checked on the phones, before sending and again on arrival, never in Firebase, which cannot read them (they are locked with the group key, section 9.5).
 - When: a trip is opened or downloaded, a group site arrives, a proposal arrives, a site is added (including from OpenStreetMap search or an AI-written trip).
 - Why: files sent on WhatsApp, group trips, and the user's own sites never pass through GitHub.
 - What: rules R1 to R6, and Google Safe Browsing.
@@ -2374,3 +2376,4 @@ Only questions still open are listed here (2026-11-23). Decided questions are re
 | 2 (design) | 2026-11-24 | Section 14.3: the threat table numbered, with a column "Good solution?" (yes, partly, or no). |
 | 2 (design) | 2026-11-24 | New section 14.3.2, checking links: rules R1 to R6, Google Safe Browsing and URLhaus, four layers (GitHub before publishing, GitHub weekly, the phone, the browser), what the user sees, and what is left. Threat row 2 now "Yes". |
 | 2 (design) | 2026-11-24 | Section 14.3.2: three harmful-site services chosen, Google Safe Browsing, VirusTotal, and URLhaus; PhishTank and OpenPhish left out. |
+| 2 (design) | 2026-11-24 | Section 14.3.2, layer 3: every link in data that arrives or changes is checked; group sites on the phones, before sending and on arrival, never in Firebase. |
