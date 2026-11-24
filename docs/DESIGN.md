@@ -4,7 +4,7 @@
 
 A phone-first web app that shows the sites of a trip on a real street map, with custom pins, several legends, site cards, and walking navigation. The app is not tied to any trip: each trip is a separate trip file that is shared on its own.
 
-Status: version 1 (basic map) is built. Everything below describes the version 2 design. All proposals and assumptions were approved by the app owner on 2026-11-15. Remaining open questions are listed in section 15. The build plan is in section 13. Group trips (section 9) are built in release D, the AI toolkit in release E, and the big-screen layout (section 4.3) last, in release F: phones come first.
+Status: version 1 (basic map) is built. Everything below describes the version 2 design. All proposals and assumptions were approved by the app owner on 2026-11-15. Remaining open questions are listed in section 15. The build plan is in section 13. Group trips (section 9) are built in release C, the AI toolkit in release E, and the big-screen layout (section 4.3) last, in release F: phones come first.
 
 Last updated: 2026-11-21
 
@@ -369,10 +369,10 @@ The menu, in the first version:
 | Add site | Add a site to the current trip (section 8.2) | A |
 | Download map for offline use | The trip's offline map (section 7.4) | A |
 | Export trip | Save the trip with its local changes as a file; also the backup (section 3.3) | A |
-| Request to add my changes | An update request to the app owner (section 8.6). Not shown for a group trip | C |
-| Request to add this trip | A new trip request to the app owner (goal 9). Not shown for a group trip | C |
-| My requests | The requests sent from this phone and their results (section 8.6) | C |
-| Group | Start a group, invite, share my location, leave (section 9) | D |
+| Request to add my changes | An update request to the app owner (section 8.6). Not shown for a group trip | D |
+| Request to add this trip | A new trip request to the app owner (goal 9). Not shown for a group trip | D |
+| My requests | The requests sent from this phone and their results (section 8.6) | D |
+| Group | Start a group, invite, share my location, leave (section 9) | C |
 | Create a trip with AI, Copy request for AI | Section 8.4 | E |
 | Send feedback | Section 13.5 | A |
 | Settings | Includes Offline maps, the restore link, and About (sections 3.3, 7.4, 14.1) | A |
@@ -936,7 +936,7 @@ A group trip is **one trip that a few people travelling together share on their 
 - **Simple for everyone:** joining is scanning a QR code on another member's phone, or opening an invite link, and tapping Join.
 - **A member's device can be a phone or a laptop** (decided 2026-11-23). To plan alone on a laptop and use the trip on the phone, start a group on the laptop and join it from the phone: a group of one person on two devices (section 4.3).
 
-Release: group trips are scheduled in release D (section 13.3). Until then, members pass trips as files (section 13.3, release A).
+Release: group trips are scheduled in release C (section 13.3). Until then, members pass trips as files (section 13.3, release A).
 
 ### 9.1 What a group trip stores
 
@@ -1188,7 +1188,7 @@ After deletion, each member keeps their own copy of the trip on their phone, as 
 
 #### Free plan limits
 
-As far as known on 2026-11-23, Firebase's free plan allows about 50,000 reads and 20,000 writes a day, and 1 GB of stored data, for the whole app (to be checked before release D, section 13.3). A group of four on a busy trip day uses a few hundred reads and writes, so about 100 busy groups fit on the same day, and the stored data has room for thousands of groups. When the free limits are reached, requests stop for the rest of the day: the app says so, and members can still pass the trip as a file ("Export trip", then "Add local trip"). A paid plan, with small prices per 100,000 operations, can be chosen later if the app grows.
+As far as known on 2026-11-23, Firebase's free plan allows about 50,000 reads and 20,000 writes a day, and 1 GB of stored data, for the whole app (to be checked before release C, section 13.3). A group of four on a busy trip day uses a few hundred reads and writes, so about 100 busy groups fit on the same day, and the stored data has room for thousands of groups. When the free limits are reached, requests stop for the rest of the day: the app says so, and members can still pass the trip as a file ("Export trip", then "Add local trip"). A paid plan, with small prices per 100,000 operations, can be chosen later if the app grows.
 
 One group using up the limits for all (decided 2026-11-23, section 14.3): the daily limits are shared by every group of the app, and App Check does not stop someone using the real app, or a phone with a bug that writes in a loop. Before the app is opened to the public: the security rules limit how often one group can write (for example one write per site per few seconds, and a daily number of writes per group), the app itself never writes the same entry more than once in a short time, and when Firebase refuses, the app shows "Group sharing has paused" and offers "Export trip".
 
@@ -1213,12 +1213,12 @@ Most tests run against Firebase's free emulator on a laptop, without touching th
 
 - Firebase is one hosted service that all groups share. If it is down, or the free limits are reached, members can still pass the trip as a file until it is back.
 - A member whose app is closed sees a shared location only when opening the app, within its 15 minutes: the app cannot show notifications while it is closed.
-- Firebase belongs to Google, which runs it under its own terms; the terms are checked before group trips are built (section 13.3, release D).
+- Firebase belongs to Google, which runs it under its own terms; the terms are checked before group trips are built (section 13.3, release C).
 
 ### 9.6 Leaving, a new phone, and after the trip
 
 - **Leaving:** a member taps "Leave group". The group, its key, and its ID are removed from that phone; the trip stays as a local trip, marked as a former group trip, so it still cannot be sent in a request (section 8.6).
-- **"Renew the group key"** (decided 2026-11-23, section 14.3, threat row 5; release D, step 16). Leaving relies on the person's own phone, so someone who left, kept an old backup, or lost an unlocked phone may still hold the key, and could go on reading the trip and every shared location without anyone noticing. The manager taps "Renew the group key" after someone leaves or a phone is lost. Each member's app that is still in the group answers with a one-time public key; the manager's app makes a new key, write token, and ID, locks the new key separately for each of those apps, sends it through Firebase, and re-locks the trip under the new ID. The old ID and its data are deleted, and the old key opens nothing new. A member whose app was not open gets a fresh invite.
+- **"Renew the group key"** (decided 2026-11-23, section 14.3, threat row 5; release C, step 13). Leaving relies on the person's own phone, so someone who left, kept an old backup, or lost an unlocked phone may still hold the key, and could go on reading the trip and every shared location without anyone noticing. The manager taps "Renew the group key" after someone leaves or a phone is lost. Each member's app that is still in the group answers with a one-time public key; the manager's app makes a new key, write token, and ID, locks the new key separately for each of those apps, sends it through Firebase, and re-locks the trip under the new ID. The old ID and its data are deleted, and the old key opens nothing new. A member whose app was not open gets a fresh invite.
 - **A new phone:** the member gets a fresh invite from any member; the app reads the trip from Firebase.
 - **After the trip:** the group's manager taps **"Delete the group"** and confirms, with the warning "This removes the group and all its content for everyone. Each member keeps the trip on their own phone." The app deletes the group's sites, locations, and pending invites from Firebase. The other members' apps notice and show "The group was deleted by its manager. Your copy of the trip is kept."; the trip stays on each phone as a local trip, marked as a former group trip.
 - **Keeping the manager token safe:** it is kept in the app's storage, with the protections of section 3.3, and included in the user's backup file if they make one. After a reinstall, restoring the backup brings the manager's right back.
@@ -1245,7 +1245,7 @@ Decided on 2026-11-15, and updated on 2026-11-21, 2026-11-22, and 2026-11-23:
 6. ~~Group size~~: about 8 members, as a recommendation. The app does not count members.
 7. ~~Checking that copies match~~: replaced on 2026-11-23. Every app reads the same data in Firebase, so a match code is no longer needed.
 8. ~~Locked maps~~: no longer applies; locked maps were dropped on 2026-11-21.
-9. ~~Release~~: decided, group trips are built in release D (section 13.3; moved before the AI toolkit on 2026-11-23).
+9. ~~Release~~: decided, group trips are built in release C (section 13.3; moved before the AI toolkit on 2026-11-23).
 10. ~~Signed changes~~: replaced on 2026-11-21. There are no member keys or signatures; the group key, its seal (AES-GCM), and the write token show that data came from the group.
 11. ~~New group key~~: replaced on 2026-11-21. A new key comes with a new group.
 12. ~~Member IDs and names~~: decided on 2026-11-21, none.
@@ -1702,7 +1702,7 @@ The setup steps, with every setting and its reason, are in the separate "Trip Ma
 | Test repository | `projects-rs/trip-map-test`. Ruleset `Protect test`. **To change** (decided 2026-11-24): made private, and GitHub Pages turned off for it, so the test address is no longer published. |
 | Claude | Claude GitHub App on `projects-rs`, only the selected repositories (`trip-map` and `trip-map-test`, and `trip-db` once created). Claude never gets access to the Firebase project. |
 | Trips repository | `projects-rs/trip-db`, public, CC BY 4.0 (section 12.1): planned on 2026-11-21, created by the owner with the same settings as `trip-map`, "Preserve this repository" off, and added to the Claude GitHub App. |
-| Not yet created | The app's Firebase project, for group trips (build step 14): with the app's own Google account, two-step sign-in, on the free plan; the steps are in section 9.5, "One-time setup by the app owner". |
+| Not yet created | The app's Firebase project, for group trips (build step 11): with the app's own Google account, two-step sign-in, on the free plan; the steps are in section 9.5, "One-time setup by the app owner". |
 | Optional later | "Require signed commits" on `trip-map`, kept only if squash merging still works with it. "Require status checks" once the Check workflow exists (build step 2). |
 
 ## 13. Implementation plan
@@ -1714,7 +1714,7 @@ This section describes how the app is built and tested, in small steps that can 
 | Who | Does |
 | --- | --- |
 | Claude | Writes the code, the automated tests, the trip guide, and the documentation. Converts the Barcelona data to the trip format. Fixes reported problems. Opens a change request for every step. **Takes part in reviews:** explains each change in plain words, including the code (the app owner is not a JavaScript expert), answers questions on change requests, and reviews change requests written by others. Never merges. |
-| App owner | Makes the decisions, does the setup steps that need the owner's identity (accounts, repositories, keys; the Trips repository `trip-db` before step 6, and the Firebase project before release D), tests each step on a real phone, reviews and approves, merges, and publishes. Can also write code or documents (below). |
+| App owner | Makes the decisions, does the setup steps that need the owner's identity (accounts, repositories, keys; the Trips repository `trip-db` before step 6, and the Firebase project before release C), tests each step on a real phone, reviews and approves, merges, and publishes. Can also write code or documents (below). |
 | Contributors | Advanced users, and the app owner too, can write code, tests, or documents themselves, and send them as change requests. The same rules apply to every change request, whoever wrote it: the automated tests must pass, Claude can review it, and only the app owner merges (section 12.3). |
 | Testers | The trip group. With "Try new versions first" on, they get each new version before everyone else, try it in the real app, and report what they find. At least one Android phone and one iPhone. |
 
@@ -1756,7 +1756,7 @@ Not in release A: in-app turn-by-turn navigation (release B), update and new tri
 
 Fallback: setup finished on November 21, leaving 19 days for releases A and B. Release A comes first and is the minimum for the trip. If release B is not field-tested by December 5, 2026, the trip uses release A, with navigation through "In another app" (Google Maps, Apple Maps), and release B continues after the trip. If release A is not field-tested by December 5, the trip uses version 1 and the trip already published for it.
 
-On the trip, each member adds sites locally. To pass them on, a member uses "Export trip" with their local sites and sends the file through WhatsApp. The others open it with "Add local trip", as a separate local trip (section 3.4). Sites from several members come together in one shared trip with group trips (release D).
+On the trip, each member adds sites locally. To pass them on, a member uses "Export trip" with their local sites and sends the file through WhatsApp. The others open it with "Add local trip", as a separate local trip (section 3.4). Sites from several members come together in one shared trip with group trips (release C).
 
 #### Release B: in-app navigation
 
@@ -1768,25 +1768,25 @@ Target: ready and field-tested before the Barcelona trip, together with release 
 | 9. Turn by turn | Follow mode, the turn-by-turn banner and step list, re-routing, the arrival message, keeping the screen on | On a real walk, the banner gives the right turns, and leaving the route triggers a new one. |
 | 10. Voice | Spoken directions with an on/off button | Directions are spoken on both phone types, with the screen on. |
 
-#### Release C: requests, reports, and contributed trips
+#### Release C: group trips
+
+Decision (2026-11-15, confirmed by the app owner; order changed 2026-11-23 and 2026-11-24): group trips (section 9) are built right after releases A and B, as release C. Requests, reports, and contributed trips (release D), the AI toolkit (release E), and the big-screen layout (release F) come after them. Release C starts only after releases A and B are published.
+
+Checks before release C starts (decided 2026-11-23): Claude checks by web search, and the app owner confirms, (1) Firebase's current free-plan limits and what happens when they are reached (section 9.5), and (2) Firebase's terms of service and data-processing terms, including where the data is stored. The results are written into section 9.5.
 
 | Step | Build | Try on the phone |
 | --- | --- | --- |
-| 11. Update and new trip requests | "Request to add my changes" and "Request to add this trip" (not shown for group trips), the personal-data check and the "may become public" warning (section 14.2), the share menu to the app's email address, `requests.json` and "My requests" (section 8.6) | A tester sends a request. The app owner accepts it and publishes it; the tester's app shows "accepted" and offers the update. |
-| 12. Reports | Error reports with consent, sent through the share menu (section 13.5) | An error report reaches the app owner. |
-| 13. Contributed trips | Pull requests to `trip-db` with the automatic checks, "Report this trip" | A second person contributes a trip by pull request; after merging, it appears in the trip list. A report of a trip reaches the app owner. |
+| 11. Firebase, starting, and joining | The app maker's one-time Firebase setup (section 9.5), anonymous sign-in, "Start a group" with "Choose the trip" and the check, the group key, ID, write token, and manager token, "Use a copy for the group", the first upload, QR invites and one-use invite links, both holding only a one-use code, with the typed name and the inviter's approval, the key sent through Firebase locked for the new member, joining, declining and rejecting, the security rules | A group of four is started. Members join by QR code and by an invite link sent by email, each approved by the inviter, and see the trip at once. A photo of the QR code, used by another phone, is refused. A second use of the same link is refused. An app without the write token cannot change the group. A person who declines leaves no trace. |
+| 12. Sharing in the group | Automatic sharing of every change through Firebase, transactions, live updates, offline queueing, merging, "Looks like the same place?", taking or skipping new legend entries, "Share my location" (15 minutes), privacy checks | Four phones, two of them offline for a while, end with the same trip. Two phones changing the same site at once keep the newer version. A location appears on the others' open apps within seconds and is gone after 15 minutes. |
+| 13. Leaving and after the trip | "Leave group", "Renew the group key", a new phone with a fresh invite, "Delete the group" by the manager only, "Hand over manager" by QR code, the manager token in the backup, automatic deletion, falling back to "Export trip" when Firebase cannot be reached | A member who leaves keeps the trip as a local trip that cannot be sent in a request. After deletion, nothing of the group is left in Firebase. After the manager hands over, only the new manager can delete the group. After "Renew the group key", a phone with the old key can read and write nothing new. |
 
-#### Release D: group trips
-
-Decision (2026-11-15, confirmed by the app owner; order changed 2026-11-23): group trips (section 9) are built after releases A to C, because they are the most complex part of the app. The AI toolkit (release E) and the big-screen layout (release F) come after them. Release D starts only after releases A to C are published.
-
-Checks before release D starts (decided 2026-11-23): Claude checks by web search, and the app owner confirms, (1) Firebase's current free-plan limits and what happens when they are reached (section 9.5), and (2) Firebase's terms of service and data-processing terms, including where the data is stored. The results are written into section 9.5.
+#### Release D: requests, reports, and contributed trips
 
 | Step | Build | Try on the phone |
 | --- | --- | --- |
-| 14. Firebase, starting, and joining | The app maker's one-time Firebase setup (section 9.5), anonymous sign-in, "Start a group" with "Choose the trip" and the check, the group key, ID, write token, and manager token, "Use a copy for the group", the first upload, QR invites and one-use invite links, both holding only a one-use code, with the typed name and the inviter's approval, the key sent through Firebase locked for the new member, joining, declining and rejecting, the security rules | A group of four is started. Members join by QR code and by an invite link sent by email, each approved by the inviter, and see the trip at once. A photo of the QR code, used by another phone, is refused. A second use of the same link is refused. An app without the write token cannot change the group. A person who declines leaves no trace. |
-| 15. Sharing in the group | Automatic sharing of every change through Firebase, transactions, live updates, offline queueing, merging, "Looks like the same place?", taking or skipping new legend entries, "Share my location" (15 minutes), privacy checks | Four phones, two of them offline for a while, end with the same trip. Two phones changing the same site at once keep the newer version. A location appears on the others' open apps within seconds and is gone after 15 minutes. |
-| 16. Leaving and after the trip | "Leave group", "Renew the group key", a new phone with a fresh invite, "Delete the group" by the manager only, "Hand over manager" by QR code, the manager token in the backup, automatic deletion, falling back to "Export trip" when Firebase cannot be reached | A member who leaves keeps the trip as a local trip that cannot be sent in a request. After deletion, nothing of the group is left in Firebase. After the manager hands over, only the new manager can delete the group. After "Renew the group key", a phone with the old key can read and write nothing new. |
+| 14. Update and new trip requests | "Request to add my changes" and "Request to add this trip" (not shown for group trips), the personal-data check and the "may become public" warning (section 14.2), the share menu to the app's email address, `requests.json` and "My requests" (section 8.6) | A tester sends a request. The app owner accepts it and publishes it; the tester's app shows "accepted" and offers the update. |
+| 15. Reports | Error reports with consent, sent through the share menu (section 13.5) | An error report reaches the app owner. |
+| 16. Contributed trips | Pull requests to `trip-db` with the automatic checks, "Report this trip" | A second person contributes a trip by pull request; after merging, it appears in the trip list. A report of a trip reaches the app owner. |
 
 #### Release E: AI toolkit
 
@@ -1802,7 +1802,7 @@ Decided (2026-11-23): built only after the phone versions of the earlier release
 | --- | --- | --- |
 | 18. Big screens | The two-pane layout for wide windows, mouse and keyboard, dragging files into the window, hiding navigation, location, and offline maps, installing on a laptop | On a laptop, plan a trip, start a group, and join it from a phone: every change appears on both. On the phone, nothing has changed |
 
-Rough effort for releases C to F together: about four to five weeks, mostly set by testing on real phones, plus the app owner's one-time Firebase setup before release D. These are planning estimates, not promises.
+Rough effort for releases C to F together: about four to five weeks, mostly set by testing on real phones, plus the app owner's one-time Firebase setup before release C. These are planning estimates, not promises.
 
 ### 13.4 Testing
 
@@ -1831,7 +1831,7 @@ Automated tests run on every change request and must pass before merging:
 - **Phone tests** (section 13.2): every flow runs in simulated Android and iPhone browsers on GitHub, with touch, a phone-sized screen, and a fake GPS position, using Playwright; screenshots of every screen are attached to the change request.
 - **Storage test** (section 3.3): after every flow, everything left in the phone's storage is listed and compared with the table of what is kept; planted names and locations (section 13.5.1) must not appear where they should not.
 - **Security tests** (section 14.3): harmful content in every field, broken and oversized links and messages, and the browser security policy. Also, from the threat table (section 14.3): a phone with an old key reads nothing after "Renew the group key" (threat row 5); a backup does not open without its password and holds no readable key (threat row 6); `trip-db`'s check refuses any file that is not a trip file (section 12.1); each link rule R1 to R6, and Google's test address for Safe Browsing, is caught (section 14.3.2); the app never loads anything from an address inside a trip (L9).
-- **Firebase tests**, from release D, against Firebase's free emulator on a laptop: the security rules (no reading without the group ID, no writing without the write token, no deleting without the manager token), offline changes, and simultaneous changes (section 9.5).
+- **Firebase tests**, from release C, against Firebase's free emulator on a laptop: the security rules (no reading without the group ID, no writing without the write token, no deleting without the manager token), offline changes, and simultaneous changes (section 9.5).
 - **Conversion tests**, once a format has a conversion step: each step's old file must become exactly the expected new file (section 11.1).
 - **A security review before each release** (section 14.3).
 
@@ -1895,7 +1895,7 @@ Usability:
 
 Decided 2026-11-23. Feedback and error reports are the only channels where the app itself prepares something that leaves the phone, so both are tested before first use and security-tested.
 
-**Before first use (release A, step 7, and release C, step 12):**
+**Before first use (release A, step 7, and release D, step 15):**
 
 - **Arrives intact:** on both phone types, feedback is sent by WhatsApp and by email, and reaches the app's address with the text unchanged, including Hebrew, emoji, and a very long message.
 - **Shown = sent:** the text the user sees before sending is exactly what arrives, nothing more.
@@ -2103,9 +2103,9 @@ Threats and protections:
 | --- | --- | --- | --- | --- | --- |
 | 1 | **Running code inside the app**, hidden in the text or in a script link (`javascript:`) of a trip, change, proposal, or search result, from any source (a file, `trip-db`, a group member, an AI chat, OpenStreetMap) | Everything received is checked against the format before use (section 10.2), shown only as plain text, never as code, and limited in size. A strict browser security policy forbids running any code that is not part of the app. **No link can run a script** (decided 2026-11-24): only `https://` links are accepted when received, checked again with the browser's own address reader just before a card shows them, and blocked by the security policy if both checks failed. The trip checker treats trips as data only (`json.load`, never `eval` or `exec`). | Medium / Medium | **Yes** | Release A |
 | 2 | **A link to a harmful website** (phishing, malware, scams), for example on a site card | The trip checker's link rules and harmful-site lists, in four layers, from GitHub to the phone (section 14.3.2). The card shows the address before it is opened. | Medium / Medium | **Yes**. Only a brand-new harmful site, not yet known to any of the three lists, can pass, as with any such check | Release A; `trip-db` check at step 6 |
-| 3 | Someone using an unlocked phone | The app relies on the phone's own screen lock. An optional app lock with the phone's fingerprint or face check, where the browser supports it. A lost phone that was in a group: the manager uses "Renew the group key" (section 9.6). When the phone is locked, its data is safe. When it is unlocked, the finder sees the trips and, until the manager renews the group key, the group's shared locations. Malware on the phone itself, or a phone with its protections removed, is outside what any web app can defend against. | Medium / Medium | **Partly**: depends on the phone's lock; "Renew the group key" limits the damage | Release A; "Renew the group key" in release D |
+| 3 | Someone using an unlocked phone | The app relies on the phone's own screen lock. An optional app lock with the phone's fingerprint or face check, where the browser supports it. A lost phone that was in a group: the manager uses "Renew the group key" (section 9.6). When the phone is locked, its data is safe. When it is unlocked, the finder sees the trips and, until the manager renews the group key, the group's shared locations. Malware on the phone itself, or a phone with its protections removed, is outside what any web app can defend against. | Medium / Medium | **Partly**: depends on the phone's lock; "Renew the group key" limits the damage | Release A; "Renew the group key" in release C |
 | 4 | Data lost or damaged on a phone | Saved data is checked when it is loaded. Export gives a backup (section 3.4). | High / High | **Partly**: changes not yet backed up are lost after a wipe | Release A, step 5 |
-| 5 | A former member, or whoever holds an old backup or a lost phone, keeps the group key, and goes on reading the trip and every shared location without anyone noticing | "Renew the group key" by the manager: a new key for the members still there, the old ID and its data deleted (section 9.6) | Medium / Medium | **Yes**, once built | Release D, step 16 |
+| 5 | A former member, or whoever holds an old backup or a lost phone, keeps the group key, and goes on reading the trip and every shared location without anyone noticing | "Renew the group key" by the manager: a new key for the members still there, the old ID and its data deleted (section 9.6) | Medium / Medium | **Yes**, once built | Release C, step 13 |
 | 6 | A backup file holds secrets, the group key and the manager token, and ends up in Downloads, a chat, or on a computer | Every backup is locked with the user's backup password (section 3.3) | Medium / Medium | **Yes** | Release A, step 5 |
 
 Risk is how likely the threat is now (the Barcelona group) and once the app is public.
@@ -2357,3 +2357,4 @@ Only questions still open are listed here (2026-11-23). Decided questions are re
 | 2 (design) | 2026-11-24 | Restored at the app owner's request, rated Medium: threat rows 1 (running code inside the app, including script links) and 2 (a link to a harmful website), and section 14.3.2 (checking links) with its references in sections 10.2, 12.1, and 13.4. Rows renumbered 1 to 6. |
 | 2 (design) | 2026-11-24 | Section 14.3.1 reduced to the phone's inputs and outputs (rules L1 to L9). The analysis-only tables removed: who might attack, data on the phone (covered by section 3.3), and who can learn where the user is (covered by sections 14.2 and 9.5). The lost-phone paragraph moved into threat row 3. |
 | 2 (design) | 2026-11-24 | Section 14.3.2, Parts 4 and 5: a harmful link is blocked at once and the user chooses: remove the link, delete the site card, delete the trip (or don't open it), or keep it blocked; group changes are shared, public trips can be reported to the trip owner. "Open anyway" dropped. |
+| 2 (design) | 2026-11-24 | Section 13.3: releases C and D swapped at the app owner's request. Group trips are now release C (steps 11 to 13), built after releases A and B; requests, reports, and contributed trips are release D (steps 14 to 16). References updated. |
