@@ -1439,6 +1439,7 @@ What is checked:
 - Every site listed in a legend group exists.
 - Every group has a valid color.
 - Coordinates, opening hours, time zone, and links are well formed.
+- Every link passes the link check (section 14.3.2).
 - No private information appears in text fields or links, and in a public trip, "Home / accommodation" sites have an approximate location. What blocks and what only asks is in section 14.2; `trip-db`'s automatic check runs the same rules.
 
 The report lists each problem with its location in the file and a plain explanation, for example: group "Fri 11" lists site "sagarda", which does not exist.
@@ -1633,6 +1634,7 @@ Decision (2026-11-21): three public repositories in the `projects-rs` organizati
 - Claude's GitHub app is installed on these three repositories only.
 - **One website per organization address** (decided 2026-11-23, section 14.3.1, holes H1 and H6). A browser keeps data per website, and every repository published by an organization shares its website (`projects-rs.github.io`). Code from any page on that website could read the real app's trips and keys. So:
     - The **test version** moves to its own organization, `projects-rs-test` (free plan), published at `https://projects-rs-test.github.io/trip-map-test/`, before the first test version is published (build step 1). Its code is published without review, so it must never share the real app's website. As a second guard, each version names its storage after its address ("trip-map" or "trip-map-test"), and the test version shows a "TEST" band. Testers keep no real group trips in the test version.
+    - **`trip-db` checks every link** before publishing and every week (section 14.3.2, layers 1 and 2). The keys for the harmful-site services are GitHub secrets set by the app owner.
     - **`trip-db` publishes only trip files.** It is published on the same website as the app, and receives contributions from strangers, so its automatic check accepts only `.json` files in `trips/`, the registry, and `requests.json`. Any other file (for example `.html`, `.svg`, or `.js`, which a browser could run as code) fails the check and cannot be merged.
     - No other repository in `projects-rs` turns on GitHub Pages.
 
@@ -1807,7 +1809,7 @@ Automated tests run on every change request and must pass before merging:
 - **Browser tests** that walk through the main screens at phone size first, and, from release F, also at laptop size, in both Chrome's engine and Safari's engine: open a trip, switch legends, filter, open a card, add a site, export.
 - **Trip checks:** the example trips and the icon set file are checked with every change.
 - **Storage test** (section 3.3): after every flow, everything left in the phone's storage is listed and compared with the table of what is kept; planted names and locations (section 13.5.1) must not appear where they should not.
-- **Security tests** (section 14.3): harmful content in every field, broken and oversized links and messages, and the browser security policy. Also, from the risk analysis (section 14.3.1): the test version cannot see the real app's storage (H1); a phone with an old key reads nothing after "Renew the group key" (H2); a photographed QR code is refused (H3); a backup does not open without its password and holds no readable key (H4); a group writing in a loop is slowed by the rules and the app says so (H5); `trip-db`'s check refuses any file that is not a trip file (H6); the app never loads anything from an address inside a trip (L9).
+- **Security tests** (section 14.3): harmful content in every field, broken and oversized links and messages, and the browser security policy. Also, from the risk analysis (section 14.3.1): the test version cannot see the real app's storage (H1); a phone with an old key reads nothing after "Renew the group key" (H2); a photographed QR code is refused (H3); a backup does not open without its password and holds no readable key (H4); a group writing in a loop is slowed by the rules and the app says so (H5); `trip-db`'s check refuses any file that is not a trip file (H6); each link rule R1 to R6, and Google's test address for Safe Browsing, is caught (section 14.3.2); the app never loads anything from an address inside a trip (L9).
 - **Firebase tests**, from release D, against Firebase's free emulator on a laptop: the security rules (no reading without the group ID, no writing without the write token, no deleting without the manager token), offline changes, and simultaneous changes (section 9.5).
 - **Conversion tests**, once a format has a conversion step: each step's old file must become exactly the expected new file (section 11.1).
 - **A security review before each release** (section 14.3).
@@ -2079,7 +2081,7 @@ Threats and protections:
 | # | Threat | Protection | Good solution? |
 | --- | --- | --- | --- |
 | 1 | **Running code inside the app**, hidden in the text or in a script link (`javascript:`) of a trip, change, proposal, or search result, from any source (a file, `trip-db`, a group member, an AI chat, OpenStreetMap) | Everything received is checked against the format before use (section 10.2), shown only as plain text, never as code, and limited in size. A strict browser security policy forbids running any code that is not part of the app. **No link can run a script** (decided 2026-11-24): only `https://` links are accepted when received, checked again with the browser's own address reader just before a card shows them, and blocked by the security policy if both checks failed. The trip checker treats trips as data only (`json.load`, never `eval` or `exec`). | **Yes** |
-| 2 | **A link to a harmful website** (phishing, malware, scams), for example on a site card | The card shows the link's address before it is opened. Checking links against lists of harmful websites: to be decided. | **Partly**: the address is shown; checking against lists of harmful websites is still to be decided |
+| 2 | **A link to a harmful website** (phishing, malware, scams), for example on a site card | The trip checker's link rules and harmful-site lists, in four layers, from GitHub to the phone (section 14.3.2). The card shows the address before it is opened. | **Yes**, except a harmful site so new that no list knows it yet |
 | 3 | Group data in Firebase altered, or written by someone outside the group | Every entry is locked and sealed with the group key (AES-GCM), and the security rules require the group's write token for every write. An entry that does not open with the key, or was changed, is rejected (section 9.5). | **Yes** |
 | 4 | **Harmful app code**, whichever way it gets in (rows 5 to 11). It could read and send away everything the app keeps, track the location while the app is open, show fake screens, and damage trips, but it still cannot leave the browser's sandbox | Rows 5 to 11. | – |
 | 5 | A harmful app update from a taken-over GitHub account of the app owner | Two-step sign-in and printed recovery codes. Before going public, **signed updates**: the app owner signs each release's file list with a key kept off GitHub and off work machines, and the app accepts an update only with a valid signature (section 14.3.1, H7). | **Partly** now; **yes** once signed updates are in place, before going public |
@@ -2179,6 +2181,66 @@ A lost or stolen phone: when locked, its data is safe. When unlocked, the finder
 | L7 | Screen kept on (navigation) | Battery | Only during turn-by-turn navigation |
 | L8 | Microphone, contacts, photos, Bluetooth, notifications | None | The app never asks for them |
 | L9 | Addresses inside trips | A trip's author learning who opened it, and from where | The app never loads anything from an address inside a trip: links open only when tapped, after showing the address, and trips hold no pictures |
+
+### 14.3.2 Checking links (decided 2026-11-24)
+
+Every link in a trip passes the same link check, part of the trip checker (section 10.2). It runs in four layers, so that a harmful link is caught whichever way it arrives.
+
+#### Part 1: rules the checker applies itself
+
+No outside service is needed for these. A link that breaks one is **rejected** (the trip or change is not accepted until it is fixed), except lookalike addresses, which are **asked** (section 14.2).
+
+| # | Rule | Example of what is caught |
+| --- | --- | --- |
+| R1 | Only `https://` links | `javascript:…`, `http://…`, `intent://…` (row 1 of the threat table) |
+| R2 | No bare internet addresses | `https://185.23.4.9/menu` |
+| R3 | No link shorteners | `https://bit.ly/…`, which hides where the link goes |
+| R4 | No hidden user names in the address | `https://booking.com@evil.com`, which really goes to evil.com |
+| R5 | No unusual ports | `https://example.com:8080/` |
+| R6 | Lookalike addresses are asked | `bookіng.com` written with a Cyrillic "і" (an address with international characters, shown in its real form) |
+
+#### Part 2: lists of harmful websites
+
+| Service | What it knows | Used in |
+| --- | --- | --- |
+| Google Safe Browsing (v5) | Phishing, malware, and unwanted software | All layers |
+| URLhaus (abuse.ch, with Spamhaus) | Links that spread malware | Layers 1 and 2 only, because its key must stay secret |
+
+Terms: Google Safe Browsing is free for non-commercial use only, which fits a free app; if the app ever earned money, it would move to Google's paid Web Risk service. Warnings must say "may be harmful" and name Google Safe Browsing, with a link to its advisory.
+
+#### Part 3: the four layers
+
+**Layer 1. GitHub, before publishing.**
+- When: every update request and new trip request to `trip-db`.
+- What: rules R1 to R6, Google Safe Browsing, and URLhaus.
+- Result: a harmful link fails the check, so the request cannot be merged until it is fixed.
+
+**Layer 2. GitHub, every week.**
+- When: once a week, every link in every published trip.
+- Why: a safe link can turn harmful later, for example when its domain expires and someone else buys it.
+- Result: a finding opens an issue for the app owner, and the link is marked "not checked" in the trip until it is fixed.
+
+**Layer 3. The phone, when something arrives.**
+- When: a trip is opened or downloaded, a group site arrives, a proposal arrives, a site is added (including from OpenStreetMap search or an AI-written trip).
+- Why: files sent on WhatsApp, group trips, and the user's own sites never pass through GitHub.
+- What: rules R1 to R6, and Google Safe Browsing.
+- Privacy: the app sends only short hash prefixes of the links, from which Google cannot tell which link was checked, through Google's privacy relay (Oblivious HTTP), which hides the phone's internet address.
+- Key: the Safe Browsing key in the app cannot be secret, so it is limited to work only from the app's own address.
+- Offline, or no answer: the link is marked "not checked yet" and checked again later. Nothing is blocked only because a check could not run.
+
+**Layer 4. The browser, when the link is opened.**
+- Chrome and Safari have their own harmful-site protection. It is not ours, but it is a last layer.
+
+#### Part 4: what the user sees
+
+- A link on a harmful-site list: "⚠ This link may be harmful (Google Safe Browsing)", with the address. It does not open with a simple tap; the user must tap "Open anyway".
+- A link not checked yet: a small "not checked" mark next to it.
+- Before any link opens: its full address is shown (threat table, row 2).
+
+#### Part 5: what is left
+
+- A harmful site so new that no list knows it yet. Rules R1 to R6, the address shown before opening, and the app owner's review of public trips still apply.
+- The tests (section 13.4) include a link for each rule R1 to R6, and Google's official test address for Safe Browsing.
 
 ### 14.4 Security checklist
 
@@ -2307,3 +2369,4 @@ Only questions still open are listed here (2026-11-23). Decided questions are re
 | 2 (design) | 2026-11-24 | Section 14.3: the merged first threat row split again, by danger: running code inside the app (including script links), and a link to a harmful website. |
 | 2 (design) | 2026-11-24 | Section 14.3: the ways harmful app code could get in, added as rows of the threat table; signed updates before going public (section 14.3.1, hole H7). |
 | 2 (design) | 2026-11-24 | Section 14.3: the threat table numbered, with a column "Good solution?" (yes, partly, or no). |
+| 2 (design) | 2026-11-24 | New section 14.3.2, checking links: rules R1 to R6, Google Safe Browsing and URLhaus, four layers (GitHub before publishing, GitHub weekly, the phone, the browser), what the user sees, and what is left. Threat row 2 now "Yes". |
