@@ -1777,6 +1777,8 @@ Target: ready and field-tested before the Barcelona trip, together with release 
 
 Decision (2026-11-15, confirmed by the app owner; order changed 2026-11-23): group trips (section 9) are built after releases A to C, because they are the most complex part of the app. The AI toolkit (release E) and the big-screen layout (release F) come after them. Release D starts only after releases A to C are published.
 
+Decision in release D, step 14 (2026-11-24): whether to run the Firebase library in the Firebase box (section 14.3.4).
+
 Checks before release D starts (decided 2026-11-23): Claude checks by web search, and the app owner confirms, (1) Firebase's current free-plan limits and what happens when they are reached (section 9.5), and (2) Firebase's terms of service and data-processing terms, including where the data is stored. The results are written into section 9.5.
 
 | Step | Build | Try on the phone |
@@ -1808,7 +1810,7 @@ Automated tests run on every change request and must pass before merging:
 - **Interface tests, not obvious unit tests** (decided 2026-11-23). Tests check the interfaces (the APIs): the public functions of each module and, above all, the calls between modules, such as "storage → merging → Firebase" or "trip file → converter → checker". Tests that only repeat what the code plainly does (for example "setting a field sets the field") are not written: they multiply, are hard to maintain, and do not help reviewers. A small internal function gets its own test only when it is easy to get subtly wrong: opening hours (time zones, daylight saving time, hours past midnight, closed dates), pie-chart segments, the icon set version rules, and locking and unlocking group data (section 9.5).
 - **Browser tests** that walk through the main screens at phone size first, and, from release F, also at laptop size, in both Chrome's engine and Safari's engine: open a trip, switch legends, filter, open a card, add a site, export.
 - **Trip checks:** the example trips and the icon set file are checked with every change.
-- **Pull request checks** (section 14.3.3): CodeQL, dependency review, secret scanning, and our lint rules run on every pull request as required checks, and a separate Claude session runs `/security-review` with the repository's checklist.
+- **Pull request checks** (sections 14.3.3 and 14.3.4): Socket, OSV-Scanner, Dependabot, the library-file fingerprint check, CodeQL, dependency review, secret scanning, and our lint rules run on every pull request as required checks, and a separate Claude session runs `/security-review` with the repository's checklist.
 - **Storage test** (section 3.3): after every flow, everything left in the phone's storage is listed and compared with the table of what is kept; planted names and locations (section 13.5.1) must not appear where they should not.
 - **Security tests** (section 14.3): harmful content in every field, broken and oversized links and messages, and the browser security policy. Also, from the risk analysis (section 14.3.1): the test version cannot see the real app's storage (H1); a phone with an old key reads nothing after "Renew the group key" (H2); a photographed QR code is refused (H3); a backup does not open without its password and holds no readable key (H4); a group writing in a loop is slowed by the rules and the app says so (H5); `trip-db`'s check refuses any file that is not a trip file (H6); each link rule R1 to R6, and Google's test address for Safe Browsing, is caught (section 14.3.2); the app never loads anything from an address inside a trip (L9).
 - **Firebase tests**, from release D, against Firebase's free emulator on a laptop: the security rules (no reading without the group ID, no writing without the write token, no deleting without the manager token), offline changes, and simultaneous changes (section 9.5).
@@ -2086,7 +2088,7 @@ Threats and protections:
 | 3 | Group data in Firebase altered, or written by someone outside the group | Every entry is locked and sealed with the group key (AES-GCM), and the security rules require the group's write token for every write. An entry that does not open with the key, or was changed, is rejected (section 9.5). | **Yes** |
 | 4 | A harmful app update from a taken-over GitHub account of the app owner | Two-step sign-in and printed recovery codes. Proposed, **signed updates** (open question 3): the app owner signs each release's file list with a key kept off GitHub and off work machines, and the app accepts an update only with a valid signature (section 14.3.1, H7). | **Partly**: signed updates would make it yes; open question 3 (section 15) |
 | 5 | A harmful change in a pull request, by a contributor or Claude | Three independent looks before merging: automatic tools, an AI security review, and the app owner's review; only the app owner can merge, and rulesets block direct changes (section 14.3.3). | **Yes**, as long as the red-flag areas get a careful human look |
-| 6 | A compromised outside library (a known kind of attack: "supply chain") | Outside libraries are stored in the App repository at fixed versions, never loaded live from other websites; each update of one is reviewed. | **Partly**: fixed versions and review reduce it, but a well-hidden change in a library can be missed |
+| 6 | A compromised outside library, even a well-known and trusted one (a known kind of attack: "supply chain") | Few, narrow libraries, copied in at fixed versions and never loaded live; three scanning tools; waiting 4 weeks before a new version; the files checked against the official ones; a fixed list of allowed addresses (section 14.3.4). | **Mostly**: yes for the small libraries; partly for the Firebase library until the decision in release D (the Firebase box). A very well-hidden change can never be fully excluded |
 | 7 | The app's code changed on its way to the phone, for example on public Wi-Fi | HTTPS. | **Yes** |
 | 8 | Other code on the app's website | Holes H1 and H6 (section 14.3.1). | **Yes**, once H1 and H6 are built |
 | 9 | A fake copy of the app at another address | One published address; a fake copy cannot read the real app's data. | **Partly**: a fake copy cannot be prevented, only made harmless to the real app's data |
@@ -2259,6 +2261,7 @@ All are free for public repositories, and all are **required checks**: a pull re
 | --- | --- |
 | CodeQL code scanning | Known kinds of security bugs in JavaScript, such as received text put into the page as HTML |
 | Dependency review | New or updated libraries with known weaknesses |
+| Socket, OSV-Scanner, Dependabot | Harmful or weak library versions (section 14.3.4) |
 | Secret scanning | Keys or passwords committed by mistake |
 | Our own lint rules (ESLint) | No `innerHTML` with received text, no `eval`, no outside address that is not on the allowed list |
 
@@ -2281,6 +2284,30 @@ The app owner reviews every change, and always looks carefully at these **red fl
 - network addresses;
 - new or updated libraries;
 - unreadable (minified) code.
+
+### 14.3.4 Outside libraries (decided 2026-11-24)
+
+Well-known, trusted libraries have been taken over before (for example event-stream in 2018, ua-parser-js in 2021, xz-utils and polyfill.io in 2024, chalk and debug in 2025), so trust alone is not a protection.
+
+#### From release A
+
+| # | Action | What it stops |
+| --- | --- | --- |
+| L1 | **Three scanning tools**, on every pull request and every week, as required checks: **Socket** (looks at what a new version does: new network or storage access, hidden code, a new maintainer), **OSV-Scanner** (known weaknesses and known harmful packages), and **Dependabot** (known weaknesses and malware reports, with fix pull requests) | Known weaknesses, and most harmful versions |
+| L2 | **The waiting rule**: a new library version is adopted only after it has been out for 4 weeks, unless it fixes a known weakness | Most harmful versions are found and removed within days |
+| L3 | **The library list** (`package.json` and `package-lock.json`) with exact versions, so the tools know what is used, and a check that the copied library files match the official ones by fingerprint | A tool judging something other than what the app really ships |
+| L4 | **A fixed list of allowed addresses** in the browser security policy: the app's own website, the map image, routing, and search services, the harmful-site check (section 14.3.2), and Firebase | Harmful code sending data to any other address |
+| L5 | **Few, narrow libraries**: today Leaflet, Firebase, qrcode-generator, and jsQR. A new library only with a written reason, reviewed as a red flag (section 14.3.3) | Fewer doors; a narrow library that suddenly needs the network or storage stands out |
+
+#### The Firebase gap, decided in release D
+
+The Firebase library is meant to send data over the network, to an address shared by every Firebase project. A harmful version could send the app's data to the attacker's own Firebase project through the same allowed address, and neither the tools nor the security policy could tell.
+
+The proposed fix, **the Firebase box**: the Firebase library runs in an isolated frame served from another website address. The browser keeps the two apart, so code in the frame cannot read the app's storage or the group key. The app locks each entry with the group key first and hands only locked data to the frame. To be decided when group trips are built (release D, step 14).
+
+#### What is left
+
+A very well-hidden change, like xz-utils, which experts missed for two years, can still pass. With narrow libraries, the tools, the waiting rule, and the Firebase box, that becomes hard.
 
 ### 14.4 Security checklist
 
@@ -2417,3 +2444,4 @@ Only questions still open are listed here (2026-11-23). Decided questions are re
 | 2 (design) | 2026-11-24 | Section 14.3: the heading row "Harmful app code" removed from the threat table; what such code could do moved to the text above it; rows renumbered 1 to 14. |
 | 2 (design) | 2026-11-24 | Signed updates (threat row 4, hole H7) made open question 3. |
 | 2 (design) | 2026-11-24 | New section 14.3.3, reviewing pull requests: automatic tools as required checks, an AI security review in a separate Claude session with our checklist, and the app owner's red flags. Threat row 5 now "Yes". |
+| 2 (design) | 2026-11-24 | New section 14.3.4, outside libraries: Socket, OSV-Scanner, and Dependabot; the 4-week waiting rule; the library list and fingerprint check; the allowed address list; few, narrow libraries; the Firebase box, decided in release D. Threat row 6 now "Mostly". |
