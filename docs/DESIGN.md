@@ -2081,7 +2081,7 @@ Threats and protections:
 | # | Threat | Protection | Good solution? |
 | --- | --- | --- | --- |
 | 1 | **Running code inside the app**, hidden in the text or in a script link (`javascript:`) of a trip, change, proposal, or search result, from any source (a file, `trip-db`, a group member, an AI chat, OpenStreetMap) | Everything received is checked against the format before use (section 10.2), shown only as plain text, never as code, and limited in size. A strict browser security policy forbids running any code that is not part of the app. **No link can run a script** (decided 2026-11-24): only `https://` links are accepted when received, checked again with the browser's own address reader just before a card shows them, and blocked by the security policy if both checks failed. The trip checker treats trips as data only (`json.load`, never `eval` or `exec`). | **Yes** |
-| 2 | **A link to a harmful website** (phishing, malware, scams), for example on a site card | The trip checker's link rules and harmful-site lists, in four layers, from GitHub to the phone (section 14.3.2). The card shows the address before it is opened. | **Yes**, except a harmful site so new that no list knows it yet |
+| 2 | **A link to a harmful website** (phishing, malware, scams), for example on a site card | The trip checker's link rules and harmful-site lists, in four layers, from GitHub to the phone (section 14.3.2). The card shows the address before it is opened. | **Yes**. Only a brand-new harmful site, not yet known to any of the three lists, can pass, as with any such check |
 | 3 | Group data in Firebase altered, or written by someone outside the group | Every entry is locked and sealed with the group key (AES-GCM), and the security rules require the group's write token for every write. An entry that does not open with the key, or was changed, is rejected (section 9.5). | **Yes** |
 | 4 | **Harmful app code**, whichever way it gets in (rows 5 to 11). It could read and send away everything the app keeps, track the location while the app is open, show fake screens, and damage trips, but it still cannot leave the browser's sandbox | Rows 5 to 11. | – |
 | 5 | A harmful app update from a taken-over GitHub account of the app owner | Two-step sign-in and printed recovery codes. Before going public, **signed updates**: the app owner signs each release's file list with a key kept off GitHub and off work machines, and the app accepts an update only with a valid signature (section 14.3.1, H7). | **Partly** now; **yes** once signed updates are in place, before going public |
@@ -2204,19 +2204,22 @@ No outside service is needed for these. A link that breaks one is **rejected** (
 | Service | What it knows | Used in |
 | --- | --- | --- |
 | Google Safe Browsing (v5) | Phishing, malware, and unwanted software | All layers |
+| VirusTotal | One question checks the link against more than 70 antivirus engines and lists | Layers 1 and 2 only, because its key must stay secret |
 | URLhaus (abuse.ch, with Spamhaus) | Links that spread malware | Layers 1 and 2 only, because its key must stay secret |
 
-Terms: Google Safe Browsing is free for non-commercial use only, which fits a free app; if the app ever earned money, it would move to Google's paid Web Risk service. Warnings must say "may be harmful" and name Google Safe Browsing, with a link to its advisory.
+Why these three (decided 2026-11-24): each finds new harmful sites through its own sources, so a site one list does not know yet may already be on another. PhishTank was left out because it accepts no new users; OpenPhish adds little, since VirusTotal already includes many such lists.
+
+Terms: Google Safe Browsing and VirusTotal's free service are for non-commercial use only, which fits a free app; if the app ever earned money, both would move to paid services. VirusTotal's free service allows 500 questions a day, 4 a minute, so the weekly check is spread over the week. Warnings must say "may be harmful" and name Google Safe Browsing, with a link to its advisory.
 
 #### Part 3: the four layers
 
 **Layer 1. GitHub, before publishing.**
 - When: every update request and new trip request to `trip-db`.
-- What: rules R1 to R6, Google Safe Browsing, and URLhaus.
+- What: rules R1 to R6, Google Safe Browsing, VirusTotal, and URLhaus.
 - Result: a harmful link fails the check, so the request cannot be merged until it is fixed.
 
 **Layer 2. GitHub, every week.**
-- When: once a week, every link in every published trip.
+- When: once a week, every link in every published trip, with the same three services.
 - Why: a safe link can turn harmful later, for example when its domain expires and someone else buys it.
 - Result: a finding opens an issue for the app owner, and the link is marked "not checked" in the trip until it is fixed.
 
@@ -2370,3 +2373,4 @@ Only questions still open are listed here (2026-11-23). Decided questions are re
 | 2 (design) | 2026-11-24 | Section 14.3: the ways harmful app code could get in, added as rows of the threat table; signed updates before going public (section 14.3.1, hole H7). |
 | 2 (design) | 2026-11-24 | Section 14.3: the threat table numbered, with a column "Good solution?" (yes, partly, or no). |
 | 2 (design) | 2026-11-24 | New section 14.3.2, checking links: rules R1 to R6, Google Safe Browsing and URLhaus, four layers (GitHub before publishing, GitHub weekly, the phone, the browser), what the user sees, and what is left. Threat row 2 now "Yes". |
+| 2 (design) | 2026-11-24 | Section 14.3.2: three harmful-site services chosen, Google Safe Browsing, VirusTotal, and URLhaus; PhishTank and OpenPhish left out. |
