@@ -1814,6 +1814,14 @@ Rough effort for releases C to F together: about four to five weeks, mostly set 
 - Firebase tests run only against the Firebase emulator, a local copy on the test machine, never against the real Firebase project.
 - The test version (section 12.5) is not test code: it is a preview of the next app version, tried on phones, and kept on its own website (threat row 8) so that a bug in it cannot reach the real app.
 
+How the rule is enforced:
+
+- **A skill, `writing-tests`**, kept in the App repository (`.claude/skills/writing-tests/SKILL.md`), which Claude loads before writing or changing any test. It holds this rule, the description block of section 13.4.1, the "interface tests, not obvious unit tests" rule, and examples. A separate Claude review session (section 14.3.3) checks new tests against it.
+- **Automatic checks** on every pull request, as required checks:
+    - The test workflows run with read-only permission to the repository (`permissions: contents: read`) and without any publishing key or Firebase key, so a test could not write, merge, or publish even by mistake.
+    - A scan of the test files fails if one contains the real app's address, the real Firebase project's name, or `trip-db`'s address for writing.
+    - The Firebase tests fail at once if they are not connected to the emulator.
+
 Automated tests run on every change request and must pass before merging:
 
 - **Interface tests, not obvious unit tests** (decided 2026-11-23). Tests check the interfaces (the APIs): the public functions of each module and, above all, the calls between modules, such as "storage → merging → Firebase" or "trip file → converter → checker". Tests that only repeat what the code plainly does (for example "setting a field sets the field") are not written: they multiply, are hard to maintain, and do not help reviewers. A small internal function gets its own test only when it is easy to get subtly wrong: opening hours (time zones, daylight saving time, hours past midnight, closed dates), pie-chart segments, the icon set version rules, and locking and unlocking group data (section 9.5).
@@ -2450,3 +2458,4 @@ Only questions still open are listed here (2026-11-23). Decided questions are re
 | 2 (design) | 2026-11-24 | Threat row 7 reworded (man-in-the-middle); signed updates needed as its second layer. Threat row 4 and hole H7: a known gap even with signed updates, because the browser updates the update script itself; open question 3 updated. |
 | 2 (design) | 2026-11-24 | Section 14.3: the threat table and the holes table merged into one table of 17 rows, with columns for risk now and once public, whether there is a good solution, and when it is built. Holes H1, H3, H6, and H7 folded into rows 8, 13, and 4; H2, H4, and H5 became rows 15 to 17. References updated. |
 | 2 (design) | 2026-11-24 | Section 13.4: rule that tests can never change or harm the app's code or any real data (fake data only, clean browser, read-only App repository, never writing to `trip-db`, Firebase emulator only); the test version explained as a preview, not test code. |
+| 2 (design) | 2026-11-24 | Section 13.4: the test rule enforced by a `writing-tests` skill in the App repository and by automatic checks (read-only test workflows, a scan for real addresses, emulator-only Firebase tests). |
