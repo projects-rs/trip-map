@@ -2147,7 +2147,7 @@ Process:
 
 ### 14.3.1 Risk analysis (2026-11-23)
 
-Decided 2026-11-23. Who might attack and what they could reach. The holes it found, and their fixes, are rows of the threat table above (section 14.3). Reviewed again before each release, together with the security review.
+Decided 2026-11-23. Who might attack and what they could reach. The holes it found are fixed in the design; those still worth watching are in the threat table above (section 14.3). Reviewed again before each release, together with the security review.
 
 #### Who might attack
 
