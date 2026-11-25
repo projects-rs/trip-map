@@ -196,7 +196,7 @@ The user needs no account and no password at any step. Installing comes first, s
 | **Add local trip** | A trip file saved on the phone, for example one made by an AI agent (sections 8.4, 3.4) | A |
 | **Create a trip with AI** | A guided way to have any AI chat write a trip (section 8.4) | E |
 
-A trip shared inside a group arrives as a group message instead (section 3.1.1, row 7).
+A group trip arrives through the group itself, after joining with an invite (section 9.3).
 
 #### Receiving a trip from a group
 
@@ -288,9 +288,9 @@ Protections:
 7. **After a wipe.** If the app finds its data gone, it opens with "Your trips are not on this phone any more" and three ways back: "Open my restore link", "Open a backup file", and "Download from the trip list".
 8. **Permanent safety.** Changes sent as an update request and approved by the app owner are kept in the Trips repository, and can always be downloaded again.
 
-### 3.4 How trips move: getting, saving, and sending (decided 2026-11-23)
+### 3.4 How trips move: getting, saving, and sending (decided 2026-11-23, narrowed 2026-11-25)
 
-Every way a trip can arrive in the app, leave it, or change on the phone, in one place. Each row points to the section with the details. All of them work on both Android and iPhone; the last column shows where iPhone needs an extra step.
+Every way a trip can arrive in the app, leave it, or change on the phone, in one place. **Trips are shared with other people only inside a group** (decided 2026-11-25): the app has no way to send a trip or a site to someone else. A trip leaves the phone only to the group, to the public trips as a request, or as a file the user saves on their own phone. Each row points to the section with the details. All of them work on both Android and iPhone; the last column shows where iPhone needs an extra step.
 
 **Into the app**
 
@@ -298,19 +298,19 @@ Every way a trip can arrive in the app, leave it, or change on the phone, in one
 | --- | --- | --- | --- | --- | --- |
 | 1 | Download from the trip list | The public Trips repository (`trip-db`) | "Add trip" → "Trip list" → country → city → trip → Download | 3.1 | – |
 | 2 | Update a downloaded trip | `trip-db` | "Update available" → "Update"; local changes are kept | 3.1, 8.3 | – |
-| 3 | Add local trip | A file on the phone: from an AI agent, an email or WhatsApp attachment, or an earlier export | "Add trip" → "Add local trip" → pick the file | 8.4 | An attachment must first be saved to Files |
+| 3 | Add local trip | A trip file in the phone's storage: for example one an AI agent wrote, or one the user saved earlier (row 9) | "Add trip" → "Add local trip" → pick the file | 8.4 | The file must be in Files |
 | 4 | Paste trip | Text copied from an AI chat | "Paste trip" | 8.4 | – |
 | 5 | Start a new trip | The app itself, possibly empty | "Start a new trip" → name and place | 8.1 | – |
 | 6 | Join a group trip | Firebase, after an invite | Scan the QR code, or open the invite link and wait for approval | 9.3 | An invite link: Copy, then "Paste invite" in the app |
 | 7 | Restore from a backup | The user's backup file | "Restore" → pick the backup | 3.3 | – |
 | 8 | Advanced users: a file from GitHub | `trip-db` on GitHub | Download the file, then "Add local trip" | 3.1 | – |
-| 8a | Plan on a laptop, then use it on the phone | A laptop, as one more device | Start a group on the laptop, and join it from the phone; or "Export trip" on the laptop and "Add local trip" on the phone | 4.3, 9.3 | – |
+| 8a | Plan on a laptop, then use it on the phone | A laptop, as one more device | Start a group on the laptop, and join it from the phone | 4.3, 9.3 | – |
 
 **Out of the app**
 
 | # | Way | To | How | Described in | iPhone difference |
 | --- | --- | --- | --- | --- | --- |
-| 9 | Export trip as a file | The phone's files, or any app through the share menu (WhatsApp, email…) | "Export trip" → the trip only, or with my local sites → warning → Save or Share | Below, and 14.2 | Saved through Share → "Save to Files" |
+| 9 | Save trip to phone | A place the user chooses in the phone's own storage | "Save trip to phone" → the trip only, or with my local sites → warning → choose the place | Below, and 14.2 | Saved through "Save to Files" |
 | 10 | Update request | The trip owner, who may publish it to `trip-db` | "Request to add my changes". Not possible for a group trip | 8.6 | – |
 | 11 | New trip request | The trip owner, who may publish it to `trip-db` | "Request to add this trip". Not possible for a group trip | 8.6 | – |
 | 12 | Group trip sharing | The group's members, through Firebase | Automatic: every change | 9.4, 9.5 | – |
@@ -331,8 +331,8 @@ Every way a trip can arrive in the app, leave it, or change on the phone, in one
 
 Rules for trip files (rows 3, 9, and 13):
 
-- **An exported file** follows the format in section 10, so an AI tool or a JSON editor can work on it directly. The user chooses what to include: the trip only, or the trip together with their local sites. Before the file leaves the app, the app shows the warning "This file holds the whole trip, including your own sites. Anyone you send it to can read it." (section 14.2).
-- **An export never includes** the group's key, ID, write token, or manager token, even for a group trip.
+- **A saved file** follows the format in section 10, so an AI tool or a JSON editor can work on it directly. The user chooses what to include: the trip only, or the trip together with their local sites. Before saving, the app shows the warning "This file holds the whole trip, including your own sites. Anyone who gets the file can read it." (section 14.2).
+- **A saved file never includes** the group's key, ID, write token, or manager token, even for a group trip.
 - **An added file is checked first** (section 10.2). A file with errors is not added, and the app lists what is wrong.
 - **A file whose `uid` is already in "My trips"**: the app asks "Replace your copy, keep both, or cancel?". "Keep both" adds it as a copy with a new `uid` (row 17).
 - **A trip added from a file is a local trip**: stored on that phone only, and separate from every other copy. It gets no updates, unless it is a trip from the trip list, recognized by its `uid`.
@@ -368,7 +368,7 @@ The menu, in the first version:
 | Add trip | Trip list, Start a new trip, Add local trip (section 3.1) | A |
 | Add site | Add a site to the current trip (section 8.2) | A |
 | Download map for offline use | The trip's offline map (section 7.4) | A |
-| Export trip | Save the trip with its local changes as a file; also the backup (section 3.3) | A |
+| Save trip to phone | Save the trip with its local changes as a file on the phone; also the backup (section 3.3) | A |
 | Request to add my changes | An update request to the app owner (section 8.6). Not shown for a group trip | D |
 | Request to add this trip | A new trip request to the app owner (goal 9). Not shown for a group trip | D |
 | My requests | The requests sent from this phone and their results (section 8.6) | D |
@@ -452,7 +452,7 @@ My trips (section 4.1):
 | ID | Control | Action | What happens |
 | --- | --- | --- | --- |
 | UI-30 | A trip in the list | Tap | Switches to that trip, asking first if navigation is running |
-| UI-31 | A trip in the list | Long press | The trip's actions: update, offline map, share with my group, export, remove from this phone |
+| UI-31 | A trip in the list | Long press | The trip's actions: update, offline map, start a group, save to phone, remove from this phone |
 | UI-32 | "Add trip" | Tap | Trip list, Start a new trip, Add local trip (section 3.1) |
 | UI-33 | "Download map for offline use" (menu, or a trip's actions in UI-31) | Tap | Shows an adjustable rectangle around the trip's sites, with its size live ("12.4 km² · 38 MB", at most 150 MB) and "Best on Wi-Fi". **Download** fetches it, with a progress bar and **Cancel**; it continues if the user goes back to the map, and the trip shows "Offline map ready". If 2 areas are already stored, asks first which to delete. If no region covers the area, offers to request one (section 7.4) |
 | UI-34 | Settings → **Offline maps** | Tap | Shows the 2 slots, each with its trip, size in km² and MB, and date. Tapping one shows its area on the map. **Change area** reopens UI-33 for that trip; **Delete** frees the slot after asking. An area with a newer version shows **Update** (asked first, section 3.1) |
@@ -480,7 +480,7 @@ The same app also works on a laptop, a desktop, or a tablet held sideways, so th
 | 3 | **Mouse and keyboard** | Click on the map to add a site; drag a site from one legend entry to another; type comfortably; keyboard shortcuts for search and undo; hovering over a pin shows its name |
 | 4 | **Files** | Drag a trip file, for example from an AI agent, into the window, or open it from Downloads ("Add local trip") |
 | 5 | **Hidden** | In-app navigation, "Share my location", and offline maps: they are for walking around, not for a desk |
-| 6 | **Getting the trip to the phone** | The laptop is simply one more device: start a group on the laptop and join it from the phone, and both stay in step automatically (section 9); or "Export trip" on the laptop and "Add local trip" on the phone (section 3.4) |
+| 6 | **Getting the trip to the phone** | The laptop is simply one more device: start a group on the laptop and join it from the phone, and both stay in step automatically (section 9) |
 | 7 | **Installing** | Optional: Chrome and Edge "Install app", Safari on a Mac "Add to Dock" (section 3.1.2) |
 
 ## 5. Pins and legends
@@ -539,7 +539,7 @@ Decision (2026-11-15): users can also add legends and groups in the app, in the 
 - A user can add a new group to one of the trip's legends, with a name and a color, for example "Famous buildings".
 - A user can add a new legend of their own, with its groups, for example "Who wants to go", with a group per person.
 - These are **local legends and groups**, like local sites (section 8.3). They stay on the user's phone and do not change the trip itself. The user can rename, recolor, or delete them.
-- They are included in "Export trip" if the user chooses, and in update requests to the trip owner (section 8.6).
+- They are included in "Save trip to phone" if the user chooses, and in update requests to the trip owner (section 8.6).
 - In a group trip, they are shared with the other members like any other change. Each member decides whether to take a new legend or group (section 9).
 
 ### 5.4 Icon set (version 1.0: 31 icons, maximum 50)
@@ -606,7 +606,7 @@ A short tap on a pin opens the card. It shows these details:
 
 Open or closed is worked out automatically from the site's hours and the current time at the trip's location, not the time zone of the phone.
 
-The card also lists the legend entries the site belongs to, in every legend, each with its color (section 5.1), and has a Share button (UI-27).
+The card also lists the legend entries the site belongs to, in every legend, each with its color (section 5.1).
 
 ### 6.1 Interactions
 
@@ -766,7 +766,7 @@ A user can start a trip from scratch, from anywhere: GPS is not needed, and the 
 - The user can add, change, and remove any site on their phone, including the trip's own sites (goal 7). Changes stay on that phone only. A trip's own site that was changed or removed is marked, so that "Request to add my changes" can send it (section 8.6), and "Undo my change" restores the published version.
 - Local sites survive closing the app and app updates.
 - **Local changes are kept when the trip is updated** (section 3.1). A local site that was approved into the trip is replaced by the published one, matched by its ID, so there are no duplicates. A local change to a site that the update also changed is shown as "changed on both sides", and the user picks which to keep.
-- Export: local sites can be saved as a small JSON file or shared as text, or exported together with the trip (section 3.4). This is the backup. Clearing the browser's data, or opening the app in another browser, removes local sites.
+- Saving: local sites can be saved on the phone as a small JSON file, or together with the trip (section 3.4). This is the backup. Clearing the browser's data, or opening the app in another browser, removes local sites.
 
 ### 8.4 Create a trip with AI
 
@@ -956,7 +956,7 @@ Not stored anywhere: members, member IDs, names, phone numbers, email addresses,
 The internal database:
 
 - It is the app's own storage on the phone, separate from trip files.
-- "Export trip", update requests, new trip requests, and feedback never read the group key, the write token, or the group's ID from it.
+- "Save trip to phone", update requests, new trip requests, and feedback never read the group key, the write token, or the group's ID from it.
 - A group trip is never included in a request (section 8.6).
 
 ### 9.2 Starting a group trip
@@ -1119,7 +1119,7 @@ How it fits sections 14.2 and 14.3:
 
 - It only happens when the user taps it and confirms. It is never automatic and never repeated.
 - It is a single position at one moment, not live tracking.
-- The position is never stored in a trip file, in local changes, in "Export trip", in update requests, or in feedback. A member who receives it can choose "Add as site".
+- The position is never stored in a trip file, in local changes, in "Save trip to phone", in update requests, or in feedback. A member who receives it can choose "Add as site".
 - The real risk is sharing from a private place, such as home: the group sees where it is. The confirmation screen shows the spot before sending, with the warning in section 14.2 ("Before anything leaves the phone"), and notices when the position is near a "Group only" site such as the apartment.
 
 ### 9.5 How group trips work with Firebase
@@ -1188,9 +1188,9 @@ After deletion, each member keeps their own copy of the trip on their phone, as 
 
 #### Free plan limits
 
-As far as known on 2026-11-23, Firebase's free plan allows about 50,000 reads and 20,000 writes a day, and 1 GB of stored data, for the whole app (to be checked before release C, section 13.3). A group of four on a busy trip day uses a few hundred reads and writes, so about 100 busy groups fit on the same day, and the stored data has room for thousands of groups. When the free limits are reached, requests stop for the rest of the day: the app says so, and members can still pass the trip as a file ("Export trip", then "Add local trip"). A paid plan, with small prices per 100,000 operations, can be chosen later if the app grows.
+As far as known on 2026-11-23, Firebase's free plan allows about 50,000 reads and 20,000 writes a day, and 1 GB of stored data, for the whole app (to be checked before release C, section 13.3). A group of four on a busy trip day uses a few hundred reads and writes, so about 100 busy groups fit on the same day, and the stored data has room for thousands of groups. When the free limits are reached, requests stop for the rest of the day: the app says so, and every member's phone keeps its full copy and its changes, which are sent once sharing works again. A paid plan, with small prices per 100,000 operations, can be chosen later if the app grows.
 
-One group using up the limits for all (decided 2026-11-23, section 14.3): the daily limits are shared by every group of the app, and App Check does not stop someone using the real app, or a phone with a bug that writes in a loop. Before the app is opened to the public: the security rules limit how often one group can write (for example one write per site per few seconds, and a daily number of writes per group), the app itself never writes the same entry more than once in a short time, and when Firebase refuses, the app shows "Group sharing has paused" and offers "Export trip".
+One group using up the limits for all (decided 2026-11-23, section 14.3): the daily limits are shared by every group of the app, and App Check does not stop someone using the real app, or a phone with a bug that writes in a loop. Before the app is opened to the public: the security rules limit how often one group can write (for example one write per site per few seconds, and a daily number of writes per group), the app itself never writes the same entry more than once in a short time, and when Firebase refuses, the app shows "Group sharing has paused" and offers "Save trip to phone".
 
 #### Privacy
 
@@ -1424,7 +1424,7 @@ How an AI tool gets a trip's readable JSON:
 | Situation | How |
 | --- | --- |
 | A trip from the trip list | Read it directly from the Trips repository |
-| A user's own trip, with local changes | "Export trip" in the app, then give the file to the AI tool |
+| A user's own trip, with local changes | "Save trip to phone" in the app, then give the file to the AI tool |
 | A new trip | The AI tool writes it from the trip guide and the skill, and runs the checker. The user adds it with "Add local trip". |
 
 ### 10.2 Checking a trip file
@@ -1622,7 +1622,7 @@ The checking tool (section 10.2) checks a trip's icons against the icon set vers
 
 ### 12.1 Repositories
 
-Decision (2026-11-21): three public repositories in the `projects-rs` organization on GitHub. Locked maps and the separate Public maps repository were dropped (section 9).
+Decision (2026-11-21, updated 2026-11-24): two public repositories and one private test repository in the `projects-rs` organization on GitHub. Locked maps and the separate Public maps repository were dropped (section 9).
 
 | # | Repository | Name | Contains | Who approves changes |
 | --- | --- | --- | --- | --- |
@@ -1640,7 +1640,8 @@ Decision (2026-11-21): three public repositories in the `projects-rs` organizati
 
 How `trip-db` is organized:
 
-- Each trip is stored as one file named by its `uid` (for example `trips/6f1c2a9e-….json`), so a renamed trip keeps its file and its history.
+- Each trip is stored as one file named by its `id`, a short readable name such as `trips/haifa-3-days.json` (decided 2026-11-25). The `id` never changes, even if the trip's title does, so the file keeps its name and its history. The `uid` inside the file stays the trip's permanent identity for the app (section 3.1).
+- **A file with the same name as an existing one is accepted only as an update to that trip:** its `uid` must be the same as the existing file's, and its revision must go up by one. A new trip whose name is already taken is refused, and the contributor chooses another name.
 - A registry file lists each trip's `uid`, title, country, city, and dates. The trip list in the app is built from it (section 3.1). The automatic checks update it on every merge.
 - `requests.json` lists the result of each request by its random request number: accepted, partly accepted, or not accepted, the date, and an optional short reason. No personal data (section 8.6).
 - The repository is published with GitHub Pages at `https://projects-rs.github.io/trip-db/`, where the app downloads trips from.
@@ -1658,7 +1659,7 @@ Decision: the app has a single owner. Only the owner approves and merges changes
 Rules for the app's repository:
 
 - Nothing is changed directly. Every change arrives as a change request (a GitHub pull request).
-- A change request is merged only after the owner approves it.
+- A change request is merged only after the owner approves it (section 12.3).
 - Automatic checks must pass before merging: the app's tests, and the check of the example trip and the icon set.
 - Merging is not publishing. The version that users receive is published separately, by the owner, as a deliberate step. A merged change therefore cannot reach users by accident.
 
@@ -1675,15 +1676,19 @@ Access is controlled in two places: GitHub's own settings on each repository, an
 
 Settings on GitHub:
 
-- **App repository:** a rule on the main branch requires a pull request, and passing checks (once they exist) before anything is merged. Only the owner can merge: the rule's "Restrict updates" allows changes to main only for the organization admin (the owner). Required approvals are 0, because GitHub does not let anyone approve a pull request that counts as their own; the owner's merge is the approval. Direct changes, deletions and force-pushes are blocked.
+- **Merging needs the app owner's approval** (decided 2026-11-24), in the App repository and in `trip-db`:
+    - A `CODEOWNERS` file names the app owner as the owner of every file (`* @sheferreuven`).
+    - The `Protect-main` ruleset requires a pull request, **one approval**, **review from a code owner**, and **approval of the most recent push**, so nothing can be changed after the approval. Later, the required checks are added to it. Direct changes, deletions, and force-pushes are blocked. "Restrict updates" is not used.
+    - Others may get Write access: they push their own branches and open pull requests, but nothing is merged without the app owner's approval.
+    - **The app owner's own pull requests**, including Claude's, which GitHub shows under the app owner's account because Claude works through the app owner's GitHub connection: GitHub does not let anyone approve their own pull request, so the app owner is on the ruleset's bypass list, "For pull requests only", and merges them with "bypass rules" after reviewing them the same way.
 - **Test repository:** private; deletions and force-pushes are blocked. Nothing in it is ever published.
-- **Trips repository:** only the owner can merge. Contributors send pull requests from their own copy. The automatic checks must pass: the trip checker, the personal-data check, an unchanged `uid`, and a revision that goes up by one. The owner then reviews and merges every pull request; nothing is merged automatically.
+- **Trips repository:** the same approval rules. Contributors send pull requests from their own copy. The automatic checks must pass: the trip checker, the personal-data check, an unchanged `uid`, and a revision that goes up by one. The owner then reviews and merges every pull request; nothing is merged automatically.
 - **Access keys and tokens** are limited to the one repository they are for, and to the permissions they need.
 - **The owner's GitHub account** uses two-step sign-in, with recovery codes kept safe.
 
 ### 12.4 Claude as a working tool
 
-- Claude is connected through the Claude GitHub App, installed on the organization with access to the selected repositories only (today `trip-map` and `trip-map-test`, and `trip-db` once created). Its commits carry a "Co-Authored-By: Claude" line, and its pull requests say they were made with Claude, so its work is always recognizable.
+- Claude is connected through the Claude GitHub App, installed on the organization with access to the selected repositories only (today `trip-map`, `trip-map-test`, and `trip-db`). Its commits carry a "Co-Authored-By: Claude" line, and its pull requests say they were made with Claude, so its work is always recognizable.
 - Claude can prepare changes on a branch, open pull requests, review pull requests, run the trip checks and the adaptation tool, and answer questions about the code.
 - Claude cannot merge into the App repository's main branch or publish. The branch rule in section 12.3 lets only the owner update main.
 - Claude has no access to account, organization or repository settings, and no keys or tokens.
@@ -1700,7 +1705,7 @@ The setup steps, with every setting and its reason, are in the separate "Trip Ma
 | Organization | `projects-rs`, on the GitHub Team plan, owned by that account. Membership private, two-step sign-in required, members cannot create, delete or change the visibility of repositories, only GitHub's own and our own Actions may run. |
 | App repository | `projects-rs/trip-map`, public, MIT. Ruleset `Protect main` (section 12.3). Squash merging only. Published at `https://projects-rs.github.io/trip-map/`. |
 | Test repository | `projects-rs/trip-map-test`. Ruleset `Protect test`. **To change** (decided 2026-11-24): made private, and GitHub Pages turned off for it, so the test address is no longer published. |
-| Claude | Claude GitHub App on `projects-rs`, only the selected repositories (`trip-map` and `trip-map-test`, and `trip-db` once created). Claude never gets access to the Firebase project. |
+| Claude | Claude GitHub App on `projects-rs`, only the selected repositories (`trip-map`, `trip-map-test`, and `trip-db`). Claude never gets access to the Firebase project. |
 | Trips repository | `projects-rs/trip-db`, public, CC BY 4.0 (section 12.1): planned on 2026-11-21, created by the owner with the same settings as `trip-map`, "Preserve this repository" off, and added to the Claude GitHub App. |
 | Not yet created | The app's Firebase project, for group trips (build step 11): with the app's own Google account, two-step sign-in, on the free plan; the steps are in section 9.5, "One-time setup by the app owner". |
 | Optional later | "Require signed commits" on `trip-map`, kept only if squash merging still works with it. "Require status checks" once the Check workflow exists (build step 2). |
@@ -1714,7 +1719,7 @@ This section describes how the app is built and tested, in small steps that can 
 | Who | Does |
 | --- | --- |
 | Claude | Writes the code, the automated tests, the trip guide, and the documentation. Converts the Barcelona data to the trip format. Fixes reported problems. Opens a change request for every step. **Takes part in reviews:** explains each change in plain words, including the code (the app owner is not a JavaScript expert), answers questions on change requests, and reviews change requests written by others. Never merges. |
-| App owner | Makes the decisions, does the setup steps that need the owner's identity (accounts, repositories, keys; the Trips repository `trip-db` before step 6 (part A3, after the trip), and the Firebase project before release C), tests each step on a real phone, reviews and approves, merges, and publishes. Can also write code or documents (below). |
+| App owner | Makes the decisions, does the setup steps that need the owner's identity (accounts, repositories, keys; the Firebase project before release C), tests each step on a real phone, reviews and approves, merges, and publishes. Can also write code or documents (below). |
 | Contributors | Advanced users, and the app owner too, can write code, tests, or documents themselves, and send them as change requests. The same rules apply to every change request, whoever wrote it: the automated tests must pass, Claude can review it, and only the app owner merges (section 12.3). |
 | Testers | The trip group. With "Try new versions first" on, they get each new version before everyone else, try it in the real app, and report what they find. At least one Android phone and one iPhone. |
 
@@ -1728,7 +1733,7 @@ Decided 2026-11-24: there is no published test version. New code is tried by aut
 2. The automated tests run on GitHub (section 13.4), including the **phone tests**: the app runs in simulated phone browsers (Chrome as on Android, Safari's engine as on iPhone), with touch, a phone-sized screen, and a fake GPS position. Screenshots of every screen are attached to the change request. All tests must pass.
 3. The app owner reviews the change and the screenshots, and merges.
 4. The app owner publishes the version (section 12.2). Only phones with "Try new versions first" are offered it (section 3.2); the app saves an automatic backup before updating.
-5. The app owner, and testers where useful, try it on their phones, using the step's "Try on the phone" list, including real walks where the step needs them.
+5. The app owner, and testers where useful, try it on their phones, using the step's "Try on the phone" list with the Haifa and Caesarea test trips (step 0b), including real walks where the step needs them.
 6. Problems are reported to Claude, with a screenshot where possible, and fixed in a new change request.
 7. When it works, the app owner marks the version ready, and every other phone is offered it.
 
@@ -1742,11 +1747,12 @@ Decided 2026-11-24: release A is split into three parts, each usable and testabl
 
 #### Part A1: map and the trip (target: about December 1)
 
-Enough to use on the trip: the Barcelona trip opened from a file sent on WhatsApp, with pins, legends, site cards, opening hours, and navigation in Google Maps or Apple Maps.
+Enough to use on the trip: the Barcelona trip added from a trip file saved on the phone ("Add local trip"), with pins, legends, site cards, opening hours, and navigation in Google Maps or Apple Maps.
 
 | Step | Build | Try on the phone |
 | --- | --- | --- |
-| 0. Setup (done 2026-11-21) | The app owner creates a GitHub account with two-step sign-in, the organization, the App and test repositories (section 12.5). The Trips repository, `trip-db`, is planned (section 12.1). Still to do before step 1: making the test repository private and turning off its GitHub Pages (section 12.5). The notices file (section 14.1) is added with the first code. Claude is connected to the App and test repositories, and to `trip-db` once it is created. | The test repository is private and not published. |
+| 0. Setup (done 2026-11-21) | The app owner creates a GitHub account with two-step sign-in, the organization, the App and test repositories (section 12.5). The Trips repository, `trip-db`, was created on 2026-11-24 (section 12.1). Still to do before step 1: making the test repository private and turning off its GitHub Pages (section 12.5). The notices file (section 14.1) is added with the first code. Claude is connected to the App and test repositories, and to `trip-db`. | The test repository is private and not published. |
+| 0b. Test trips (done 2026-11-24) | Two test trips in `trip-db`, made before any app code so that every step is tried against the same known trips: `trips/haifa-3-days.json` (3 days; legends Day and Kind: Museums, Nature, Fun, Restaurants, Transportation; 28 sites) and `trips/caesarea-2-days.json` (2 days; legends Day and Kind: Historical, Natural, Sports, Industrial; 8 sites). Both are places the app owner visits, so walks and opening hours can be tried for real. They include split pins, overlapping pins, and sites with no Day. All sites are marked "not yet verified" until checked on the ground. The automated tests use copies kept in the test repository (section 13.4). | Each step from step 1 on is tried with both trips on the phone. |
 | 1. App, map, and updates | Full-screen map with street names, "My location", the app's icon and name for the home screen. From the start, so that every later step reaches the phones: the browser security policy (section 14.3), app updates with the "New version available" notice, "Try new versions first", and the automatic backup before updating (section 3.2) | The map loads and moves smoothly. The blue dot appears after allowing location. The app can be added to the home screen. A new version reaches a phone with "Try new versions first" and is installed after tapping Update. |
 | 2. Trip files, the checker, and the trip-author skill | Loading a trip file, the checker with its report and privacy checks, the trip guide, the schema, the trip-author skill (section 10.1), an example trip. **First, the pending format changes of section 10 are made** (for example `groups` renamed to `entries`, and the fields `place`, `dates`, and `published`), while no trip files are in users' hands, so that no conversion step is ever needed for them (section 11.1). The Barcelona trip converted to that format. | "Add local trip" opens the Barcelona trip. A file with a deliberate mistake shows a clear report. |
 | 3. Pins and legends | The icon set file, pin color from the legend entry, pie-chart pins, the "Other" chip, the legend switch, filtering by chips | Switching legends recolors the pins. A site in two legend entries shows a split pin. Turning a chip off hides its sites. |
@@ -1757,14 +1763,14 @@ Enough to use on the trip: the Barcelona trip opened from a file sent on WhatsAp
 | Step | Build | Try on the phone |
 | --- | --- | --- |
 | 5a. Offline maps | The offline region catalog with a Barcelona region built by the automatic check, choosing the area with km² and MB, at most 2 areas on the phone, "Download map for offline use", the offline map display, Settings → Offline maps, the direction and distance to a site without a connection (section 7.4) | In airplane mode, the Barcelona trip shows streets and street names everywhere in its area, all pins and cards, and the blue dot. |
-| 5. My trips and local sites | Several trips and switching between them, each trip's saved view, the data protections of section 3.3 (persistent storage, restore link, one-tap backup locked with the backup password, recovery after a wipe), Add site, search (section 8.5), local sites, local legends and legend entries, "Export trip" with its warning (section 14.2), "Make a copy", "Add local trip" with "Replace, keep both, or cancel?" (section 3.4) | Searching "Sagrada Família" in Add site fills in its name, address, and location. A search of the user's own trip finds its sites. |
+| 5. My trips and local sites | Several trips and switching between them, each trip's saved view, the data protections of section 3.3 (persistent storage, restore link, one-tap backup locked with the backup password, recovery after a wipe), Add site, search (section 8.5), local sites, local legends and legend entries, "Save trip to phone" with its warning (section 14.2), "Make a copy", "Add local trip" with "Replace, keep both, or cancel?" (section 3.4) | Searching "Sagrada Família" in Add site fills in its name, address, and location. A search of the user's own trip finds its sites. |
 | 7. Feedback and field test | Settings → About with the notices list. "Send feedback" in its first form: a prepared message through the phone's share menu, with its warning (sections 13.5, 14.2). A walk-through of the whole app. | "Send feedback" reaches the app owner. The app owner walks a route in their own city with the app, on both phone types. |
 
 Not in release A: in-app turn-by-turn navigation (release B), update and new trip requests, error reports, contributed public trips, "Create a trip with AI", the full AI toolkit, and group trips.
 
 Fallback: part A1 is the minimum for the trip; part A2 and release B are additions. If release B is not field-tested by December 5, 2026, the trip uses navigation through "In another app" (Google Maps, Apple Maps), and release B continues after the trip. If part A2 is not ready, local sites and offline maps wait until after the trip. If part A1 is not field-tested by December 5, the trip uses version 1 and the trip already published for it.
 
-On the trip, each member adds sites locally (part A2). To pass them on, a member uses "Export trip" with their local sites and sends the file through WhatsApp. The others open it with "Add local trip", as a separate local trip (section 3.4). Sites from several members come together in one shared trip with group trips (release C).
+On the trip, each member adds their own sites locally (part A2), on their own phone. Sites from several members come together in one shared trip with group trips (release C).
 
 #### Release B: in-app navigation
 
@@ -1778,11 +1784,11 @@ Target: about December 9, field-tested before the Barcelona trip (see the fallba
 
 #### Part A3: the trip list (after the trip)
 
-Not needed for Barcelona, where the trip is sent as a file, so `trip-db` is also not needed before the trip.
+Not needed for Barcelona, where the trip is added from a file saved on the phone.
 
 | Step | Build | Try on the phone |
 | --- | --- | --- |
-| 6. The trip list | Needs `trip-db` created by the app owner (section 12.1). The registry and trip list built from `trip-db`, by country and city; Download; updates offered and accepted (section 3.1); "Start a new trip" (empty) | The Barcelona trip is downloaded from the trip list on each tester's phone, also in the home-screen app on iPhone. It opens without a connection afterwards. |
+| 6. The trip list | The registry and trip list built from `trip-db`, by country and city; Download; updates offered and accepted (section 3.1); "Start a new trip" (empty) | The Barcelona trip is downloaded from the trip list on each tester's phone, also in the home-screen app on iPhone. It opens without a connection afterwards. |
 
 #### Release C: group trips
 
@@ -1794,7 +1800,7 @@ Checks before release C starts (decided 2026-11-23): Claude checks by web search
 | --- | --- | --- |
 | 11. Firebase, starting, and joining | The app maker's one-time Firebase setup (section 9.5), anonymous sign-in, "Start a group" with "Choose the trip" and the check, the group key, ID, write token, and manager token, "Use a copy for the group", the first upload, QR invites and one-use invite links, both holding only a one-use code, with the typed name and the inviter's approval, the key sent through Firebase locked for the new member, joining, declining and rejecting, the security rules | A group of four is started. Members join by QR code and by an invite link sent by email, each approved by the inviter, and see the trip at once. A photo of the QR code, used by another phone, is refused. A second use of the same link is refused. An app without the write token cannot change the group. A person who declines leaves no trace. |
 | 12. Sharing in the group | Automatic sharing of every change through Firebase, transactions, live updates, offline queueing, merging, "Looks like the same place?", taking or skipping new legend entries, "Share my location" (15 minutes), privacy checks | Four phones, two of them offline for a while, end with the same trip. Two phones changing the same site at once keep the newer version. A location appears on the others' open apps within seconds and is gone after 15 minutes. |
-| 13. Leaving and after the trip | "Leave group", "Renew the group key", a new phone with a fresh invite, "Delete the group" by the manager only, "Hand over manager" by QR code, the manager token in the backup, automatic deletion, falling back to "Export trip" when Firebase cannot be reached | A member who leaves keeps the trip as a local trip that cannot be sent in a request. After deletion, nothing of the group is left in Firebase. After the manager hands over, only the new manager can delete the group. After "Renew the group key", a phone with the old key can read and write nothing new. |
+| 13. Leaving and after the trip | "Leave group", "Renew the group key", a new phone with a fresh invite, "Delete the group" by the manager only, "Hand over manager" by QR code, the manager token in the backup, automatic deletion, each phone keeping its full copy when Firebase cannot be reached | A member who leaves keeps the trip as a local trip that cannot be sent in a request. After deletion, nothing of the group is left in Firebase. After the manager hands over, only the new manager can delete the group. After "Renew the group key", a phone with the old key can read and write nothing new. |
 
 #### Release D: requests, reports, and contributed trips
 
@@ -1842,7 +1848,7 @@ How the rule is enforced:
 Automated tests run on every change request and must pass before merging:
 
 - **Interface tests, not obvious unit tests** (decided 2026-11-23). Tests check the interfaces (the APIs): the public functions of each module and, above all, the calls between modules, such as "storage → merging → Firebase" or "trip file → converter → checker". Tests that only repeat what the code plainly does (for example "setting a field sets the field") are not written: they multiply, are hard to maintain, and do not help reviewers. A small internal function gets its own test only when it is easy to get subtly wrong: opening hours (time zones, daylight saving time, hours past midnight, closed dates), pie-chart segments, the icon set version rules, and locking and unlocking group data (section 9.5).
-- **Browser tests** that walk through the main screens at phone size first, and, from release F, also at laptop size, in both Chrome's engine and Safari's engine: open a trip, switch legends, filter, open a card, add a site, export.
+- **Browser tests** that walk through the main screens at phone size first, and, from release F, also at laptop size, in both Chrome's engine and Safari's engine: open a trip, switch legends, filter, open a card, add a site, save the trip to the phone.
 - **Trip checks:** the example trips and the icon set file are checked with every change.
 - **Phone tests** (section 13.2): every flow runs in simulated Android and iPhone browsers on GitHub, with touch, a phone-sized screen, and a fake GPS position, using Playwright; screenshots of every screen are attached to the change request.
 - **Storage test** (section 3.3): after every flow, everything left in the phone's storage is listed and compared with the table of what is kept; planted names and locations (section 13.5.1) must not appear where they should not.
@@ -2029,7 +2035,7 @@ Data in trips:
 
 #### Before anything leaves the phone (decided 2026-11-23)
 
-Rule: before the app sends, shares, or exports anything, it shows **who will see it, and what**, and asks to confirm. The same screen is used every time, and the stronger the exposure, the clearer the warning.
+Rule: before the app sends, shares, or saves anything outside its own storage, it shows **who will see it, and what**, and asks to confirm. The same screen is used every time, and the stronger the exposure, the clearer the warning.
 
 | # | Operation | Who will see it | What could be private | The warning |
 | --- | --- | --- | --- | --- |
@@ -2039,7 +2045,7 @@ Rule: before the app sends, shares, or exports anything, it shows **who will see
 | 4 | **Approve a join request** (section 9.3) | The new member | The whole trip, from now on | "**Tamar Levi** will see the whole trip and future changes. Approve only if you know them." |
 | 5 | **Request to add my changes** (section 8.6) | **The public**, after the trip owner approves | Personal places or details in the changes | "These changes may become **public**", with the personal-data check's findings |
 | 6 | **Request to add this trip** (section 8.6) | **The public** | The same, for the whole trip | "This trip may become **public**", with the findings, and the choice of how to be named in `credits` |
-| 7 | **Export trip**, as a file (section 3.4) | Whoever gets the file | Everything in the trip | "This file holds the whole trip, including your own sites. Anyone you send it to can read it." |
+| 7 | **Save trip to phone**, as a file (section 3.4) | Anyone who later gets the file | Everything in the trip | "This file holds the whole trip, including your own sites. Anyone who gets the file can read it." |
 | 8 | **Send feedback** (section 13.5) | The app's maker | Whatever the user writes or attaches | "Your message goes to the app's maker. Don't include personal details." |
 
 How the screen looks:
@@ -2077,7 +2083,7 @@ No single measure can guarantee this, because descriptions are free text. The ap
 
 The checker: block or ask (decided 2026-11-24). The more certain the finding and the more public the operation, the stronger the action. **Blocked**: Send stays off until the text is edited, each finding highlighted. **Asked**: each finding is shown with "Remove" or "Keep, it's public information".
 
-| Finding | Public request (rows 5, 6 of the first table) | Group, export, feedback (rows 2, 7, 8) |
+| Finding | Public request (rows 5, 6 of the first table) | Group, saved trip, feedback (rows 2, 7, 8) |
 | --- | --- | --- |
 | Card number, bank account (IBAN), or identity number, each confirmed by its check digit | Blocked | Blocked |
 | A code or password next to a keyword ("door code 4471", "wifi:", "קוד כניסה"); a link with a personal token; a name from the private names list | Blocked | Asked |
@@ -2120,7 +2126,7 @@ Threats and protections:
 | 1 | **Running code inside the app**, hidden in the text or in a script link (`javascript:`) of a trip, change, proposal, or search result, from any source (a file, `trip-db`, a group member, an AI chat, OpenStreetMap) | Everything received is checked against the format before use (section 10.2), shown only as plain text, never as code, and limited in size. A strict browser security policy forbids running any code that is not part of the app. **No link can run a script** (decided 2026-11-24): only `https://` links are accepted when received, checked again with the browser's own address reader just before a card shows them, and blocked by the security policy if both checks failed. The trip checker treats trips as data only (`json.load`, never `eval` or `exec`). | Medium / Medium | **Yes** | Release A |
 | 2 | **A link to a harmful website** (phishing, malware, scams), for example on a site card | The trip checker's link rules and harmful-site lists, in four layers, from GitHub to the phone (section 14.3.2). The card shows the address before it is opened. | Medium / Medium | **Yes**. Only a brand-new harmful site, not yet known to any of the three lists, can pass, as with any such check | Release A; `trip-db` check at step 6 |
 | 3 | Someone using an unlocked phone | The app relies on the phone's own screen lock. An optional app lock with the phone's fingerprint or face check, where the browser supports it. A lost phone that was in a group: the manager uses "Renew the group key" (section 9.6). When the phone is locked, its data is safe. When it is unlocked, the finder sees the trips and, until the manager renews the group key, the group's shared locations. Malware on the phone itself, or a phone with its protections removed, is outside what any web app can defend against. | Medium / Medium | **Partly**: depends on the phone's lock; "Renew the group key" limits the damage | Release A; "Renew the group key" in release C |
-| 4 | Data lost or damaged on a phone | Saved data is checked when it is loaded. Export gives a backup (section 3.4). | High / High | **Partly**: changes not yet backed up are lost after a wipe | Release A, step 5 |
+| 4 | Data lost or damaged on a phone | Saved data is checked when it is loaded. The backup and "Save trip to phone" keep a copy (sections 3.3, 3.4). | High / High | **Partly**: changes not yet backed up are lost after a wipe | Release A, step 5 |
 | 5 | A former member, or whoever holds an old backup or a lost phone, keeps the group key, and goes on reading the trip and every shared location without anyone noticing | "Renew the group key" by the manager: a new key for the members still there, the old ID and its data deleted (section 9.6) | Medium / Medium | **Yes**, once built | Release C, step 13 |
 | 6 | A backup file holds secrets, the group key and the manager token, and ends up in Downloads, a chat, or on a computer | Every backup is locked with the user's backup password (section 3.3) | Medium / Medium | **Yes** | Release A, step 5 |
 
@@ -2195,7 +2201,7 @@ Terms: Google Safe Browsing and VirusTotal's free service are for non-commercial
 - Rule: **every time data arrives or changes and holds a link, that link is checked**: a trip opened or downloaded, a group update, a proposal, a site added or edited, a search result. Only new or changed links are checked; a link checked in the last 7 days is not asked again.
 - Group sites are checked on the phones, before sending and again on arrival, never in Firebase, which cannot read them (they are locked with the group key, section 9.5).
 - When: a trip is opened or downloaded, a group site arrives, a proposal arrives, a site is added (including from OpenStreetMap search or an AI-written trip).
-- Why: files sent on WhatsApp, group trips, and the user's own sites never pass through GitHub.
+- Why: trip files added from the phone, group trips, and the user's own sites never pass through GitHub.
 - What: rules R1 to R6, and Google Safe Browsing.
 - Privacy: the app sends only short hash prefixes of the links, from which Google cannot tell which link was checked, through Google's privacy relay (Oblivious HTTP), which hides the phone's internet address.
 - Key: the Safe Browsing key in the app cannot be secret, so it is limited to work only from the app's own address.
@@ -2232,7 +2238,7 @@ Other marks: a link not checked yet has a small "not checked" mark, and before a
 
 For the app owner, when setting up (once):
 
-1. **GitHub account:** a strong, unique password kept in a password manager, and two-step sign-in with an authenticator app, not text messages.
+1. **GitHub account:** a strong, unique password, written down and kept somewhere safe at home, and two-step sign-in with an authenticator app, not text messages.
 2. **Recovery codes:** GitHub's recovery codes kept somewhere safe and offline.
 3. **Email account** linked to GitHub: two-step sign-in, since it can reset the GitHub password.
 4. **Repository settings:** branch rules, security alerts for outside components, and warnings for keys pushed by mistake, turned on with Claude's step-by-step guide.
@@ -2252,7 +2258,7 @@ For every change:
 
 For every release:
 
-12. Test on the test address, on an Android phone and an iPhone.
+12. Try it first with "Try new versions first" on an Android phone and an iPhone, then mark it ready (section 13.2).
 13. Run the security review (section 14.3), and fix what it finds.
 14. Publish deliberately, at a time when problems can be watched and fixed.
 
@@ -2260,7 +2266,7 @@ Ongoing:
 
 15. Act on GitHub's security alerts: ask Claude to update the component and publish a fix.
 16. Answer reports of weaknesses.
-17. Keep backups of the repositories and exported trips.
+17. Keep backups of the repositories and saved trips.
 18. Never give anyone, including Claude, the GitHub password or the publishing key.
 
 If something goes wrong, follow a one-page plan kept in the App repository:
@@ -2375,3 +2381,4 @@ Only questions still open are listed here (2026-11-23). Decided questions are re
 | 2 (design) | 2026-11-24 | Section 14.3.2, Parts 4 and 5: a harmful link is blocked at once and the user chooses: remove the link, delete the site card, delete the trip (or don't open it), or keep it blocked; group changes are shared, public trips can be reported to the trip owner. "Open anyway" dropped. |
 | 2 (design) | 2026-11-24 | Section 13.3: releases C and D swapped at the app owner's request. Group trips are now release C (steps 11 to 13), built after releases A and B; requests, reports, and contributed trips are release D (steps 14 to 16). References updated. |
 | 2 (design) | 2026-11-24 | Section 13.3: release A split into parts A1 (map and the trip, about December 1; now with updates and the security policy from step 1), A2 (offline maps, my trips, and local sites, about December 4), and A3 (the trip list, after the trip). Release B targeted for about December 9. Fallback updated. |
+| 2 (design) | 2026-11-25 | Coherency review. Trips are shared with other people only inside a group: "Export trip" became "Save trip to phone" (the phone's own storage only, no share menu), the laptop and Barcelona file-passing routes removed (sections 3.4, 4, 13.3). Site card: the stray Share button removed (section 6). Trip files in `trip-db` named by their readable `id`, a same-name file accepted only as an update (section 12.1). Merging needs the app owner's approval through `CODEOWNERS`, with the owner on the bypass list for their own and Claude's pull requests (section 12.3). Out-of-date wording fixed: group messages, three public repositories, `trip-db` "once created" and "planned", the password manager, the test address.  Step 0b added: the Haifa and Caesarea test trips. |
