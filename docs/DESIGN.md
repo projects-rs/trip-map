@@ -379,6 +379,16 @@ The menu, in the first version:
 
 Each item appears only once its release is built (section 13.3), and only where it applies.
 
+Mockups of the first version (2026-11-25), drawn with the Haifa test trip (section 13.3, step 0b). They are drawings of this design, not screenshots, and will change with each iteration. The purple labels are the control IDs of section 4.2.
+
+| Main screen | The menu |
+| --- | --- |
+| <img alt="Main screen mockup" src="images/ui-main.svg" width="300"> | <img alt="Menu mockup" src="images/ui-menu.svg" width="300"> |
+
+| "My trips" and a trip's actions | "Add trip" |
+| --- | --- |
+| <img alt="My trips mockup" src="images/ui-my-trips.svg" width="300"> | <img alt="Add trip mockup" src="images/ui-add-trip.svg" width="300"> |
+
 ### 4.1 Several trips: "My trips" and switching
 
 A phone can hold several trips (goal 5). The app shows one trip at a time.
@@ -444,7 +454,6 @@ Site card (section 6):
 | UI-24 | Web link | Tap | Opens the page in the phone's browser |
 | UI-25 | Web link | Long press | The phone's own link menu: copy, open |
 | UI-26 | Legend entry label on the card | Tap | Switches to that legend and shows only that entry (as UI-04) |
-| UI-27 | Share button | Tap | In a trip with no group: offers to start one with this trip (section 9.2). In a group trip it is not shown: every change is shared automatically (section 9.4). |
 | UI-28 | "Edit" (local sites, and sites of the user's own trips) | Tap | Opens the site form (section 8.2) |
 
 My trips (section 4.1):
@@ -2382,3 +2391,4 @@ Only questions still open are listed here (2026-11-23). Decided questions are re
 | 2 (design) | 2026-11-24 | Section 13.3: releases C and D swapped at the app owner's request. Group trips are now release C (steps 11 to 13), built after releases A and B; requests, reports, and contributed trips are release D (steps 14 to 16). References updated. |
 | 2 (design) | 2026-11-24 | Section 13.3: release A split into parts A1 (map and the trip, about December 1; now with updates and the security policy from step 1), A2 (offline maps, my trips, and local sites, about December 4), and A3 (the trip list, after the trip). Release B targeted for about December 9. Fallback updated. |
 | 2 (design) | 2026-11-25 | Coherency review. Trips are shared with other people only inside a group: "Export trip" became "Save trip to phone" (the phone's own storage only, no share menu), the laptop and Barcelona file-passing routes removed (sections 3.4, 4, 13.3). Site card: the stray Share button removed (section 6). Trip files in `trip-db` named by their readable `id`, a same-name file accepted only as an update (section 12.1). Merging needs the app owner's approval through `CODEOWNERS`, with the owner on the bypass list for their own and Claude's pull requests (section 12.3). Out-of-date wording fixed: group messages, three public repositories, `trip-db` "once created" and "planned", the password manager, the test address. Step 0b added: the Haifa and Caesarea test trips. |
+| 2 (design) | 2026-11-25 | Section 4: mockups of the main screen, the menu, "My trips" with a trip's actions, and "Add trip". Section 4.2: UI-27, the site card's Share button, removed, as in section 6; a group is started from the menu or a trip's actions. |
