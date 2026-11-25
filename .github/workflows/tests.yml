@@ -1,0 +1,52 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 The Trip Map authors
+#
+# The automated tests, on every pull request and every change to main
+# (DESIGN.md sections 13.2 and 13.4). Read-only: the tests cannot write to the
+# repository, merge, or publish, and they get no keys of any kind.
+
+name: Tests
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  phone-tests:
+    name: Phone tests (Android and iPhone)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false   # no GitHub key left on the machine for the tests
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install the test tools
+        run: npm install --no-audit --no-fund
+
+      - name: Check the tests themselves (section 13.4)
+        run: node tools/check-tests.js
+
+      - name: Install the simulated phone browsers
+        run: npx playwright install --with-deps chromium webkit
+
+      - name: Run the phone tests
+        run: npx playwright test
+
+      - name: Keep the screenshots and the report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phone-test-screenshots
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 14

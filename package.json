@@ -1,0 +1,14 @@
+{
+  "name": "trip-map",
+  "private": true,
+  "description": "Tools for building and testing the Trip Map app. The app itself needs no build step.",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "test": "playwright test",
+    "check-tests": "node tools/check-tests.js"
+  },
+  "devDependencies": {
+    "playwright": "1.63.0"
+  }
+}
