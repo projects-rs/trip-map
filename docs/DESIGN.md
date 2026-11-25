@@ -356,7 +356,10 @@ First version:
 
 - Full-screen map.
 - Top: the trip's title, which opens "My trips" (section 4.1), and a switch that chooses the active legend.
-- Bottom: the active legend's entries as chips. Tapping a chip shows or hides that entry's sites.
+- Bottom: the active legend's entries as chips. Tapping a chip shows or hides that entry's sites. The **legend panel** (decided 2026-11-25) has two states:
+    - **Collapsed** (normal): one row of chips, which scrolls sideways when they do not fit, with a small handle above it.
+    - **Expanded:** dragging the handle up (or tapping it) slides the panel up to about half the screen. It lists every entry of the active legend with its color, name, number of sites, and an on/off switch, with "Show all" and "Hide all", and the legend's name at its top. The map stays visible above it, so the pins change as entries are switched. Dragging it down, tapping the map, or Back collapses it.
+    - When a pin is tapped, the site card takes the panel's place; the panel returns as one row when the card closes, so the two never cover each other. On a big screen the legend is always fully shown in the left pane (section 4.3).
 - Side: "My location" button, a "Search" button (section 8.5), and a menu.
 - Site card: slides up from the bottom when a pin is tapped.
 
@@ -388,6 +391,10 @@ Mockups of the first version (2026-11-25), drawn with the Haifa test trip (secti
 | "My trips" and a trip's actions | "Add trip" |
 | --- | --- |
 | <img alt="My trips mockup" src="images/ui-my-trips.svg" width="300"> | <img alt="Add trip mockup" src="images/ui-add-trip.svg" width="300"> |
+
+| The legend panel, expanded (UI-12) |
+| --- |
+| <img alt="Legend panel mockup" src="images/ui-legend-panel.svg" width="300"> |
 
 ### 4.1 Several trips: "My trips" and switching
 
@@ -441,7 +448,9 @@ Main screen:
 | UI-08 | "My location" button | Tap | The first time, the phone asks for location permission. Then the map centers on the blue dot. A second tap keeps the map following the user while walking |
 | UI-09 | "Search" button | Tap | Opens search (section 8.5) |
 | UI-10 | Menu button | Tap | Opens the menu (section 4) |
-| UI-11 | Phone's Back button or gesture | Back | Closes the top panel (card, search, menu, list). On the main screen, asks before leaving the app |
+| UI-12 | Legend panel handle (bottom) | Drag up or down, or tap | Expands the legend panel to about half the screen, with every entry of the active legend, or collapses it back to one row of chips (section 4) |
+| UI-13 | "Show all" / "Hide all" (expanded legend panel) | Tap | Switches every entry of the active legend on, or off |
+| UI-11 | Phone's Back button or gesture | Back | Closes the top panel (card, search, menu, list, expanded legend panel). On the main screen, asks before leaving the app |
 
 Site card (section 6):
 
@@ -1764,7 +1773,7 @@ Enough to use on the trip: the Barcelona trip added from a trip file saved on th
 | 0b. Test trips (done 2026-11-24) | Two test trips in `trip-db`, made before any app code so that every step is tried against the same known trips: `trips/haifa-3-days.json` (3 days; legends Day and Kind: Museums, Nature, Fun, Restaurants, Transportation; 28 sites) and `trips/caesarea-2-days.json` (2 days; legends Day and Kind: Historical, Natural, Sports, Industrial; 8 sites). Both are places the app owner visits, so walks and opening hours can be tried for real. They include split pins, overlapping pins, and sites with no Day. All sites are marked "not yet verified" until checked on the ground. The automated tests use copies kept in the test repository (section 13.4). | Each step from step 1 on is tried with both trips on the phone. |
 | 1. App, map, and updates | Full-screen map with street names, "My location", the app's icon and name for the home screen. From the start, so that every later step reaches the phones: the browser security policy (section 14.3), app updates with the "New version available" notice, "Try new versions first", and the automatic backup before updating (section 3.2) | The map loads and moves smoothly. The blue dot appears after allowing location. The app can be added to the home screen. A new version reaches a phone with "Try new versions first" and is installed after tapping Update. |
 | 2. Trip files, the checker, and the trip-author skill | Loading a trip file, the checker with its report and privacy checks, the trip guide, the schema, the trip-author skill (section 10.1), an example trip. **First, the pending format changes of section 10 are made** (for example `groups` renamed to `entries`, and the fields `place`, `dates`, and `published`), while no trip files are in users' hands, so that no conversion step is ever needed for them (section 11.1). The Barcelona trip converted to that format. | "Add local trip" opens the Barcelona trip. A file with a deliberate mistake shows a clear report. |
-| 3. Pins and legends | The icon set file, pin color from the legend entry, pie-chart pins, the "Other" chip, the legend switch, filtering by chips | Switching legends recolors the pins. A site in two legend entries shows a split pin. Turning a chip off hides its sites. |
+| 3. Pins and legends | The icon set file, pin color from the legend entry, pie-chart pins, the "Other" chip, the legend switch, the legend panel (collapsed and expanded, UI-12, UI-13), filtering by chips | Switching legends recolors the pins. A site in two legend entries shows a split pin. Turning a chip off hides its sites. |
 | 4. Site card and opening hours | The site card (text shown only as plain text, links limited to https), opening hours with open, closing-soon, and closed marks, native copying, the navigation panel with "In another app" (Google Maps, Apple Maps). The "In this app" choice is added in release B. | Status text and pin marks are right at different times of day. Copying works. Navigation opens in Google or Apple Maps. |
 
 #### Part A2: offline maps, my trips, and local sites (target: about December 4)
@@ -2392,3 +2401,4 @@ Only questions still open are listed here (2026-11-23). Decided questions are re
 | 2 (design) | 2026-11-24 | Section 13.3: release A split into parts A1 (map and the trip, about December 1; now with updates and the security policy from step 1), A2 (offline maps, my trips, and local sites, about December 4), and A3 (the trip list, after the trip). Release B targeted for about December 9. Fallback updated. |
 | 2 (design) | 2026-11-25 | Coherency review. Trips are shared with other people only inside a group: "Export trip" became "Save trip to phone" (the phone's own storage only, no share menu), the laptop and Barcelona file-passing routes removed (sections 3.4, 4, 13.3). Site card: the stray Share button removed (section 6). Trip files in `trip-db` named by their readable `id`, a same-name file accepted only as an update (section 12.1). Merging needs the app owner's approval through `CODEOWNERS`, with the owner on the bypass list for their own and Claude's pull requests (section 12.3). Out-of-date wording fixed: group messages, three public repositories, `trip-db` "once created" and "planned", the password manager, the test address. Step 0b added: the Haifa and Caesarea test trips. |
 | 2 (design) | 2026-11-25 | Section 4: mockups of the main screen, the menu, "My trips" with a trip's actions, and "Add trip". Section 4.2: UI-27, the site card's Share button, removed, as in section 6; a group is started from the menu or a trip's actions. |
+| 2 (design) | 2026-11-25 | Section 4: the legend panel, collapsed (one row of chips, scrolling sideways) or dragged up to show every entry, with "Show all" and "Hide all"; new controls UI-12 and UI-13; a fifth mockup; built in step 3. |
