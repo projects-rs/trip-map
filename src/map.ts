@@ -3,9 +3,8 @@
 //
 // Creates the full-screen map with OpenStreetMap's street map
 // (DESIGN.md sections 3 and 4, build step 1).
-//
-// L is Leaflet, which index.html loads before the app. Its types come from
-// the package @types/leaflet, so the compiler checks every call into it.
+
+import { L, type Leaflet } from "./leaflet.ts";
 
 /** OpenStreetMap's tile server: light use only, no bulk downloading (DESIGN.md section 14.1). */
 export const TILE_URL = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
@@ -18,7 +17,7 @@ export const OSM_CREDIT =
  * Where the map starts before any trip is open: the Mediterranean,
  * zoomed out far enough to show Israel and Spain.
  */
-export const START_VIEW: { center: L.LatLngTuple; zoom: number } = { center: [38, 15], zoom: 4 };
+export const START_VIEW: { center: Leaflet.LatLngTuple; zoom: number } = { center: [38, 15], zoom: 4 };
 
 /**
  * Creates the map inside an element of the page.
@@ -26,7 +25,7 @@ export const START_VIEW: { center: L.LatLngTuple; zoom: number } = { center: [38
  * @param elementId  The id of the element the map fills, for example "map".
  * @returns  The Leaflet map.
  */
-export function createMap(elementId: string): L.Map {
+export function createMap(elementId: string): Leaflet.Map {
   const map = L.map(elementId, {
     // No + and − buttons: on a phone the map is zoomed by pinching.
     zoomControl: false,

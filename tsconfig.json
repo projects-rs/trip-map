@@ -15,10 +15,10 @@
     "rewriteRelativeImportExtensions": true,
     "verbatimModuleSyntax": true,
 
-    // Leaflet's types (package @types/leaflet). Leaflet itself is loaded by
-    // index.html as the global "L", which these types describe.
-    "types": ["leaflet"],
-    "allowUmdGlobalAccess": true,
+    // No global type packages. Leaflet's types (package @types/leaflet) are
+    // imported only by src/leaflet.ts, the one gateway to Leaflet; using the
+    // global "L" anywhere else is a compile error.
+    "types": [],
 
     // Strict checking: the compiler's -Wall -Werror.
     "strict": true,

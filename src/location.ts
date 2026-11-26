@@ -5,6 +5,8 @@
 // The phone asks for location permission only when the user first taps the
 // button, never earlier (DESIGN.md section 3.1).
 
+import { L, type Leaflet } from "./leaflet.ts";
+
 /** Zoom used when the map first centers on the user: about one street block. */
 const STREET_ZOOM = 16;
 
@@ -27,7 +29,7 @@ export const MSG_NOT_FOUND =
 export type Mode = "off" | "waiting" | "shown" | "follow";
 
 /** The blue dot and its accuracy circle, which always exist together. */
-type Marker = { dot: L.CircleMarker; circle: L.Circle };
+type Marker = { dot: Leaflet.CircleMarker; circle: Leaflet.Circle };
 
 /**
  * The "My location" button: a state machine driven by taps, GPS positions,
@@ -56,7 +58,7 @@ export class MyLocation {
    * @param geolocation  The phone's location service; the browser's by default.
    */
   constructor(
-    private readonly map: L.Map,
+    private readonly map: Leaflet.Map,
     private readonly button: HTMLButtonElement,
     private readonly showMessage: (text: string) => void,
     private readonly geolocation: Geolocation = navigator.geolocation,

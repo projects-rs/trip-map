@@ -15,6 +15,7 @@ How the Trip Map app is built, and how its parts work together. What the app doe
 | `index.html` | The only page. Loads Leaflet, the styles, and the compiled `js/main.js` |
 | `css/app.css` | The app's styles |
 | `src/main.ts` | The starting point: checks that every element the app needs is on the page (`requireElement`), creates the map, and connects the buttons |
+| `src/leaflet.ts` | The one gateway to Leaflet: checks at start-up that Leaflet 1.9.4 is loaded, and exports `L` and its types. No other file touches the global `L` |
 | `src/map.ts` | `createMap()`: the full-screen map with OpenStreetMap's street map |
 | `src/location.ts` | class `MyLocation`: the "My location" button and the blue dot (UI-08) |
 | `tsconfig.json` | The compiler's settings: strict, every warning an error |
@@ -40,7 +41,8 @@ index.html
   ├─ vendor/leaflet-1.9.4/leaflet.js   defines the global L
   └─ js/main.js   (compiled from src/main.ts)
        ├─ js/map.js        createMap("map")  → the Leaflet map
-       └─ js/location.js   new MyLocation(map, button, showMessage)
+       ├─ js/location.js   new MyLocation(map, button, showMessage)
+       └─ (both import) js/leaflet.js  checks the global L once and exports it
                              → navigator.geolocation (the phone's location)
 ```
 
