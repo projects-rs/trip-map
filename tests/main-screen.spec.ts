@@ -4,9 +4,7 @@
 // Phone tests of the main screen: the map and "My location"
 // (DESIGN.md section 4, control UI-08; build step 1).
 // Fake data only: a fake GPS position and blank map images (DESIGN.md section 13.4).
-// @ts-check
-
-import { test, expect } from "playwright/test";
+import { test, expect, type Page } from "playwright/test";
 
 /** A fake position in Haifa, near the test trip's hotel (step 0b). */
 const HAIFA = { latitude: 32.8156, longitude: 34.9892, accuracy: 20 };
@@ -22,12 +20,10 @@ const BLANK_TILE = Buffer.from(
 /**
  * Answers every request for a map image with BLANK_TILE, so the tests never
  * load OpenStreetMap's server, and records the addresses asked for.
- * @param {import("playwright/test").Page} page
- * @returns {Promise<string[]>} The list the tile addresses are added to.
+ * @returns  The list the tile addresses are added to.
  */
-async function fakeTiles(page) {
-  /** @type {string[]} */
-  const asked = [];
+async function fakeTiles(page: Page): Promise<string[]> {
+  const asked: string[] = [];
   await page.route("https://tile.openstreetmap.org/**", (route) => {
     asked.push(route.request().url());
     return route.fulfill({ contentType: "image/png", body: BLANK_TILE });
@@ -37,10 +33,8 @@ async function fakeTiles(page) {
 
 /**
  * How far, in screen pixels, the blue dot is from the center of the map.
- * @param {import("playwright/test").Page} page
- * @returns {Promise<number>}
  */
-async function dotDistanceFromCenter(page) {
+async function dotDistanceFromCenter(page: Page): Promise<number> {
   const dot = await page.locator(".blue-dot").boundingBox();
   const map = await page.locator("#map").boundingBox();
   if (!dot || !map) throw new Error("the blue dot or the map is not on the screen");

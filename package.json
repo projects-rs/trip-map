@@ -1,16 +1,18 @@
 {
   "name": "trip-map",
   "private": true,
-  "description": "Tools for building and testing the Trip Map app. The app itself needs no build step.",
+  "description": "Tools for building and testing the Trip Map app.",
   "license": "MIT",
   "type": "module",
   "scripts": {
-    "test": "playwright test",
-    "check-tests": "node tools/check-tests.js",
-    "check-vendor": "node tools/check-vendor.js"
+    "build": "tsc -p tsconfig.json && node tools/build-site.ts",
+    "test": "npm run build && playwright test",
+    "check-tests": "node tools/check-tests.ts"
   },
   "devDependencies": {
+    "@types/leaflet": "1.9.12",
+    "leaflet": "1.9.4",
     "playwright": "1.63.0",
-    "leaflet": "1.9.4"
+    "typescript": "6.0.3"
   }
 }

@@ -1,0 +1,70 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 The Trip Map authors
+#
+# Publishes the app (DESIGN.md section 13.2): after each merge into main,
+# GitHub builds the site, runs the phone tests on that exact build, and then
+# waits for the owner's approval before publishing it to GitHub Pages.
+#
+# Only the "publish" job can publish (pages: write), and it runs only after the
+# owner approves it in the "github-pages" environment (Settings → Environments
+# → github-pages → Required reviewers). Nothing else in the pipeline can publish.
+
+name: Publish
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:          # lets the owner publish main again by hand
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish
+  cancel-in-progress: false   # never stop a publish half-way
+
+jobs:
+  build:
+    name: Build and test the site
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install the build and test tools (exact versions from package.json)
+        run: npm install --no-audit --no-fund
+
+      - name: Type check and build the site
+        run: npm run build
+
+      - name: Install the simulated phone browsers
+        run: npx playwright install --with-deps chromium webkit
+
+      - name: Run the phone tests on this exact build
+        run: npx playwright test
+
+      - name: Hand the built site to the publish job
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  publish:
+    name: Publish (after the owner's approval)
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages      # requires the owner's approval before this job starts
+      url: ${{ steps.deployment.outputs.page_url }}
+    permissions:
+      pages: write            # the only job allowed to publish
+      id-token: write         # proves to GitHub Pages that this is this repository's workflow
+    steps:
+      - name: Publish to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4

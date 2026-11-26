@@ -1,9 +1,10 @@
 # SPDX-License-Identifier: MIT
 # Copyright (c) 2026 The Trip Map authors
 #
-# The automated tests, on every pull request and every change to main
-# (DESIGN.md sections 13.2 and 13.4). Read-only: the tests cannot write to the
-# repository, merge, or publish, and they get no keys of any kind.
+# The automated checks, on every pull request and every change to main
+# (DESIGN.md sections 13.2 and 13.4): the type check and build, the check on
+# the tests, and the phone tests. Read-only: nothing here can write to the
+# repository, merge, or publish, and it gets no keys of any kind.
 
 name: Tests
 
@@ -17,7 +18,7 @@ permissions:
 
 jobs:
   phone-tests:
-    name: Phone tests (Android and iPhone)
+    name: Type check, build, and phone tests (Android and iPhone)
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -29,27 +30,19 @@ jobs:
         with:
           node-version: 22
 
-      - name: Install the test tools
+      - name: Install the build and test tools (exact versions from package.json)
         run: npm install --no-audit --no-fund
 
       - name: Check the tests themselves (section 13.4)
-        run: node tools/check-tests.js
+        run: node tools/check-tests.ts
 
-      - name: Check the copied libraries are the official files
-        run: node tools/check-vendor.js
-
-      - name: Keep the official library files, if the check failed
-        if: failure()
-        uses: actions/upload-artifact@v4
-        with:
-          name: official-library-files
-          path: node_modules/leaflet/
-          retention-days: 7
+      - name: Type check and build the site (fails on any type error)
+        run: npm run build
 
       - name: Install the simulated phone browsers
         run: npx playwright install --with-deps chromium webkit
 
-      - name: Run the phone tests
+      - name: Run the phone tests on the built site
         run: npx playwright test
 
       - name: Keep the screenshots and the report

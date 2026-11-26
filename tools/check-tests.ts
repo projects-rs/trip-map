@@ -6,8 +6,7 @@
 //      Interface (section 13.4.1), so none slips in without one.
 //   2. No test file contains a real address: the published app, the trip
 //      database, or GitHub's address for changing them. Tests use fake data only.
-// Run with: node tools/check-tests.js   (exits with 1 if a check fails)
-// @ts-check
+// Run with: node tools/check-tests.ts   (exits with 1 if a check fails)
 
 import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
@@ -28,13 +27,12 @@ const REQUIRED_FIELDS = ["What:", "How:", "Interface:"];
 
 /**
  * Finds the problems in one test file.
- * @param {string} path  The file's path.
- * @returns {string[]}  One line per problem; empty when the file is fine.
+ * @param path  The file's path.
+ * @returns  One line per problem; empty when the file is fine.
  */
-function problemsIn(path) {
+function problemsIn(path: string): string[] {
   const text = readFileSync(path, "utf8");
-  /** @type {string[]} */
-  const problems = [];
+  const problems: string[] = [];
 
   for (const address of FORBIDDEN) {
     if (text.includes(address)) problems.push(`${path}: contains the real address "${address}"`);
@@ -55,7 +53,7 @@ function problemsIn(path) {
   return problems;
 }
 
-const files = readdirSync(TEST_DIR).filter((name) => name.endsWith(".js")).map((name) => join(TEST_DIR, name));
+const files = readdirSync(TEST_DIR).filter((name) => name.endsWith(".ts")).map((name) => join(TEST_DIR, name));
 const problems = files.flatMap(problemsIn);
 for (const line of problems) console.error(line);
 console.log(`Checked ${files.length} test file(s): ${problems.length} problem(s).`);
