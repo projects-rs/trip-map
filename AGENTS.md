@@ -26,6 +26,7 @@ Trip Map is a phone-first web app. The design is in [docs/DESIGN.md](docs/DESIGN
     3. A calculation with no memory between calls (opening hours, distance, file checks)? → a plain function.
     4. An entity whose state evolves through its behavior (the location button, the legend panel, navigation)? → a class. Its state is in `#private` fields; methods called back by the browser or a library are arrow-function fields (`onTap = () => { … }`), so they always keep `this`.
   If another form seems clearer or safer, ask the owner first.
+- Every element of the page the app needs is found once, at start-up in `js/main.js`, with `requireElement(id)`, so a missing element stops the start-up with a clear error instead of failing later in use. No unchecked "never null" casts.
 - Short functions with clear names. Comments explain why, not only what.
 - Text from a trip, a user, or any other outside source is shown only as plain text (`textContent`), never as HTML (DESIGN.md section 14.3).
 - Libraries are copied into `vendor/<name>-<version>/` unchanged from their official package, with their license, and listed in [NOTICES.md](NOTICES.md). Load the skill [`adding-libraries`](.claude/skills/adding-libraries/SKILL.md) before adding or updating one; `tools/check-vendor.js` fails any pull request whose copy differs from the official files.

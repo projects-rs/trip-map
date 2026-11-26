@@ -14,7 +14,7 @@ How the Trip Map app is built, and how its parts work together. What the app doe
 | --- | --- |
 | `index.html` | The only page. Loads Leaflet, the styles, and `js/main.js` |
 | `css/app.css` | The app's styles |
-| `js/main.js` | The starting point: creates the map and connects the buttons |
+| `js/main.js` | The starting point: checks that every element the app needs is on the page (`requireElement`), creates the map, and connects the buttons |
 | `js/map.js` | `createMap()`: the full-screen map with OpenStreetMap's street map |
 | `js/location.js` | class `MyLocation`: the "My location" button and the blue dot (UI-08) |
 | `vendor/leaflet-1.9.4/` | Leaflet, the map library ([NOTICES.md](../NOTICES.md)) |
