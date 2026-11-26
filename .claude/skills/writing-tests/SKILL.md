@@ -44,7 +44,7 @@ Example:
  *       position and centers the map on it.
  * How: Allow location, set a fake position, open the app, tap the button.
  *      Expect the dot at the center of the map.
- * Interface: UI-08 button → location.setUpMyLocation() → navigator.geolocation (module: location)
+ * Interface: UI-08 button → location.MyLocation → navigator.geolocation (module: location)
  * Specifics: Fake GPS position.
  */
 test("first tap on My location shows the blue dot in the center", async ({ page, context }) => {

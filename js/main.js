@@ -6,7 +6,7 @@
 // @ts-check
 
 import { createMap } from "./map.js";
-import { setUpMyLocation } from "./location.js";
+import { MyLocation } from "./location.js";
 
 /** How long a message stays on the screen, in milliseconds. */
 const MESSAGE_TIME_MS = 6000;
@@ -30,4 +30,4 @@ function showMessage(text) {
 
 const map = createMap("map");
 const button = /** @type {HTMLButtonElement} */ (document.getElementById("my-location"));
-setUpMyLocation(map, button, showMessage);
+new MyLocation(map, button, showMessage);

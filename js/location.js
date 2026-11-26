@@ -31,104 +31,150 @@ export const MSG_NOT_FOUND =
  */
 
 /**
- * Connects the "My location" button to the phone's location and the map.
+ * The "My location" button: a state machine driven by taps, GPS positions,
+ * GPS errors, and drags of the map.
  *
  * A tap moves the mode one step: off → waiting (→ shown at the first position,
  * with the map centered on the dot) → follow. A tap while following centers
  * the map again. Dragging the map stops following, so the user can look around.
  *
- * @param {any} map  The Leaflet map, from createMap().
- * @param {HTMLButtonElement} button  The "My location" button.
- * @param {(text: string) => void} showMessage  Shows a short message to the user.
- * @param {Geolocation} [geolocation]  The phone's location service; the browser's by default.
- * @returns {{mode: () => Mode}}  A way to read the current mode.
+ * Methods that the browser or Leaflet call back (the on... methods) are
+ * arrow-function fields, so they always keep "this" (AGENTS.md).
  */
-export function setUpMyLocation(map, button, showMessage, geolocation = navigator.geolocation) {
+export class MyLocation {
   /** @type {Mode} */
-  let mode = "off";
+  #mode = "off";
   /** @type {number | null} The id of the running location watch, to stop it later. */
-  let watchId = null;
+  #watchId = null;
   /** @type {any} The blue dot, created at the first position. */
-  let dot = null;
+  #dot = null;
   /** @type {any} The pale circle showing how accurate the position is. */
-  let accuracyCircle = null;
+  #accuracyCircle = null;
 
-  /** @param {Mode} newMode */
-  function setMode(newMode) {
-    mode = newMode;
-    button.dataset.mode = newMode;
-    button.setAttribute("aria-pressed", String(newMode === "follow"));
+  /** @type {any} The Leaflet map. */
+  #map;
+  /** @type {HTMLButtonElement} */
+  #button;
+  /** @type {(text: string) => void} */
+  #showMessage;
+  /** @type {Geolocation} */
+  #geolocation;
+
+  /**
+   * Connects the "My location" button to the phone's location and the map.
+   *
+   * @param {any} map  The Leaflet map, from createMap().
+   * @param {HTMLButtonElement} button  The "My location" button.
+   * @param {(text: string) => void} showMessage  Shows a short message to the user.
+   * @param {Geolocation} [geolocation]  The phone's location service; the browser's by default.
+   */
+  constructor(map, button, showMessage, geolocation = navigator.geolocation) {
+    this.#map = map;
+    this.#button = button;
+    this.#showMessage = showMessage;
+    this.#geolocation = geolocation;
+
+    button.addEventListener("click", this.onTap);
+    // A drag by the user's finger (not a move made by the code) stops following.
+    map.on("dragstart", this.onDragStart);
   }
+
+  /** @returns {Mode} The current mode. */
+  get mode() {
+    return this.#mode;
+  }
+
+  /**
+   * Changes the mode, and shows it on the button for the styles, the tests,
+   * and screen readers.
+   * @param {Mode} newMode
+   */
+  #setMode(newMode) {
+    this.#mode = newMode;
+    this.#button.dataset.mode = newMode;
+    this.#button.setAttribute("aria-pressed", String(newMode === "follow"));
+  }
+
+  /** Called by the browser on a tap of the button. */
+  onTap = () => {
+    if (this.#mode === "off") {
+      this.#setMode("waiting");
+      // The first call is what makes the phone ask for permission.
+      this.#watchId = this.#geolocation.watchPosition(this.onPosition, this.onError, {
+        enableHighAccuracy: true,   // use GPS, not only Wi-Fi, for walking
+        maximumAge: 5000,           // a position up to 5 seconds old is fine
+      });
+    } else if (this.#mode === "shown" || this.#mode === "follow") {
+      this.#map.setView(this.#dot.getLatLng(), this.#map.getZoom());
+      this.#setMode("follow");
+    }
+    // In "waiting", a tap does nothing: the first position is on its way.
+  };
 
   /**
    * Called by the browser each time the phone has a new position.
    * @param {GeolocationPosition} position
    */
-  function onPosition(position) {
+  onPosition = (position) => {
     const latLng = L.latLng(position.coords.latitude, position.coords.longitude);
-    if (dot === null) {
-      accuracyCircle = L.circle(latLng, {
+    if (this.#dot === null) {
+      this.#accuracyCircle = L.circle(latLng, {
         radius: position.coords.accuracy,
         stroke: false, fillColor: "#1a73e8", fillOpacity: 0.15, interactive: false,
-      }).addTo(map);
-      dot = L.circleMarker(latLng, {
+      }).addTo(this.#map);
+      this.#dot = L.circleMarker(latLng, {
         radius: 8, weight: 3, color: "#ffffff", fillColor: "#1a73e8", fillOpacity: 1,
         className: "blue-dot", interactive: false,
-      }).addTo(map);
+      }).addTo(this.#map);
     } else {
-      dot.setLatLng(latLng);
-      accuracyCircle.setLatLng(latLng).setRadius(position.coords.accuracy);
+      this.#dot.setLatLng(latLng);
+      this.#accuracyCircle.setLatLng(latLng).setRadius(position.coords.accuracy);
     }
 
-    if (mode === "waiting") {
-      map.setView(latLng, Math.max(map.getZoom(), STREET_ZOOM));
-      setMode("shown");
-    } else if (mode === "follow") {
-      map.panTo(latLng);
+    if (this.#mode === "waiting") {
+      this.#map.setView(latLng, Math.max(this.#map.getZoom(), STREET_ZOOM));
+      this.#setMode("shown");
+    } else if (this.#mode === "follow") {
+      this.#map.panTo(latLng);
     }
-  }
+  };
 
   /**
    * Called by the browser when it cannot give a position.
    * @param {GeolocationPositionError} error
    */
-  function onError(error) {
+  onError = (error) => {
     if (error.code === error.PERMISSION_DENIED) {
-      stopWatching();
-      setMode("off");
-      showMessage(MSG_DENIED);
-    } else if (mode === "waiting") {
+      this.#stopWatching();
+      this.#removeDot();          // an old position must not stay on the map
+      this.#setMode("off");
+      this.#showMessage(MSG_DENIED);
+    } else if (this.#mode === "waiting") {
       // No signal or a timeout: the watch keeps running and may still succeed.
-      showMessage(MSG_NOT_FOUND);
+      this.#showMessage(MSG_NOT_FOUND);
+    }
+  };
+
+  /** Called by Leaflet when a finger starts dragging the map. */
+  onDragStart = () => {
+    if (this.#mode === "follow") this.#setMode("shown");
+  };
+
+  /** Stops the location watch, if one is running. */
+  #stopWatching() {
+    if (this.#watchId !== null) {
+      this.#geolocation.clearWatch(this.#watchId);
+      this.#watchId = null;
     }
   }
 
-  function stopWatching() {
-    if (watchId !== null) {
-      geolocation.clearWatch(watchId);
-      watchId = null;
+  /** Takes the blue dot and its circle off the map, if they are there. */
+  #removeDot() {
+    if (this.#dot !== null) {
+      this.#dot.remove();
+      this.#accuracyCircle.remove();
+      this.#dot = null;
+      this.#accuracyCircle = null;
     }
   }
-
-  button.addEventListener("click", () => {
-    if (mode === "off") {
-      setMode("waiting");
-      // The first call is what makes the phone ask for permission.
-      watchId = geolocation.watchPosition(onPosition, onError, {
-        enableHighAccuracy: true,   // use GPS, not only Wi-Fi, for walking
-        maximumAge: 5000,           // a position up to 5 seconds old is fine
-      });
-    } else if (mode === "shown" || mode === "follow") {
-      map.setView(dot.getLatLng(), map.getZoom());
-      setMode("follow");
-    }
-    // In "waiting", a tap does nothing: the first position is on its way.
-  });
-
-  // A drag by the user's finger (not a move made by the code) stops following.
-  map.on("dragstart", () => {
-    if (mode === "follow") setMode("shown");
-  });
-
-  return { mode: () => mode };
 }

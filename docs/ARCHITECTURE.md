@@ -5,7 +5,7 @@ How the Trip Map app is built, and how its parts work together. What the app doe
 ## Principles
 
 - **No build step.** The files in the repository are exactly what GitHub Pages serves and the phone runs. There is nothing to compile.
-- **Plain JavaScript modules.** Each file in `js/` is a module with a few exported functions, described in JSDoc and checked with `// @ts-check`.
+- **Plain JavaScript modules.** Each file in `js/` is a module, described in JSDoc and checked with `// @ts-check`. Entities with state and behavior are classes; data is plain objects; calculations are plain functions (AGENTS.md).
 - **Libraries are copied in**, under `vendor/<name>-<version>/`, never loaded from another website.
 
 ## Files
@@ -16,7 +16,7 @@ How the Trip Map app is built, and how its parts work together. What the app doe
 | `css/app.css` | The app's styles |
 | `js/main.js` | The starting point: creates the map and connects the buttons |
 | `js/map.js` | `createMap()`: the full-screen map with OpenStreetMap's street map |
-| `js/location.js` | `setUpMyLocation()`: the "My location" button and the blue dot (UI-08) |
+| `js/location.js` | class `MyLocation`: the "My location" button and the blue dot (UI-08) |
 | `vendor/leaflet-1.9.4/` | Leaflet, the map library ([NOTICES.md](../NOTICES.md)) |
 | `icons/` | The icon set (DESIGN.md section 5.4) |
 | `tests/` | Phone tests (DESIGN.md section 13.4), with `playwright.config.js` |
@@ -30,7 +30,7 @@ index.html
   ├─ vendor/leaflet-1.9.4/leaflet.js   defines the global L
   └─ js/main.js
        ├─ js/map.js        createMap("map")  → the Leaflet map
-       └─ js/location.js   setUpMyLocation(map, button, showMessage)
+       └─ js/location.js   new MyLocation(map, button, showMessage)
                              → navigator.geolocation (the phone's location)
 ```
 
@@ -45,4 +45,4 @@ The button moves through four modes, kept in its `data-mode` attribute:
 | `shown` | The blue dot is on the map | Centers the map on the dot → `follow` |
 | `follow` | The map keeps the dot in its center | Centers again |
 
-Dragging the map with a finger turns `follow` back into `shown`. If location is refused, a message explains how to allow it, and the mode returns to `off`.
+Dragging the map with a finger turns `follow` back into `shown`. If location is refused, the dot is removed, a message explains how to allow it, and the mode returns to `off`.

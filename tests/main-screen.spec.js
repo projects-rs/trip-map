@@ -78,7 +78,7 @@ test("the map fills the screen and credits OpenStreetMap", async ({ page }) => {
  * How: Allow location, set a fake position in Haifa, and open the app. Expect no
  *      blue dot. Tap the button. Expect the dot at the center of the map, and the
  *      button in mode "shown".
- * Interface: UI-08 button → location.setUpMyLocation() → navigator.geolocation (module: location)
+ * Interface: UI-08 button → location.MyLocation → navigator.geolocation (module: location)
  * Specifics: Fake GPS position.
  */
 test("first tap on My location shows the blue dot in the center", async ({ page, context }) => {
@@ -101,7 +101,7 @@ test("first tap on My location shows the blue dot in the center", async ({ page,
  * How: Tap twice, then move the fake position: expect the dot to stay centered.
  *      Drag the map, then move the position back: expect the map to stay where
  *      the user dragged it, and the button to be back in mode "shown".
- * Interface: UI-08 button and map drag → location.setUpMyLocation() → Leaflet map (module: location)
+ * Interface: UI-08 button and map drag → location.MyLocation → Leaflet map (module: location)
  * Specifics: Fake GPS position that moves; a mouse drag stands in for a finger.
  */
 test("second tap follows the user, and dragging stops it", async ({ page, context }) => {
@@ -140,7 +140,7 @@ test("second tap follows the user, and dragging stops it", async ({ page, contex
  *       button goes back to "off".
  * How: Open the app without allowing location and tap the button. Expect the
  *      message about turning location on, and mode "off".
- * Interface: UI-08 button → location.setUpMyLocation() → navigator.geolocation error (module: location)
+ * Interface: UI-08 button → location.MyLocation → navigator.geolocation error (module: location)
  * Specifics: Location permission not granted, so the browser refuses it.
  */
 test("refused location shows a clear message", async ({ page }) => {
