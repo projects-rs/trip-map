@@ -19,25 +19,26 @@ The app is being built in steps (see the design, section 13). Today it shows the
 
 ## Running it on a computer
 
-The app needs no build step. Serve the folder and open it:
+The app is written in TypeScript and built into the folder `site/` (DESIGN.md section 13.7):
 
 ```sh
-python3 -m http.server 8000
+npm install                      # the build and test tools, at exact versions
+npm run build                    # type check, compile, and assemble site/
+python3 -m http.server 8000 --directory site
 # then open http://localhost:8000/
 ```
 
 ## Tests
 
-The tests run the app in a simulated Android phone and iPhone ([Playwright](https://playwright.dev)):
+The tests run the built app in a simulated Android phone and iPhone ([Playwright](https://playwright.dev)):
 
 ```sh
-npm install
 npx playwright install chromium webkit
-npm test
+npm test                         # builds, then tests
 ```
 
-They also run on GitHub for every pull request.
+They also run on GitHub for every pull request. After each merge, GitHub builds and tests the app again and publishes it once the owner approves.
 
 ## License
 
-The app's code is under the [MIT license](LICENSE). The libraries in `vendor/` keep their own licenses, listed in [NOTICES.md](NOTICES.md).
+The app's code is under the [MIT license](LICENSE). The libraries it uses keep their own licenses, listed in [NOTICES.md](NOTICES.md).

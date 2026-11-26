@@ -4,31 +4,41 @@ How the Trip Map app is built, and how its parts work together. What the app doe
 
 ## Principles
 
-- **No build step.** The files in the repository are exactly what GitHub Pages serves and the phone runs. There is nothing to compile.
-- **Plain JavaScript modules.** Each file in `js/` is a module, described in JSDoc and checked with `// @ts-check`. Entities with state and behavior are classes; data is plain objects; calculations are plain functions (AGENTS.md).
-- **Libraries are copied in**, under `vendor/<name>-<version>/`, never loaded from another website.
+- **TypeScript, compiled before publishing** (DESIGN.md section 13.7). The code in `src/` has its types in the code itself, checked by the compiler with strict settings. `npm run build` compiles it to plain JavaScript and assembles `site/`, the exact folder the phone downloads.
+- **Classes for entities with state and behavior; plain objects for data; plain functions for calculations** (AGENTS.md).
+- **Libraries come from their official npm packages** at exact versions, copied unchanged by the build into `site/vendor/`; never loaded from another website while the app runs.
 
 ## Files
 
 | Path | What it is |
 | --- | --- |
-| `index.html` | The only page. Loads Leaflet, the styles, and `js/main.js` |
+| `index.html` | The only page. Loads Leaflet, the styles, and the compiled `js/main.js` |
 | `css/app.css` | The app's styles |
-| `js/main.js` | The starting point: checks that every element the app needs is on the page (`requireElement`), creates the map, and connects the buttons |
-| `js/map.js` | `createMap()`: the full-screen map with OpenStreetMap's street map |
-| `js/location.js` | class `MyLocation`: the "My location" button and the blue dot (UI-08) |
-| `vendor/leaflet-1.9.4/` | Leaflet, the map library ([NOTICES.md](../NOTICES.md)) |
+| `src/main.ts` | The starting point: checks that every element the app needs is on the page (`requireElement`), creates the map, and connects the buttons |
+| `src/map.ts` | `createMap()`: the full-screen map with OpenStreetMap's street map |
+| `src/location.ts` | class `MyLocation`: the "My location" button and the blue dot (UI-08) |
+| `tsconfig.json` | The compiler's settings: strict, every warning an error |
+| `tools/build-site.ts` | Assembles `site/` after the compiler: the page, styles, and libraries |
 | `icons/` | The icon set (DESIGN.md section 5.4) |
-| `tests/` | Phone tests (DESIGN.md section 13.4), with `playwright.config.js` |
-| `tools/check-tests.js` | Checks the tests themselves: description blocks and no real addresses |
-| `.github/workflows/tests.yml` | Runs the checks and the tests on every pull request |
+| `tests/` | Phone tests (DESIGN.md section 13.4), with `playwright.config.ts` |
+| `tools/check-tests.ts` | Checks the tests themselves: description blocks and no real addresses |
+| `.github/workflows/tests.yml` | On every pull request: the test check, the type check and build, and the phone tests. Read-only |
+| `.github/workflows/publish.yml` | After each merge: build, test that exact build, then publish to GitHub Pages once the owner approves |
+
+## From source to phone
+
+```text
+src/*.ts ──tsc (strict)──> site/js/*.js ─┐
+index.html, css/ ──copied──────────────> site/ ──publish (owner approves)──> GitHub Pages ──> the phone
+leaflet (npm, exact version) ──copied──> site/vendor/leaflet-1.9.4/ ─┘
+```
 
 ## How the parts connect
 
 ```text
 index.html
   ├─ vendor/leaflet-1.9.4/leaflet.js   defines the global L
-  └─ js/main.js
+  └─ js/main.js   (compiled from src/main.ts)
        ├─ js/map.js        createMap("map")  → the Leaflet map
        └─ js/location.js   new MyLocation(map, button, showMessage)
                              → navigator.geolocation (the phone's location)

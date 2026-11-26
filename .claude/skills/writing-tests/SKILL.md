@@ -10,7 +10,7 @@ These rules come from DESIGN.md section 13.4. Follow all of them.
 ## 1. Tests never change or harm the app or real data
 
 - Use fake data only: test trips, fake GPS positions, planted values, blank map images.
-- Never use a real address: not the published app (`projects-rs.github.io`), not `trip-db`, not GitHub's API, not a real Firebase project. `tools/check-tests.js` fails the pull request if a test file contains one.
+- Never use a real address: not the published app (`projects-rs.github.io`), not `trip-db`, not GitHub's API, not a real Firebase project. `tools/check-tests.ts` fails the pull request if a test file contains one.
 - Never write to the repository, merge, or publish. The test workflow has read-only permission and no keys.
 - Firebase tests (from release C) run only against the Firebase emulator, and fail at once if they are not connected to it.
 - Answer outside requests inside the test (for example with `page.route`), so a test never depends on a real server.
@@ -23,7 +23,7 @@ These rules come from DESIGN.md section 13.4. Follow all of them.
 
 ## 3. Every test starts with a description block
 
-`tools/check-tests.js` fails the pull request if a test has no block with **What**, **How**, and **Interface**. Add the other fields when they apply:
+`tools/check-tests.ts` fails the pull request if a test has no block with **What**, **How**, and **Interface**. Add the other fields when they apply:
 
 | Field | When | What it says |
 | --- | --- | --- |
@@ -38,7 +38,7 @@ These rules come from DESIGN.md section 13.4. Follow all of them.
 
 Example:
 
-```js
+```ts
 /**
  * What: The first tap on "My location" shows the blue dot at the phone's
  *       position and centers the map on it.
@@ -54,7 +54,8 @@ test("first tap on My location shows the blue dot in the center", async ({ page,
 
 ## 4. Phone tests
 
-- Tests run in both projects of `playwright.config.js`: "Android phone" (Chrome's engine) and "iPhone" (Safari's engine). Do not limit a test to one without a comment saying why.
+- Tests run in both projects of `playwright.config.ts`: "Android phone" (Chrome's engine) and "iPhone" (Safari's engine). Do not limit a test to one without a comment saying why.
 - Use the user's gestures (`tap`, drag) and read what the user sees (visible text, `data-mode`, `aria-pressed`), not the code's inner variables.
+- Tests run on the built site (`npm test` builds first), exactly what GitHub publishes.
 - A screenshot of every test is kept automatically for the review.
 - No retries: a flaky test is a bug to fix.
