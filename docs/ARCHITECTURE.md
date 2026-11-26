@@ -46,6 +46,27 @@ index.html
                              → navigator.geolocation (the phone's location)
 ```
 
+## Leaflet API
+
+The app uses Leaflet 1.9.4, only through `src/leaflet.ts`. Its API is documented in the [Leaflet 1.9.4 API reference](https://leafletjs.com/reference.html) (check that the page says 1.9.4, not 2.0). Each object there has the same four parts: Creation, Options, Events, and Methods. Other help: the [Leaflet tutorials](https://leafletjs.com/examples.html) and the [Leaflet 1.9.4 source code](https://github.com/Leaflet/Leaflet/tree/v1.9.4/src).
+
+Every Leaflet call the app makes, with its place in the reference (update this table when a PR adds one):
+
+| In the code | File | Reference |
+| --- | --- | --- |
+| `L.map(id, options)`, option `zoomControl` | `map.ts` | [Map: Creation](https://leafletjs.com/reference.html#map-factory), [zoomControl](https://leafletjs.com/reference.html#map-zoomcontrol) |
+| `.setView(center, zoom)` | `map.ts`, `location.ts` | [Map: setView](https://leafletjs.com/reference.html#map-setview) |
+| `.getZoom()`, `.panTo(latLng)` | `location.ts` | [getZoom](https://leafletjs.com/reference.html#map-getzoom), [panTo](https://leafletjs.com/reference.html#map-panto) |
+| `map.on("dragstart", …)` | `location.ts` | [Map: on](https://leafletjs.com/reference.html#map-on). The map's `dragstart` event is fired by Leaflet 1.9.4 ([Map.Drag.js](https://github.com/Leaflet/Leaflet/blob/v1.9.4/src/map/handler/Map.Drag.js), line 115) but not listed in the reference; the test "dragging stops it" guards it |
+| `map.attributionControl.setPrefix(…)` | `map.ts` | [Control.Attribution: setPrefix](https://leafletjs.com/reference.html#control-attribution-setprefix) |
+| `L.tileLayer(url, options)`, options `maxZoom`, `attribution` | `map.ts` | [TileLayer: Creation](https://leafletjs.com/reference.html#tilelayer-l-tilelayer), [maxZoom](https://leafletjs.com/reference.html#tilelayer-maxzoom), [attribution](https://leafletjs.com/reference.html#layer-attribution) |
+| `.addTo(map)`, `.remove()` | `map.ts`, `location.ts` | [Layer: addTo](https://leafletjs.com/reference.html#layer-addto), [remove](https://leafletjs.com/reference.html#layer-remove) |
+| `L.latLng(lat, lng)` | `location.ts` | [LatLng: Creation](https://leafletjs.com/reference.html#latlng-l-latlng) |
+| `L.circleMarker(latLng, options)`, `.setLatLng`, `.getLatLng` | `location.ts` | [CircleMarker: Creation](https://leafletjs.com/reference.html#circlemarker-l-circlemarker), [setLatLng](https://leafletjs.com/reference.html#circlemarker-setlatlng) |
+| `L.circle(latLng, options)`, `.setRadius(r)` | `location.ts` | [Circle: Creation](https://leafletjs.com/reference.html#circle-l-circle), [setRadius](https://leafletjs.com/reference.html#circle-setradius) |
+| Options `color`, `weight`, `fillColor`, `fillOpacity`, `stroke`, `className`, `interactive` | `location.ts` | Inherited from [Path](https://leafletjs.com/reference.html#path-color) |
+| `L.version` | `leaflet.ts` | [version](https://leafletjs.com/reference.html#version) |
+
 ## "My location" (UI-08)
 
 The button moves through four modes, kept in its `data-mode` attribute:
