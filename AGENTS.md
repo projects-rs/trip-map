@@ -28,7 +28,7 @@ Trip Map is a phone-first web app. The design is in [docs/DESIGN.md](docs/DESIGN
   If another form seems clearer or safer, ask the owner first.
 - Short functions with clear names. Comments explain why, not only what.
 - Text from a trip, a user, or any other outside source is shown only as plain text (`textContent`), never as HTML (DESIGN.md section 14.3).
-- Libraries are copied into `vendor/<name>-<version>/` with their license, and listed in [NOTICES.md](NOTICES.md).
+- Libraries are copied into `vendor/<name>-<version>/` unchanged from their official package, with their license, and listed in [NOTICES.md](NOTICES.md). Load the skill [`adding-libraries`](.claude/skills/adding-libraries/SKILL.md) before adding or updating one; `tools/check-vendor.js` fails any pull request whose copy differs from the official files.
 
 ## Tests
 

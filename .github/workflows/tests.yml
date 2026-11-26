@@ -35,6 +35,17 @@ jobs:
       - name: Check the tests themselves (section 13.4)
         run: node tools/check-tests.js
 
+      - name: Check the copied libraries are the official files
+        run: node tools/check-vendor.js
+
+      - name: Keep the official library files, if the check failed
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: official-library-files
+          path: node_modules/leaflet/
+          retention-days: 7
+
       - name: Install the simulated phone browsers
         run: npx playwright install --with-deps chromium webkit
 
