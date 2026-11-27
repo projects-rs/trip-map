@@ -1667,18 +1667,22 @@ How `trip-db` is organized:
 
 ### 12.2 Who can change the app
 
-Decision: the app has a single owner. Only the owner approves and merges changes, and only the owner publishes a new version. There are no other maintainers.
+Decision: the app has a single owner, who alone publishes a new version and controls every setting. Changes are approved and merged by the owner or by **approved members** (decided 2026-11-27; until then only the owner approved and merged):
+
+- **Approved members** are people the owner adds to `CODEOWNERS` in any of the three repositories (`trip-map`, `trip-map-test`, `trip-db`), as reviewers and approvers of pull requests. They get Write access, never admin rights.
+- **Settings are the owner's only:** the GitHub account, the organization `projects-rs`, and every repository's settings (rulesets, Pages, environments, access, secrets) are changed only by the owner. Neither approved members nor AI agents change them.
 
 | Role | Who | Can do |
 | --- | --- | --- |
-| Owner | The app's owner | Approve and merge changes, publish a new version |
+| Owner | The app's owner | Approve and merge changes, publish a new version, choose the approved members |
+| Approved member | People the owner lists in `CODEOWNERS`, per repository | Review, approve and merge changes. Cannot publish or change settings |
 | Anyone else | Any person, including advanced users and trip contributors | Propose a change as a change request. Cannot merge. |
 | AI agent (Claude) | Works for the owner | Prepares a change and opens a change request. Does not merge (section 12.4). |
 
 Rules for the app's repository:
 
 - Nothing is changed directly. Every change arrives as a change request (a GitHub pull request).
-- A change request is merged only after the owner approves it (section 12.3).
+- A change request is merged only after the owner or an approved member approves it (section 12.3).
 - Automatic checks must pass before merging: the app's tests, and the check of the example trip and the icon set.
 - Merging is not publishing. The version that users receive is published separately, by the owner, as a deliberate step. A merged change therefore cannot reach users by accident.
 - **How publishing works** (decided 2026-11-26, section 13.7): after each merge into main, a GitHub workflow compiles the app, runs the phone tests on that exact build, and then waits. Its last job, the only part of the pipeline allowed to publish, starts only when the owner approves it in GitHub (the `github-pages` environment requires the owner's approval).
@@ -1689,7 +1693,8 @@ Access is controlled in two places: GitHub's own settings on each repository, an
 
 | Who | App repository | Trips repository (`trip-db`) |
 | --- | --- | --- |
-| App owner | Approve, merge, publish | The only one who merges: approves update requests and new trip requests (section 8.6), and hides or removes a trip that breaks the rules |
+| App owner | Approve, merge, publish | Merges: approves update requests and new trip requests (section 8.6), and hides or removes a trip that breaks the rules |
+| Approved member (listed in `CODEOWNERS`) | Approve and merge; cannot publish | Approve and merge update requests and new trip requests |
 | Contributor (advanced user) | Propose (pull request) | Propose (pull request); the automatic checks must pass |
 | Simple user | Report a problem from the app | Download trips; send update requests and new trip requests from the app (section 8.6); "Report this trip" |
 | Claude | Prepare changes and propose (pull request). Review. | Run the checks, prepare example trips, and propose |
@@ -1697,11 +1702,11 @@ Access is controlled in two places: GitHub's own settings on each repository, an
 Settings on GitHub:
 
 - **Merging needs the app owner's approval** (decided 2026-11-24), in the App repository and in `trip-db`:
-    - A `CODEOWNERS` file names the app owner as the owner of every file (`* @sheferreuven`).
+    - A `CODEOWNERS` file names who may approve every file: the app owner (`* @sheferreuven`), and the approved members the owner adds to the same line.
     - The `Protect-main` ruleset requires a pull request, **one approval**, **review from a code owner**, and **approval of the most recent push**, so nothing can be changed after the approval. Later, the required checks are added to it. Direct changes, deletions, and force-pushes are blocked. "Restrict updates" is not used.
-    - Others may get Write access: they push their own branches and open pull requests, but nothing is merged without the app owner's approval.
+    - Others may get Write access: they push their own branches and open pull requests, but nothing is merged without the approval of the app owner or an approved member.
     - **The app owner's own pull requests**, including Claude's, which GitHub shows under the app owner's account because Claude works through the app owner's GitHub connection: GitHub does not let anyone approve their own pull request, so the app owner is on the ruleset's bypass list, "For pull requests only", and merges them with "bypass rules" after reviewing them the same way.
-- **Test repository:** private; deletions and force-pushes are blocked. Nothing in it is ever published.
+- **Test repository:** private; deletions and force-pushes are blocked. Nothing in it is ever published. Like the other two, it has a `CODEOWNERS` file and the same `Protect-main` approval rules, so its changes are approved by the owner or an approved member (decided 2026-11-27).
 - **Trips repository:** the same approval rules. Contributors send pull requests from their own copy. The automatic checks must pass: the trip checker, the personal-data check, an unchanged `uid`, and a revision that goes up by one. The owner then reviews and merges every pull request; nothing is merged automatically.
 - **Access keys and tokens** are limited to the one repository they are for, and to the permissions they need.
 - **The owner's GitHub account** uses two-step sign-in, with recovery codes kept safe.
@@ -2422,3 +2427,4 @@ Only questions still open are listed here (2026-11-23). Decided questions are re
 | 2 (design) | 2026-11-26 | Section 13.7, new: the app is written in TypeScript and compiled by a build step; libraries are copied by the build from their official npm packages; GitHub builds, tests, and publishes after each merge, only once the app owner approves the publish step (option A). Sections 3, 12.2, 12.4, 12.5, 13.2, 14.3 and the repository layout updated to match. |
 | 2 (design) | 2026-11-26 | Section 13.7: Leaflet is used only through one gateway module, `src/leaflet.ts`, which checks its presence and version at start-up; moving to Leaflet 2.0 is planned after the Barcelona trip. |
 | 2 (design) | 2026-11-27 | Section 13.7: library versions are written only in `package.json`, checked by the build; Dependabot proposes stable updates as pull requests. |
+| 2 (design) | 2026-11-27 | Sections 12.2 and 12.3: the owner can add approved members to `CODEOWNERS` in `trip-map`, `trip-map-test` and `trip-db`, who review, approve and merge changes; only the owner publishes, and only the owner controls the GitHub account, the organization and every repository's settings. |

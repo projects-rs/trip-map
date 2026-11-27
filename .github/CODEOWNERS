@@ -1,2 +1,4 @@
-# Every file is owned by the app owner, whose approval is needed to merge (design section 12.3).
+# Who may approve and merge changes (design sections 12.2 and 12.3): the app
+# owner, and the approved members the owner adds to the line below, for
+# example "* @sheferreuven @member-name". Only the owner publishes and changes settings.
 * @sheferreuven

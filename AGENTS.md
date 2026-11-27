@@ -4,7 +4,8 @@ Trip Map is a phone-first web app. The design is in [docs/DESIGN.md](docs/DESIGN
 
 ## The owner decides
 
-- The app owner reviews and merges every change. Never merge, publish, or change repository settings.
+- The project owner can add **approved members** to `.github/CODEOWNERS` in each repository (`trip-map`, `trip-map-test`, `trip-db`). Approved members review and approve pull requests. A change is merged only after approval by the owner or an approved member. Only the owner publishes.
+- The GitHub account, the organization's settings, and every repository's settings are controlled by the project owner only. Approved members never get admin rights. Agents never merge, publish, or change any setting.
 - The owner reads Python, C, and C++, not JavaScript. Write code that a reader of those languages can follow, and explain anything unusual in the pull request.
 - Follow the design. If a change needs a decision the design does not make, ask; do not decide alone.
 
