@@ -20,6 +20,7 @@ How the Trip Map app is built, and how its parts work together. What the app doe
 | `src/location.ts` | class `MyLocation`: the "My location" button and the blue dot (UI-08) |
 | `tsconfig.json` | The compiler's settings: strict, every warning an error |
 | `tools/build-site.ts` | Assembles `site/` after the compiler: the page, styles, and libraries; checks that every library version agrees with `package.json` |
+| `docs/reviews/` | How pull requests are reviewed (`README.md`), and background for reviewers (`background.md`) |
 | `.github/dependabot.yml` | Once a week, GitHub's Dependabot proposes newer stable versions of the packages and actions as pull requests (never betas, never versions younger than 14 days) |
 | `icons/` | The icon set (DESIGN.md section 5.4) |
 | `tests/` | Phone tests (DESIGN.md section 13.4), with `playwright.config.ts` |

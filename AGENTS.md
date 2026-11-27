@@ -27,6 +27,15 @@ Trip Map is a phone-first web app. The design is in [docs/DESIGN.md](docs/DESIGN
     - how it was tested, and what the owner should try on the phone;
     - anything it leaves open: unfinished parts, questions, or settings only the owner can change.
 
+## Review
+
+- Before asking for review, the author (person or agent) prepares a **review guide** for the pull request with the skill [`preparing-review-guide`](.claude/skills/preparing-review-guide/SKILL.md), and links it from the PR description. The process is in [docs/reviews/README.md](docs/reviews/README.md).
+- The guide never repeats the basics: those are in [docs/reviews/background.md](docs/reviews/background.md), linked as the reviewer needs.
+- The guide is kept in sync with the pull request: every new commit updates it.
+- Reviewers comment on GitHub, on the line. Every comment gets an answer in its thread; every fix is a new commit; only the reviewer resolves a thread. An answer that explains something new is also added to the guide, or to `background.md` if it is general.
+- A pull request that touches security, privacy, or publishing is also reviewed by a separate agent session that did not write it, before the human review.
+- Before merging, the lasting parts of the guide are harvested into DESIGN.md, `docs/ARCHITECTURE.md`, and `background.md`, open points become issues, and the final guide is archived as a comment on the pull request. Guides are never stored in the repository.
+
 ## How the code is written
 
 - TypeScript in `src/`, plus HTML and CSS, with no framework (DESIGN.md section 13.7). `npm run build` compiles it with strict settings into `site/`, which is what GitHub publishes. Never commit `site/`.

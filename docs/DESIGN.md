@@ -1996,6 +1996,13 @@ Design documents (decided 2026-11-27):
 - The design may be split into several documents as the project grows, each linked from this document's table of contents.
 - Every drawing, flow chart, or diagram is in a text format, such as Mermaid or SVG, so it is reviewed and changed like code. A drawing is used where it makes a complex flow or design simpler than words.
 
+Reviews (decided 2026-11-27; the process is in `docs/reviews/README.md`):
+
+- Before review, every pull request gets a **review guide**, prepared with the skill `preparing-review-guide`: what to read and in which order, a code map, line-by-line notes for the important files, the behavior, decisions, rules check, tests, review questions, and open points. It is kept in sync with every new commit.
+- The basics are explained once, in `docs/reviews/background.md` (TypeScript next to C++, the browser and the phone, events, classes, HTML and CSS, performance, the build, the tests, Leaflet), and linked as each reviewer needs.
+- The guide is temporary: before merging, its lasting parts are harvested into this document, `docs/ARCHITECTURE.md`, and `background.md`, open points become issues, and the guide is archived as a comment on the pull request, never stored in the repository.
+- Pull requests that touch security, privacy, or publishing also get an independent review by a separate agent session.
+
 Pull requests and commits (decided 2026-11-27; the working rules are in `AGENTS.md`):
 
 - Each pull request holds one feature or theme, defined in advance in section 13.3 and meeting a concrete need of the app, and is described in a design document that it keeps in sync with the code.
@@ -2440,3 +2447,4 @@ Only questions still open are listed here (2026-11-23). Decided questions are re
 | 2 (design) | 2026-11-27 | Section 13.7: library versions are written only in `package.json`, checked by the build; Dependabot proposes stable updates as pull requests. |
 | 2 (design) | 2026-11-27 | Sections 12.2 and 12.3: the owner can add approved members to `CODEOWNERS` in `trip-map`, `trip-map-test` and `trip-db`, who review, approve and merge changes; only the owner publishes, and only the owner controls the GitHub account, the organization and every repository's settings. |
 | 2 (design) | 2026-11-27 | Section 13.6: design documents may be split, and every drawing is in a text format (Mermaid, SVG); pull requests hold one predefined feature, stay in sync with the design, are split into concrete commits when larger than 300 to 500 lines, and carry clear messages and full descriptions. Section 12.5: merge commits allowed besides squash merging, so a large pull request's commits can be kept. |
+| 2 (design) | 2026-11-27 | Section 13.6: the review flow. Every pull request gets a review guide (skill `preparing-review-guide`), kept in sync during review, harvested into the permanent documents before merging, and archived on the pull request; shared explanations in `docs/reviews/background.md`. |

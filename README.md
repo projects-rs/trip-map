@@ -13,6 +13,7 @@ The app is being built in steps (see the design, section 13). Today it shows the
 | [docs/DESIGN.md](docs/DESIGN.md) | What the app does, and why |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | How the code is organized |
 | [AGENTS.md](AGENTS.md) | Rules for AI coding tools, and for anyone writing code here |
+| [docs/reviews/](docs/reviews/README.md) | How pull requests are reviewed, and background for reviewers |
 | [NOTICES.md](NOTICES.md) | The libraries and data the app uses, with their licenses |
 | [SECURITY.md](SECURITY.md) | How to report a security problem |
 | [icons/README.md](icons/README.md) | The icon set |
