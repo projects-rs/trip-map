@@ -6,7 +6,6 @@ Trip Map is a phone-first web app. The design is in [docs/DESIGN.md](docs/DESIGN
 
 - A pull request can be approved and merged by the project owner or by a member listed in `.github/CODEOWNERS`.
 - Only the project owner can change the organization, project, or repository settings.
-- The owner reads Python, C, and C++, not JavaScript. Write code that a reader of those languages can follow, and explain anything unusual in the pull request.
 - Follow the design. If a change needs a decision the design does not make, ask; do not decide alone.
 
 ## Design documents
