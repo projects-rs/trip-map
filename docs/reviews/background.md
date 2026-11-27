@@ -119,8 +119,8 @@ sequenceDiagram
   U->>B: opens the app (home-screen icon)
   B->>B: loads index.html, then the styles
   B->>LF: runs leaflet.js (creates the global L)
-  B->>A: runs main.js; its imports (leaflet.ts, map.ts, location.ts) run first
-  A->>A: leaflet.ts checks L; main.ts checks the page (requireElement)
+  B->>A: runs main.js, whose imports (leaflet.ts, map.ts, location.ts) run first
+  A->>A: leaflet.ts checks L, then main.ts checks the page (requireElement)
   A->>LF: createMap: the map, OSM tiles, the credit
   A->>B: new MyLocation: registers onTap (button "click")
   A->>LF: and onDragStart (map "dragstart")
@@ -151,12 +151,12 @@ sequenceDiagram
   Note over U,G: 5. Walking (mode follow), about once a second
   G->>B: a new position
   B->>A: onPosition(position)
-  A->>LF: move the dot; panTo: the map slides to keep the user centered
+  A->>LF: move the dot, then panTo: the map slides to keep the user centered
 
   Note over U,G: 6. The user drags the map (mode follow)
   U->>LF: a finger drag
   LF->>A: "dragstart": onDragStart()
-  A->>A: setMode("shown"): the map stops following; the dot keeps moving
+  A->>A: setMode("shown"): the map stops following, the dot keeps moving
 ```
 
 Things the drawing shows:
