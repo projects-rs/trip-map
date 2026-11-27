@@ -1649,7 +1649,7 @@ Decision (2026-11-21, updated 2026-11-24): two public repositories and one priva
 | 2 | Trips | `trip-db` | All public trips, one file per trip, and the registry for the trip list (below). Content under CC BY 4.0 (section 14.1). | The app owner only |
 | 3 | Test | `trip-map-test`, **private**, never published | Test trips and test data for the automated tests | The app owner; Claude |
 
-- All three use the same settings: squash merging only, and a ruleset on the main branch that requires a pull request and lets only the app owner merge (section 12.5). `trip-db` is also left out of GitHub's long-term archive ("Preserve this repository" off), so that a trip removed for privacy reasons is not kept in an archived copy (section 14.2).
+- All three use the same settings: squash merging and merge commits both allowed, so that the merger can keep a large pull request's separate commits (section 13.6), and a ruleset on the main branch that requires a pull request and lets only the app owner merge (section 12.5). `trip-db` is also left out of GitHub's long-term archive ("Preserve this repository" off), so that a trip removed for privacy reasons is not kept in an archived copy (section 14.2).
 - The app owner's access key, used by the app owner's app to open pull requests with approved trips, is limited to `trip-db`. It gives no access to the app.
 - Claude's GitHub app is installed on these three repositories only.
 - **Only the App repository and `trip-db` are published** (decided 2026-11-24). A browser keeps data per website, and every repository published by an organization shares its website (`projects-rs.github.io`), so:
@@ -1728,7 +1728,7 @@ The setup steps, with every setting and its reason, are in the separate "Trip Ma
 | --- | --- |
 | Owner's account | A personal GitHub account on the owner's private email, used only on the owner's private laptop and phone, with nothing connecting it to work. Two-step sign-in with an authenticator app; recovery codes printed. |
 | Organization | `projects-rs`, on the GitHub Team plan, owned by that account. Membership private, two-step sign-in required, members cannot create, delete or change the visibility of repositories, only GitHub's own and our own Actions may run. |
-| App repository | `projects-rs/trip-map`, public, MIT. Ruleset `Protect main` (section 12.3). Squash merging only. Published at `https://projects-rs.github.io/trip-map/`. **To change** (decided 2026-11-26): Settings → Pages → Source: "GitHub Actions"; Settings → Environments → `github-pages` → "Required reviewers": the owner, and "Deployment branches": `main` only (section 13.7). |
+| App repository | `projects-rs/trip-map`, public, MIT. Ruleset `Protect main` (section 12.3). Squash merging and merge commits allowed (**to change**, decided 2026-11-27: Settings → General → Pull Requests → tick "Allow merge commits"). Published at `https://projects-rs.github.io/trip-map/`. **To change** (decided 2026-11-26): Settings → Pages → Source: "GitHub Actions"; Settings → Environments → `github-pages` → "Required reviewers": the owner, and "Deployment branches": `main` only (section 13.7). |
 | Test repository | `projects-rs/trip-map-test`. Ruleset `Protect test`. **To change** (decided 2026-11-24): made private, and GitHub Pages turned off for it, so the test address is no longer published. |
 | Claude | Claude GitHub App on `projects-rs`, only the selected repositories (`trip-map`, `trip-map-test`, and `trip-db`). Claude never gets access to the Firebase project. |
 | Trips repository | `projects-rs/trip-db`, public, CC BY 4.0 (section 12.1): planned on 2026-11-21, created by the owner with the same settings as `trip-map`, "Preserve this repository" off, and added to the Claude GitHub App. |
@@ -1990,6 +1990,17 @@ Comments in the code:
 - Where the code follows a rule from this document, the comment names the section, for example "Pie-chart pins, DESIGN.md section 5.1".
 - Comments explain why, not only what, wherever a choice is not obvious.
 - The automated checks warn when a function has no description.
+
+Design documents (decided 2026-11-27):
+
+- The design may be split into several documents as the project grows, each linked from this document's table of contents.
+- Every drawing, flow chart, or diagram is in a text format, such as Mermaid or SVG, so it is reviewed and changed like code. A drawing is used where it makes a complex flow or design simpler than words.
+
+Pull requests and commits (decided 2026-11-27; the working rules are in `AGENTS.md`):
+
+- Each pull request holds one feature or theme, defined in advance in section 13.3 and meeting a concrete need of the app, and is described in a design document that it keeps in sync with the code.
+- At most 300 to 500 lines of code per pull request. A larger one is broken into commits, each one concrete piece (an idea, a class, or a module) with working code; the merger decides whether to squash them.
+- Every pull request and commit has a message that states its content clearly. Every pull request's description lists the main changes, each touched file and why, the design sections behind it, how it was tested, and anything it leaves open.
 
 #### Everything the app relies on
 
@@ -2428,3 +2439,4 @@ Only questions still open are listed here (2026-11-23). Decided questions are re
 | 2 (design) | 2026-11-26 | Section 13.7: Leaflet is used only through one gateway module, `src/leaflet.ts`, which checks its presence and version at start-up; moving to Leaflet 2.0 is planned after the Barcelona trip. |
 | 2 (design) | 2026-11-27 | Section 13.7: library versions are written only in `package.json`, checked by the build; Dependabot proposes stable updates as pull requests. |
 | 2 (design) | 2026-11-27 | Sections 12.2 and 12.3: the owner can add approved members to `CODEOWNERS` in `trip-map`, `trip-map-test` and `trip-db`, who review, approve and merge changes; only the owner publishes, and only the owner controls the GitHub account, the organization and every repository's settings. |
+| 2 (design) | 2026-11-27 | Section 13.6: design documents may be split, and every drawing is in a text format (Mermaid, SVG); pull requests hold one predefined feature, stay in sync with the design, are split into concrete commits when larger than 300 to 500 lines, and carry clear messages and full descriptions. Section 12.5: merge commits allowed besides squash merging, so a large pull request's commits can be kept. |

@@ -4,16 +4,29 @@ Trip Map is a phone-first web app. The design is in [docs/DESIGN.md](docs/DESIGN
 
 ## The owner decides
 
-- The project owner can add **approved members** to `.github/CODEOWNERS` in each repository (`trip-map`, `trip-map-test`, `trip-db`). Approved members review and approve pull requests. A change is merged only after approval by the owner or an approved member. Only the owner publishes.
-- The GitHub account, the organization's settings, and every repository's settings are controlled by the project owner only. Approved members never get admin rights. Agents never merge, publish, or change any setting.
+- A pull request can be approved and merged by the project owner or by a member listed in `.github/CODEOWNERS`.
+- Only the project owner can change the organization, project, or repository settings.
 - The owner reads Python, C, and C++, not JavaScript. Write code that a reader of those languages can follow, and explain anything unusual in the pull request.
 - Follow the design. If a change needs a decision the design does not make, ask; do not decide alone.
 
-## Small pull requests
+## Design documents
 
-- One purpose per pull request, as split in the "Pull requests" column of DESIGN.md section 13.3.
-- **At most 300 to 500 lines of code** in one pull request, not counting comments, blank lines, and documents. Split anything bigger.
-- Every pull request description says: what it does, which design sections it follows, how it was tested, and what the owner should try on the phone.
+- The design document (`docs/DESIGN.md`) may be split into several documents as the project grows; each is linked from the design's table of contents.
+- Every drawing, flow chart, or diagram is written in a text format, such as Mermaid or SVG, so it can be reviewed and changed like code. Use a drawing when it makes a complex flow or design simpler to understand than words.
+
+## Pull requests and commits
+
+- **One feature or theme per pull request,** defined in advance and meeting a concrete need of the app, as split in the "Pull requests" column of DESIGN.md section 13.3.
+- **Every pull request is described in a design document, and stays in sync with it.** If the code changes something the design describes, the same pull request updates the design.
+- **At most 300 to 500 lines of code** in one pull request, not counting comments, blank lines, and documents. If that is not possible, the pull request is broken into commits as below.
+- **A larger pull request is broken into commits,** each holding one concrete piece: one idea, one class, or one module, with its own working code flow. Whoever merges decides whether to squash them into one.
+- **Every pull request and commit has a message that states its content clearly:** a first line of at most 72 characters saying what changed, then, after a blank line, why.
+- **Every pull request has a full description:**
+    - the main changes;
+    - each touched file, and why it was needed;
+    - the design sections that drive the change, with links;
+    - how it was tested, and what the owner should try on the phone;
+    - anything it leaves open: unfinished parts, questions, or settings only the owner can change.
 
 ## How the code is written
 
@@ -45,4 +58,5 @@ Trip Map is a phone-first web app. The design is in [docs/DESIGN.md](docs/DESIGN
 - Never put a password, key, or token in the repository.
 - Never write to `trip-db` or any real trip from code or tests.
 - Never load code from another website at run time.
+- Never change any organization, project, or repository setting: only the project owner can.
 - Never give a workflow permission to publish or write, except the publish job in `.github/workflows/publish.yml`, which runs only after the owner approves it.
