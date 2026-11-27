@@ -31,7 +31,7 @@ Trip Map is a phone-first web app. The design is in [docs/DESIGN.md](docs/DESIGN
 - Short functions with clear names. Comments explain why, not only what.
 - Text from a trip, a user, or any other outside source is shown only as plain text (`textContent`), never as HTML (DESIGN.md section 14.3).
 - Use Leaflet only through `src/leaflet.ts` (`import { L, type Leaflet } from "./leaflet.ts"`), never the global `L`; the compiler enforces it (DESIGN.md section 13.7).
-- Libraries come only from their official npm packages, at exact versions in `package.json`; the build copies them unchanged into `site/vendor/`. They are listed in [NOTICES.md](NOTICES.md). Load the skill [`adding-libraries`](.claude/skills/adding-libraries/SKILL.md) before adding or updating one.
+- Libraries come only from their official npm packages, at exact versions in `package.json`, which is the one place a version is written; the build copies them unchanged into `site/vendor/<package>/` and stops if anything disagrees with `package.json`. Updates arrive as Dependabot pull requests, reviewed like any other. They are listed in [NOTICES.md](NOTICES.md). Load the skill [`adding-libraries`](.claude/skills/adding-libraries/SKILL.md) before adding or updating one.
 
 ## Tests
 

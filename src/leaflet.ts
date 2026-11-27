@@ -17,7 +17,10 @@ import type * as LeafletTypes from "leaflet";
 /** Leaflet's types (L.Map, L.CircleMarker...), for type annotations: Leaflet.Map. */
 export type * as Leaflet from "leaflet";
 
-/** The exact Leaflet version the app is built and tested with (package.json, tools/build-site.ts). */
+/**
+ * The exact Leaflet version the app is built and tested with. Its one source is
+ * package.json; the build stops if this line does not match it.
+ */
 export const LEAFLET_VERSION = "1.9.4";
 
 /**
@@ -41,7 +44,7 @@ function findLeaflet(): typeof LeafletTypes {
   const found: unknown = Reflect.get(globalThis, "L");
   if (!isLeaflet(found)) {
     throw new Error(`Leaflet ${LEAFLET_VERSION} is not loaded: index.html must load ` +
-      `vendor/leaflet-${LEAFLET_VERSION}/leaflet.js before js/main.js`);
+      `vendor/leaflet/leaflet.js before js/main.js`);
   }
   return found;
 }
