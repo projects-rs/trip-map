@@ -15,6 +15,7 @@ Trip Map is a phone-first web app. The design is in [docs/DESIGN.md](docs/DESIGN
 
 ## Pull requests and commits
 
+- **Branch names say who pushes the branch and what it holds:** `dev/<first.last>/<descriptive_info>` for a person, for example `dev/reuven.shefer/first_basic_app`, and `dev/<agent>/<descriptive_info>` for an agent working alone, for example `dev/claude/legend_panel`. Lowercase, words joined by `_`. A person working with an agent on their own computer, where the person commits and pushes, uses their own name. Never commit to `main` directly.
 - **One feature or theme per pull request,** defined in advance and meeting a concrete need of the app, as split in the "Pull requests" column of DESIGN.md section 13.3.
 - **Every pull request is described in a design document, and stays in sync with it.** If the code changes something the design describes, the same pull request updates the design.
 - **At most 300 to 500 lines of code** in one pull request, not counting comments, blank lines, and documents. If that is not possible, the pull request is broken into commits as below.
