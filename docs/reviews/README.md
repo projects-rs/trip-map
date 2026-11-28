@@ -31,4 +31,4 @@ flowchart LR
 
 | PR | Plan step | What it reviewed | Guide |
 | --- | --- | --- | --- |
-| [#4](https://github.com/projects-rs/trip-map/pull/4) | Step 1, PR 1 | The map and My location, TypeScript and the build, publishing with the owner's approval, the project rules | Linked from the PR; archived on the PR at merge |
+| [#4](https://github.com/projects-rs/trip-map/pull/4) | Step 1, PR 1 | The map and My location, TypeScript and the build, publishing on merge and releases, the project rules and CONTRIBUTING.md | Linked from the PR; archived on the PR at merge |

@@ -19,6 +19,7 @@ From the answers, choose which sections of `background.md` to link at the top of
 
 ## 2. Where the guide lives
 
+- **Name:** "Trip Map PR #<GitHub number> (plan PR <n>): review guide", for example "Trip Map PR #4 (plan PR 1): review guide". GitHub's number comes first, because it is the one people see and click; the plan's number (DESIGN.md section 13.3) follows in brackets.
 - **During review:** an editable document (a Claude doc when the reviewer works with Claude, otherwise a Markdown comment on the PR), linked from the PR description under "Review guide".
 - **After merge:** archived as a comment on the PR (step 5). Guides are never stored in the repository: their line numbers and code maps go stale.
 
