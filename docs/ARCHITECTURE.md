@@ -29,7 +29,7 @@ How the Trip Map app is built, and how its parts work together. What the app doe
 | `tools/check-tests.ts` | Checks the tests themselves: description blocks and no real addresses |
 | `.github/workflows/tests.yml` | On every pull request: the test check, the version check, the type check and build, and the phone tests. Read-only. A pull request can merge only if it passes |
 | `.github/workflows/publish.yml` | After each merge into main: build and test that exact build, publish it to GitHub Pages, and mark a new version as a release (a tag `v<version>` and a GitHub Release with the built site attached) |
-| `tools/check-code.ts` | On every pull request: no type casts (`as`, `<T>`) and no `any` in the project's TypeScript, found by reading the code as a tree with the TypeScript compiler (AGENTS.md) |
+| `eslint.config.js` | ESLint's settings: no type casts and no `any` (AGENTS.md); `npm run build` runs ESLint right after the compiler |
 | `tools/check-version.ts` | On every pull request: a change to the app must raise `version` in `package.json` |
 
 ## From source to phone

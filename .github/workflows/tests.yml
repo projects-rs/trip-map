@@ -37,14 +37,11 @@ jobs:
       - name: Check the tests themselves (section 13.4)
         run: node tools/check-tests.ts
 
-      - name: Check the code has no type casts and no "any" (AGENTS.md)
-        run: node tools/check-code.ts
-
       - name: Check that a change to the app raises its version (section 11.3)
         if: github.event_name == 'pull_request'
         run: node tools/check-version.ts "origin/${{ github.base_ref }}"
 
-      - name: Type check and build the site (fails on any type error)
+      - name: Type check, lint, and build the site (fails on any type error, cast, or any)
         run: npm run build
 
       - name: Install the simulated phone browsers

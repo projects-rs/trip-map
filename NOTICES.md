@@ -10,4 +10,4 @@ Everything the app uses that it did not write itself, with its license and the c
 
 ## How libraries reach the app
 
-Libraries are not stored in this repository. The build (`npm run build`) copies each one, unchanged, from its official npm package at the exact version in `package.json` into the published site (DESIGN.md section 13.7). `package.json` is the one place a version is written; Dependabot proposes updates as pull requests. Build tools that are not published with the app (the TypeScript compiler, Leaflet's type descriptions, Playwright) are listed in `package.json` only.
+Libraries are not stored in this repository. The build (`npm run build`) copies each one, unchanged, from its official npm package at the exact version in `package.json` into the published site (DESIGN.md section 13.7). `package.json` is the one place a version is written; Dependabot proposes updates as pull requests. Build tools that are not published with the app (the TypeScript compiler, Leaflet's type descriptions, ESLint, Playwright) are listed in `package.json` only.

@@ -43,7 +43,7 @@ Trip Map is a phone-first web app. The design is in [docs/DESIGN.md](docs/DESIGN
 - TypeScript in `src/`, plus HTML and CSS, with no framework (DESIGN.md section 13.7). `npm run build` compiles it with strict settings into `site/`, which is what GitHub publishes. Never commit `site/`.
 - Every code file starts with the license line (`SPDX-License-Identifier: MIT`) and a short comment saying what the file is for.
 - Types are written in the code (`function f(id: string): HTMLElement`), never in comments. A `/** … */` description on every function: what it does, what it receives, and what it returns (DESIGN.md section 13.6).
-- No type casts (`as …`) and no `any`. Check in code instead (`instanceof`, `=== null`), so the compiler learns the type from the check. If a cast seems unavoidable, ask the owner first. `tools/check-code.ts` fails a pull request that has one (`npm run check-code` runs it locally).
+- No type casts (`as …`) and no `any`. Check in code instead (`instanceof`, `=== null`), so the compiler learns the type from the check. If a cast seems unavoidable, ask the owner first. ESLint (`eslint.config.js`) stops `npm run build` if it finds one.
 - Where code follows a rule from the design, the comment names the section, for example "DESIGN.md section 5.1".
 - Choose the form of each new piece of code with these four questions, in order, and say which one applies in the pull request:
     1. A library or the browser requires a class (for example `L.Control.extend`, a Web Component)? → a class.
