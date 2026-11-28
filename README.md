@@ -12,6 +12,7 @@ The app is being built in steps (see the design, section 13). Today it shows the
 | --- | --- |
 | [docs/DESIGN.md](docs/DESIGN.md) | What the app does, and why |
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | How the code is organized |
+| [CONTRIBUTING.md](CONTRIBUTING.md) | Setting up a computer, and how a change goes from the editor to the phone |
 | [AGENTS.md](AGENTS.md) | Rules for AI coding tools, and for anyone writing code here |
 | [docs/reviews/](docs/reviews/README.md) | How pull requests are reviewed, and background for reviewers |
 | [NOTICES.md](NOTICES.md) | The libraries and data the app uses, with their licenses |
@@ -37,7 +38,7 @@ npx playwright install chromium webkit
 npm test                         # builds, then tests
 ```
 
-They also run on GitHub for every pull request. After each merge, GitHub builds and tests the app again and publishes it once the owner approves.
+They also run on GitHub for every pull request. A pull request is merged only when they pass and a CODEOWNERS member approves; the merge publishes the new version (DESIGN.md section 12.2). The full setup and workflow are in [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
 

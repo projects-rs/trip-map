@@ -22,6 +22,7 @@ How the Trip Map app is built, and how its parts work together. What the app doe
 | `tools/build-site.ts` | Assembles `site/` after the compiler: the page, styles, and libraries; checks that every library version agrees with `package.json` |
 | `tools/serve-site.ts` | Serves `site/` on this computer (`npm run serve`, and for the tests), with Node's own modules only, so it works on Windows, Mac and Linux; sends nothing outside `site/` |
 | `docs/reviews/` | How pull requests are reviewed (`README.md`), and background for reviewers (`background.md`) |
+| `CONTRIBUTING.md` | Setting up a computer to work on the project, and the path of a change from branch to merge; kept in sync with the build and the rules |
 | `.github/dependabot.yml` | Once a week, GitHub's Dependabot proposes newer stable versions of the packages and actions as pull requests (never betas, never versions younger than 14 days) |
 | `icons/` | The icon set (DESIGN.md section 5.4) |
 | `tests/` | Phone tests (DESIGN.md section 13.4), with `playwright.config.ts` |
