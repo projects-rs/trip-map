@@ -1,0 +1,34 @@
+{
+  // The TypeScript compiler's settings for the app (src/). Like a C++ compiler's
+  // flags: strict, and every warning is an error, so the build fails on any
+  // type mistake. Output: plain JavaScript in site/js/, which GitHub publishes.
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "ES2022",
+    "moduleResolution": "bundler",
+    "lib": ["ES2022", "DOM"],
+    "rootDir": "src",
+    "outDir": "site/js",
+    "sourceMap": true,
+
+    // Imports name the real files ("./map.ts"); the compiler rewrites them to ".js".
+    "rewriteRelativeImportExtensions": true,
+    "verbatimModuleSyntax": true,
+
+    // No global type packages. Leaflet's types (package @types/leaflet) are
+    // imported only by src/leaflet.ts, the one gateway to Leaflet; using the
+    // global "L" anywhere else is a compile error.
+    "types": [],
+
+    // Strict checking: the compiler's -Wall -Werror.
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitOverride": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noUncheckedIndexedAccess": true
+  },
+  "include": ["src"]
+}

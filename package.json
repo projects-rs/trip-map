@@ -1,0 +1,26 @@
+{
+  "name": "trip-map",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Tools for building and testing the Trip Map app.",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "build": "tsc -p tsconfig.json && npm run lint && node tools/build-site.ts",
+    "lint": "eslint . && prettier --check \"src/**/*.ts\" \"tools/**/*.ts\" \"tests/**/*.ts\" \"*.ts\" eslint.config.js \"css/**/*.css\" index.html && node tools/check-headers.ts",
+    "format": "prettier --write \"src/**/*.ts\" \"tools/**/*.ts\" \"tests/**/*.ts\" \"*.ts\" eslint.config.js \"css/**/*.css\" index.html",
+    "serve": "node tools/serve-site.ts",
+    "test": "npm run build && playwright test",
+    "check-tests": "node tools/check-tests.ts",
+    "check-version": "node tools/check-version.ts"
+  },
+  "devDependencies": {
+    "@types/leaflet": "1.9.12",
+    "eslint": "10.1.0",
+    "leaflet": "1.9.4",
+    "playwright": "1.63.0",
+    "prettier": "3.8.1",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.72.0"
+  }
+}

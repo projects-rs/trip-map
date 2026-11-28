@@ -1,0 +1,116 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 The Trip Map authors
+#
+# Publishes the app after each merge into main (DESIGN.md sections 12.2, 13.2,
+# and 13.7). A merge already required passing checks and a CODEOWNERS approval,
+# so this workflow does not wait:
+#   build    compiles the site and runs the phone tests on that exact build
+#   publish  deploys it to GitHub Pages (the only job that can publish)
+#   release  marks a new app version with a tag v<version> and a GitHub Release
+#            with the built site attached (the only job that can write)
+# Phones get the new version through "Try new versions first" until the owner
+# marks it ready for everyone (section 3.2).
+#
+# To go back to an earlier release: Actions → Publish → Run workflow, and choose
+# that release's tag under "Use workflow from".
+
+name: Publish
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: publish
+  cancel-in-progress: false   # never stop a publish half-way
+
+jobs:
+  build:
+    name: Build and test the site
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install the build and test tools (exact versions from package.json)
+        run: npm install --no-audit --no-fund
+
+      - name: Type check and build the site
+        run: npm run build
+
+      - name: Install the simulated phone browsers
+        run: npx playwright install --with-deps chromium webkit
+
+      - name: Run the phone tests on this exact build
+        run: npx playwright test
+
+      - name: Read the app version
+        id: version
+        run: echo "version=$(node -p "require('./package.json').version")" >> "$GITHUB_OUTPUT"
+
+      - name: Pack the built site for the release
+        run: cd site && zip -qr "../trip-map-v${{ steps.version.outputs.version }}.zip" .
+
+      - name: Keep the packed site for the release job
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-zip
+          path: trip-map-v${{ steps.version.outputs.version }}.zip
+          retention-days: 7
+
+      - name: Hand the built site to the publish job
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+
+  publish:
+    name: Publish to GitHub Pages
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    permissions:
+      pages: write            # the only job allowed to publish
+      id-token: write         # proves to GitHub Pages that this is this repository's workflow
+    steps:
+      - name: Publish to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+  release:
+    name: Mark the release (tag and GitHub Release)
+    needs: [build, publish]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write         # the only job allowed to write: it creates the tag and the release
+    env:
+      GH_TOKEN: ${{ github.token }}
+      TAG: v${{ needs.build.outputs.version }}
+    steps:
+      - name: Get the packed site
+        uses: actions/download-artifact@v4
+        with:
+          name: release-zip
+
+      - name: Create the release, unless this version already has one
+        run: |
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" > /dev/null 2>&1; then
+            echo "$TAG is already released: nothing new to mark (documents only, or a republish)."
+          else
+            gh release create "$TAG" "trip-map-$TAG.zip" \
+              --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" \
+              --title "Trip Map $TAG" --generate-notes
+          fi

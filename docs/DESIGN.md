@@ -89,7 +89,8 @@ Words that are no longer used (decision of 2026-11-21): "map" for the shared fil
 | Phones | Android and iPhone |
 | Map display | Leaflet. Online: OpenStreetMap tiles. Offline: the trip's own offline map file (section 7.4) |
 | Walking routes | FOSSGIS OSRM public server, foot profile |
-| Hosting | GitHub Pages |
+| Code | TypeScript, compiled to plain JavaScript before publishing (decided 2026-11-26, section 13.7) |
+| Hosting | GitHub Pages, published by a GitHub workflow only after the app owner approves (section 12.2) |
 | Server of our own | None. Group trips use one hosted service, Firebase (section 9.5). Requests and feedback travel through the phone's share menu (section 8.6). |
 | Cost | Free |
 
@@ -1402,10 +1403,10 @@ Both ways give the same kind of trip file, checked by the same checker.
 Everything an AI agent needs to build a trip is public at one address, **`https://projects-rs.github.io/trip-map/ai/`**, served by GitHub Pages from the folder `ai/` of the `trip-map` repository. Gemini, Claude, ChatGPT, and any other AI that can read web pages can use it.
 
 ```
-trip-map/                 (repository; published at https://projects-rs.github.io/trip-map/)
-├── index.html, …         the app
+trip-map/                 (repository; the build copies the published parts to https://projects-rs.github.io/trip-map/)
+├── index.html, css/      the app's page and styles
+├── src/                  the app's code in TypeScript, compiled into js/ by the build (section 13.7)
 ├── llms.txt              a standard "for AI" pointer file at the site's root, pointing to ai/
-├── .nojekyll             makes GitHub Pages serve every file exactly as it is
 ├── icons/                the icons, used by the app (section 5.4)
 ├── ai/                   the AI toolkit
 │   ├── index.md          "Read me first": what a trip is, the steps, and links to the rest
@@ -1419,7 +1420,7 @@ trip-map/                 (repository; published at https://projects-rs.github.i
 └── docs/                 DESIGN.md and other documents for people
 ```
 
-- **Plain files.** The files are served exactly as they are, not wrapped in web pages, which is what AI agents read best.
+- **Plain files.** The files are served exactly as they are, not wrapped in web pages, which is what AI agents read best. The build copies them unchanged into the published site (section 13.7).
 - **Short entry page.** `ai/index.md` is short and links to the details, because agents sometimes read only part of a long page.
 - **One source.** The rules are written once, in the trip guide and the schema (section 10.1 above). `ai/icons.json` and the summaries in `index.md` and the skill are generated from them by the automatic checks on every merge, so they never go out of step.
 - **Stable addresses.** `ai/` is always the latest version. `ai/v2/` stays fixed for format version 2.0, so instructions given for older trips keep working (section 11.1).
@@ -1533,7 +1534,7 @@ Where everything is kept, in the App repository:
 
 | # | What | Where | Example |
 | --- | --- | --- | --- |
-| 1 | **The steps** (code), one small file per major change | `src/format/convert/` | `2-to-3.js`: converts a 2.x file to 3.0 |
+| 1 | **The steps** (code), one small file per major change | `src/format/convert/` | `2-to-3.ts`: converts a 2.x file to 3.0 |
 | 2 | **What each step means**, in plain words | The format history below (one row per version), and the same text at the top of each step's file | "3.0: each legend's `groups` renamed to `entries`" |
 | 3 | **The rules of every version**, kept forever | `schema/` | `trip-2.0.json`, `trip-3.0.json` |
 | 4 | **The tests of every step**: an old file, and the exact file it must become | `tests/format/` | `2.0-barcelona.json` → `3.0-barcelona.json` |
@@ -1605,6 +1606,9 @@ Format history:
 
 - Written as `major.minor.patch`, for example `2.1.0`.
 - Major: a redesign, or a new format major. Minor: a new feature. Patch: a fix.
+- Written in one place: `version` in `package.json` (decided 2026-11-28). The build copies it into the published app (`version.json`), where Settings shows it and updates compare it.
+- A pull request that changes the app raises the version: a patch for a fix, the minor for a feature, the major for a redesign. An automatic check fails the pull request if it changes the app without raising the version. A pull request that changes only documents or tests keeps the version.
+- Each published version is a release: a Git tag `v<version>` and a GitHub Release with the built app attached (section 13.7).
 - Each app release states the highest format version it reads and the icon set version it carries.
 
 ### 11.4 Icon set version
@@ -1648,7 +1652,7 @@ Decision (2026-11-21, updated 2026-11-24): two public repositories and one priva
 | 2 | Trips | `trip-db` | All public trips, one file per trip, and the registry for the trip list (below). Content under CC BY 4.0 (section 14.1). | The app owner only |
 | 3 | Test | `trip-map-test`, **private**, never published | Test trips and test data for the automated tests | The app owner; Claude |
 
-- All three use the same settings: squash merging only, and a ruleset on the main branch that requires a pull request and lets only the app owner merge (section 12.5). `trip-db` is also left out of GitHub's long-term archive ("Preserve this repository" off), so that a trip removed for privacy reasons is not kept in an archived copy (section 14.2).
+- All three use the same settings: squash merging and merge commits both allowed, so that the merger can keep a large pull request's separate commits (section 13.6), and a ruleset on the main branch that requires a pull request and lets only the app owner merge (section 12.5). `trip-db` is also left out of GitHub's long-term archive ("Preserve this repository" off), so that a trip removed for privacy reasons is not kept in an archived copy (section 14.2).
 - The app owner's access key, used by the app owner's app to open pull requests with approved trips, is limited to `trip-db`. It gives no access to the app.
 - Claude's GitHub app is installed on these three repositories only.
 - **Only the App repository and `trip-db` are published** (decided 2026-11-24). A browser keeps data per website, and every repository published by an organization shares its website (`projects-rs.github.io`), so:
@@ -1666,20 +1670,26 @@ How `trip-db` is organized:
 
 ### 12.2 Who can change the app
 
-Decision: the app has a single owner. Only the owner approves and merges changes, and only the owner publishes a new version. There are no other maintainers.
+Decision: the app has a single owner, who alone publishes a new version and controls every setting. Changes are approved and merged by the owner or by **approved members** (decided 2026-11-27; until then only the owner approved and merged):
+
+- **Approved members** are people the owner adds to `CODEOWNERS` in any of the three repositories (`trip-map`, `trip-map-test`, `trip-db`), as reviewers and approvers of pull requests. They get Write access, never admin rights.
+- **Settings are the owner's only:** the GitHub account, the organization `projects-rs`, and every repository's settings (rulesets, Pages, environments, access, secrets) are changed only by the owner. Neither approved members nor AI agents change them.
 
 | Role | Who | Can do |
 | --- | --- | --- |
-| Owner | The app's owner | Approve and merge changes, publish a new version |
+| Owner | The app's owner | Approve and merge changes, publish a new version, choose the approved members |
+| Approved member | People the owner lists in `CODEOWNERS`, per repository | Review, approve and merge changes. Cannot publish or change settings |
 | Anyone else | Any person, including advanced users and trip contributors | Propose a change as a change request. Cannot merge. |
 | AI agent (Claude) | Works for the owner | Prepares a change and opens a change request. Does not merge (section 12.4). |
 
 Rules for the app's repository:
 
 - Nothing is changed directly. Every change arrives as a change request (a GitHub pull request).
-- A change request is merged only after the owner approves it (section 12.3).
+- A change request is merged only when **both**: every automatic check has passed (the type check, the build, and the phone tests), **and** the owner or an approved member has approved it (section 12.3; decided 2026-11-28).
 - Automatic checks must pass before merging: the app's tests, and the check of the example trip and the icon set.
-- Merging is not publishing. The version that users receive is published separately, by the owner, as a deliberate step. A merged change therefore cannot reach users by accident.
+- **Merging publishes, but not to everyone** (decided 2026-11-28). A merged change is published at once as the newest version, but only phones with "Try new versions first" are offered it. Every other phone gets it only when the owner marks it ready for everyone, after trying it on real phones (section 13.2). A merged change therefore cannot reach all users by accident.
+- **How publishing works** (decided 2026-11-28, section 13.7): after each merge into main, a GitHub workflow compiles the app, runs the phone tests on that exact build, publishes it, and marks the release: a tag such as `v0.1.0` and a GitHub Release with the built app attached. The approval happened on the pull request, so the workflow does not wait. The owner's later step is "ready for everyone".
+- **The owner's bypass:** while there are no approved members, the owner merges pull requests that appear under the owner's own name (Claude's included) with the ruleset's bypass, which skips the checks and the approval. Once there is at least one approved member, the bypass is removed, so the rule above holds for everyone.
 
 ### 12.3 Access control
 
@@ -1687,7 +1697,8 @@ Access is controlled in two places: GitHub's own settings on each repository, an
 
 | Who | App repository | Trips repository (`trip-db`) |
 | --- | --- | --- |
-| App owner | Approve, merge, publish | The only one who merges: approves update requests and new trip requests (section 8.6), and hides or removes a trip that breaks the rules |
+| App owner | Approve, merge, publish | Merges: approves update requests and new trip requests (section 8.6), and hides or removes a trip that breaks the rules |
+| Approved member (listed in `CODEOWNERS`) | Approve and merge; cannot publish | Approve and merge update requests and new trip requests |
 | Contributor (advanced user) | Propose (pull request) | Propose (pull request); the automatic checks must pass |
 | Simple user | Report a problem from the app | Download trips; send update requests and new trip requests from the app (section 8.6); "Report this trip" |
 | Claude | Prepare changes and propose (pull request). Review. | Run the checks, prepare example trips, and propose |
@@ -1695,11 +1706,11 @@ Access is controlled in two places: GitHub's own settings on each repository, an
 Settings on GitHub:
 
 - **Merging needs the app owner's approval** (decided 2026-11-24), in the App repository and in `trip-db`:
-    - A `CODEOWNERS` file names the app owner as the owner of every file (`* @sheferreuven`).
+    - A `CODEOWNERS` file names who may approve every file: the app owner (`* @sheferreuven`), and the approved members the owner adds to the same line.
     - The `Protect-main` ruleset requires a pull request, **one approval**, **review from a code owner**, and **approval of the most recent push**, so nothing can be changed after the approval. Later, the required checks are added to it. Direct changes, deletions, and force-pushes are blocked. "Restrict updates" is not used.
-    - Others may get Write access: they push their own branches and open pull requests, but nothing is merged without the app owner's approval.
+    - Others may get Write access: they push their own branches and open pull requests, but nothing is merged without the approval of the app owner or an approved member.
     - **The app owner's own pull requests**, including Claude's, which GitHub shows under the app owner's account because Claude works through the app owner's GitHub connection: GitHub does not let anyone approve their own pull request, so the app owner is on the ruleset's bypass list, "For pull requests only", and merges them with "bypass rules" after reviewing them the same way.
-- **Test repository:** private; deletions and force-pushes are blocked. Nothing in it is ever published.
+- **Test repository:** private; deletions and force-pushes are blocked. Nothing in it is ever published. Like the other two, it has a `CODEOWNERS` file and the same `Protect-main` approval rules, so its changes are approved by the owner or an approved member (decided 2026-11-27).
 - **Trips repository:** the same approval rules. Contributors send pull requests from their own copy. The automatic checks must pass: the trip checker, the personal-data check, an unchanged `uid`, and a revision that goes up by one. The owner then reviews and merges every pull request; nothing is merged automatically.
 - **Access keys and tokens** are limited to the one repository they are for, and to the permissions they need.
 - **The owner's GitHub account** uses two-step sign-in, with recovery codes kept safe.
@@ -1708,7 +1719,7 @@ Settings on GitHub:
 
 - Claude is connected through the Claude GitHub App, installed on the organization with access to the selected repositories only (today `trip-map`, `trip-map-test`, and `trip-db`). Its commits carry a "Co-Authored-By: Claude" line, and its pull requests say they were made with Claude, so its work is always recognizable.
 - Claude can prepare changes on a branch, open pull requests, review pull requests, run the trip checks and the adaptation tool, and answer questions about the code.
-- Claude cannot merge into the App repository's main branch or publish. The branch rule in section 12.3 lets only the owner update main.
+- Claude cannot merge into the App repository's main branch or publish. The branch rule in section 12.3 lets only the owner or an approved member merge, and only the publish workflow, after a merge into main, publishes (section 12.2).
 - Claude has no access to account, organization or repository settings, and no keys or tokens.
 - Emergency stop: uninstalling the Claude GitHub App in the organization's settings removes all of Claude's access at once.
 - Claude is not a maintainer. It works for the owner, and the owner decides.
@@ -1721,7 +1732,7 @@ The setup steps, with every setting and its reason, are in the separate "Trip Ma
 | --- | --- |
 | Owner's account | A personal GitHub account on the owner's private email, used only on the owner's private laptop and phone, with nothing connecting it to work. Two-step sign-in with an authenticator app; recovery codes printed. |
 | Organization | `projects-rs`, on the GitHub Team plan, owned by that account. Membership private, two-step sign-in required, members cannot create, delete or change the visibility of repositories, only GitHub's own and our own Actions may run. |
-| App repository | `projects-rs/trip-map`, public, MIT. Ruleset `Protect main` (section 12.3). Squash merging only. Published at `https://projects-rs.github.io/trip-map/`. |
+| App repository | `projects-rs/trip-map`, public, MIT. Ruleset `Protect main` (section 12.3). Squash merging and merge commits allowed (**to change**, decided 2026-11-27: Settings → General → Pull Requests → tick "Allow merge commits"). Published at `https://projects-rs.github.io/trip-map/`. **To change** (decided 2026-11-26, updated 2026-11-28): Settings → Pages → Source: "GitHub Actions"; Settings → Environments → `github-pages` → "Deployment branches": `main` only, and no "Required reviewers" (publishing follows the merge); ruleset `Protect-main` → "Require status checks to pass": "Type check, build, and phone tests" (section 13.7). |
 | Test repository | `projects-rs/trip-map-test`. Ruleset `Protect test`. **To change** (decided 2026-11-24): made private, and GitHub Pages turned off for it, so the test address is no longer published. |
 | Claude | Claude GitHub App on `projects-rs`, only the selected repositories (`trip-map`, `trip-map-test`, and `trip-db`). Claude never gets access to the Firebase project. |
 | Trips repository | `projects-rs/trip-db`, public, CC BY 4.0 (section 12.1): planned on 2026-11-21, created by the owner with the same settings as `trip-map`, "Preserve this repository" off, and added to the Claude GitHub App. |
@@ -1750,7 +1761,7 @@ Decided 2026-11-24: there is no published test version. New code is tried by aut
 1. Claude builds the step and opens a change request in the App repository.
 2. The automated tests run on GitHub (section 13.4), including the **phone tests**: the app runs in simulated phone browsers (Chrome as on Android, Safari's engine as on iPhone), with touch, a phone-sized screen, and a fake GPS position. Screenshots of every screen are attached to the change request. All tests must pass.
 3. The app owner reviews the change and the screenshots, and merges.
-4. The app owner publishes the version (section 12.2). Only phones with "Try new versions first" are offered it (section 3.2); the app saves an automatic backup before updating.
+4. The merge publishes the version (section 12.2): GitHub builds it, runs the phone tests again on that exact build, publishes it, and marks the release (a tag and a GitHub Release). Only phones with "Try new versions first" are offered it (section 3.2); the app saves an automatic backup before updating.
 5. The app owner, and testers where useful, try it on their phones, using the step's "Try on the phone" list with the Haifa and Caesarea test trips (step 0b), including real walks where the step needs them.
 6. Problems are reported to Claude, with a screenshot where possible, and fixed in a new change request.
 7. When it works, the app owner marks the version ready, and every other phone is offered it.
@@ -1856,6 +1867,7 @@ Rough effort for releases C to F together: about four to five weeks, mostly set 
 - Tests never write to `trip-db`: the checker's tests use test trips kept with the tests.
 - Firebase tests run only against the Firebase emulator, a local copy on the test machine, never against the real Firebase project.
 - There is no published test version: new versions are tried in the real app by phones with "Try new versions first", after an automatic backup (sections 3.2 and 13.2).
+- A phone test also fails if the page throws an error during it, even when the screen looks right, so a hidden error is never missed (decided 2026-11-28).
 
 How the rule is enforced:
 
@@ -1979,10 +1991,29 @@ Every part of the project is documented, so that the app owner, testers, contrib
 Comments in the code:
 
 - Every code file starts with the license notice (section 14.1), and a short comment that says what the file is for.
-- Every function has a short description of what it does, what it receives, and what it returns. JavaScript uses the standard JSDoc form, which editors and AI tools can read.
+- Every function has a short description of what it does, what it receives, and what it returns, in the standard `/** … */` documentation comment form (TSDoc), which editors and AI tools can read. The types themselves are part of the TypeScript code (section 13.7).
 - Where the code follows a rule from this document, the comment names the section, for example "Pie-chart pins, DESIGN.md section 5.1".
 - Comments explain why, not only what, wherever a choice is not obvious.
 - The automated checks warn when a function has no description.
+
+Design documents (decided 2026-11-27):
+
+- The design may be split into several documents as the project grows, each linked from this document's table of contents.
+- Every drawing, flow chart, or diagram is in a text format, such as Mermaid or SVG, so it is reviewed and changed like code. A drawing is used where it makes a complex flow or design simpler than words.
+
+Reviews (decided 2026-11-27; the process is in `docs/reviews/README.md`):
+
+- Before review, every pull request gets a **review guide**, prepared with the skill `preparing-review-guide`: a change index linking every changed file and function to its explanation, what to read and in which order, open decisions and owner's settings at the top, a code map, line-by-line notes for the important files, the behavior, decisions, rules check, tests, and review questions. It is a local file, `review-guides/pr-<number>-review-guide.md`, never committed, built as soon as the pull request is pushed; the author tells the reviewer it exists, and keeps it in sync with every new push.
+- The basics are explained once, in `docs/reviews/background.md` (TypeScript next to C++, the browser and the phone, events, classes, HTML and CSS, performance, the build, the tests, Leaflet), and linked as each reviewer needs.
+- The guide is temporary (decided 2026-11-28): decisions taken during review go into this document, `docs/ARCHITECTURE.md`, or `background.md` by their own commits during the review, never copied from the guide; before merging, open points become issues, a short summary of the guide (at most about 60 lines) is posted as a comment on the pull request, and the local file is deleted.
+- Pull requests that touch security, privacy, or publishing also get an independent review by a separate agent session.
+
+Pull requests and commits (decided 2026-11-27; the working rules are in `AGENTS.md`, and the setup and step-by-step workflow for contributors in `CONTRIBUTING.md`, which a pull request that changes the setup keeps in sync):
+
+- Each pull request comes from its own branch, named by who pushes it (decided 2026-11-28): `dev/<first.last>/<descriptive_info>` for a person (`dev/reuven.shefer/first_basic_app`), `dev/<agent>/<descriptive_info>` for an agent working alone (`dev/claude/legend_panel`); lowercase, words joined by `_`. A person working with an agent on their own computer commits and pushes, so the branch carries the person's name; the commits name the agent as co-author. Nothing is committed to `main` directly.
+- Each pull request holds one feature or theme, defined in advance in section 13.3 and meeting a concrete need of the app, and is described in a design document that it keeps in sync with the code.
+- At most 300 to 500 lines of code per pull request. When a change needs more, the author asks the owner first (decided 2026-11-28), and the owner chooses: commits, each one concrete piece (an idea, a class, or a module) with working code, whose squashing the merger decides; several pull requests; or a longer pull request this time.
+- Every pull request and commit has a message that states its content clearly. Every pull request's description lists the main changes, each touched file and why, the design sections behind it, how it was tested, and anything it leaves open.
 
 #### Everything the app relies on
 
@@ -2013,6 +2044,28 @@ Rules:
 
 - Nothing is added to this list without a reason, and every item has a known license or terms of use.
 - Each online service has a known fallback, so that the app is not stuck if a free service changes its terms. For example, another map image provider, or running a routing server of one's own.
+
+### 13.7 Code, build, and publishing (decided 2026-11-26)
+
+- **TypeScript.** The app is written in TypeScript (`src/`), JavaScript with types written as part of the language, close to C++: `let timer: number | undefined`, `private mode: Mode`, `function f(id: string): HTMLElement`. The compiler checks every type before anything runs, with strict settings (the compiler's "-Wall -Werror"), including every call into Leaflet, through Leaflet's published type descriptions. Chosen over plain JavaScript with types in comments (JSDoc), whose comments that act as casts were found hard to read in the review of the first pull request. Type casts and `any`, which would let code bypass the compiler's checks, are forbidden, and ESLint, the standard checker for TypeScript, finds them as part of the build (decided 2026-11-28).
+- **The build.** `npm run build` compiles `src/` into plain JavaScript and assembles the folder `site/`: the page, the styles, the compiled code, and each library copied unchanged from its official npm package at an exact version. `site/` is exactly what the phone downloads. It is never stored in the repository; the build makes it again each time.
+- **Leaflet through one gateway** (decided 2026-11-26). Leaflet 1.9 is loaded by `index.html` as a global script, which creates a global `L` that any file could use without saying where it comes from. To keep control, only `src/leaflet.ts` reads that global: it checks at start-up that Leaflet is loaded and is exactly version 1.9.4, stopping with a clear error otherwise, and exports it. Every other file writes `import { L } from "./leaflet.ts"`, and the compiler refuses the global `L` anywhere else. Every Leaflet call the app makes is listed with its place in the [Leaflet 1.9.4 API reference](https://leafletjs.com/reference.html) in `docs/ARCHITECTURE.md`, "Leaflet API". **Planned after the Barcelona trip:** move to Leaflet 2.0, which drops the global and is imported like any other module; only `src/leaflet.ts` and the calls whose API changed need updating.
+- **Libraries** come from their official npm packages, at the exact versions in `package.json`, and are copied by the build, never edited or rebuilt, and never loaded from another website while the app runs. The skill `adding-libraries` gives the steps; `NOTICES.md` lists them.
+- **Versions: one source, and updates by pull request** (decided 2026-11-27). A library's version is written only in `package.json`. The build checks that npm installed exactly that version, and that the only other place that must agree, Leaflet's start-up check in `src/leaflet.ts`, does; paths carry no version (`vendor/leaflet/`). The version is the latest stable release: Leaflet 1.9.4 (May 2023); Leaflet 2.0 is still in beta (2.0.0-beta.5, November 2026). GitHub's Dependabot proposes newer stable versions of the packages and of the GitHub actions once a week, as pull requests that go through the tests and the owner's review; it never proposes betas or versions younger than 14 days, and never merges.
+- **Publishing on merge (option A; decided 2026-11-26, updated 2026-11-28).** A GitHub workflow (`.github/workflows/publish.yml`) runs after each merge into main. Its `build` job compiles the site and runs the phone tests on that exact build; its `publish` job, the only part of the pipeline that can publish, deploys it to GitHub Pages; its `release` job, the only part that can write to the repository, marks the release. There is no extra approval: the merge itself required passing checks and a CODEOWNERS approval (section 12.2), and phones get the new version only through "Try new versions first" until the owner marks it ready (section 13.2). Chosen over committing the compiled files into the repository (option B): the repository holds only what people write.
+- **Releases** (decided 2026-11-28). Each publish of a new app version is marked by a Git tag `v<version>` and a GitHub Release, with the release notes taken from the merged pull request and the built `site/` attached as a zip: a permanent copy of exactly what the phones received, since GitHub Pages keeps only the latest. Going back to an earlier release means publishing that tag again (the publish workflow's "Run workflow" button, choosing the tag). A merge that does not change the app (documents only) publishes nothing new and makes no release.
+- **Code style, checked by the build** (decided 2026-11-28). `npm run build` runs, after the compiler, ESLint (`eslint.config.js`: typescript-eslint's recommended checks plus size, naming, type, and safety rules), Prettier's check (lines at most 120 characters), and `tools/check-headers.ts` (the license line and a description on every function), and stops on any break, on a laptop and on every pull request. The rules and their limits are listed in `AGENTS.md`, "Code style"; a rule is broken only with the owner's approval, marked in the code. Chosen as the JavaScript counterpart of Python's PEP 8 with `black` and `flake8`: written rules, an automatic formatter, and a checker.
+- **Source maps** are published with the code, so that the browser's developer tools show the TypeScript, not the compiled code, when debugging on a phone.
+
+### 13.8 Performance (decided 2026-11-28)
+
+The phone has two budgets: time and battery. The app's code runs in short steps between the browser's screen redraws, about 16 ms each at 60 redraws a second; past about 100 ms a tap feels slow (explained in `docs/reviews/background.md`, section 7). The battery is spent mostly by the screen, GPS, and work done while nobody looks.
+
+- **Event handlers are short.** A tap, a GPS position, or a map move finishes in a few milliseconds. Heavy work moves out of the handler (`setTimeout`, `requestAnimationFrame`, or a Web Worker), as a Linux interrupt handler defers to a bottom half.
+- **No repeated work on frequent events.** The app reacts to the end of a map move (`moveend`), not to every step of it, and never to every finger movement.
+- **Battery:** no polling; GPS runs only while the user asked for it ("My location", navigation); work stops while the app is hidden (`visibilitychange`). Navigation adds its own measures (section 7.3.1).
+- **No heavy logging** in handlers that run often.
+- **Every optimization is a design decision:** a new optimization, or a rule that trades speed or battery for something else, is written here with its reason, and as a rule in `AGENTS.md`, in the same pull request.
 
 ## 14. Licensing, rights, and privacy
 
@@ -2156,6 +2209,8 @@ Process:
 
 - **Security tests** are part of the automated tests: harmful content in every text field, broken and oversized links and messages, and checks that the security policy is in place.
 - **A security review before each release,** by a reviewer who did not write the code: a separate Claude session with only this section and the code. Its findings are fixed before publishing.
+- **Only two steps can write** (decided 2026-11-26, updated 2026-11-28): the `publish` job (to GitHub Pages) and the `release` job (tags and releases) of the publish workflow, from main only, after a merge that required passing checks and a CODEOWNERS approval. Every other check on GitHub can only read (section 13.7).
+- **Libraries are exactly the official releases:** the build copies them from the official npm packages at exact versions, never from another source, and never edits them (section 13.7).
 - **A human security expert** reviews the app once before it is opened to the public. This may cost money (decided 2026-11-15).
 - **Reporting a weakness:** the App repository says how to report a security problem privately to the app owner, and promises a reply.
 - **No absolute guarantee.** No app can promise to be completely safe. These measures make an attack hard and limit the damage if one happens.
@@ -2405,3 +2460,17 @@ Only questions still open are listed here (2026-11-23). Decided questions are re
 | 2 (design) | 2026-11-25 | Section 4: mockups of the main screen, the menu, "My trips" with a trip's actions, and "Add trip". Section 4.2: UI-27, the site card's Share button, removed, as in section 6; a group is started from the menu or a trip's actions. |
 | 2 (design) | 2026-11-25 | Section 4: the legend panel, collapsed (one row of chips, scrolling sideways) or dragged up to show every entry, with "Show all" and "Hide all"; new controls UI-12 and UI-13; a fifth mockup; built in step 3. |
 | 2 (design) | 2026-11-25 | Section 13.3: a "Pull requests" column splitting each step of releases A and B into 24 small pull requests. |
+| 2 (design) | 2026-11-26 | Section 13.7, new: the app is written in TypeScript and compiled by a build step; libraries are copied by the build from their official npm packages; GitHub builds, tests, and publishes after each merge, only once the app owner approves the publish step (option A). Sections 3, 12.2, 12.4, 12.5, 13.2, 14.3 and the repository layout updated to match. |
+| 2 (design) | 2026-11-26 | Section 13.7: Leaflet is used only through one gateway module, `src/leaflet.ts`, which checks its presence and version at start-up; moving to Leaflet 2.0 is planned after the Barcelona trip. |
+| 2 (design) | 2026-11-27 | Section 13.7: library versions are written only in `package.json`, checked by the build; Dependabot proposes stable updates as pull requests. |
+| 2 (design) | 2026-11-27 | Sections 12.2 and 12.3: the owner can add approved members to `CODEOWNERS` in `trip-map`, `trip-map-test` and `trip-db`, who review, approve and merge changes; only the owner publishes, and only the owner controls the GitHub account, the organization and every repository's settings. |
+| 2 (design) | 2026-11-27 | Section 13.6: design documents may be split, and every drawing is in a text format (Mermaid, SVG); pull requests hold one predefined feature, stay in sync with the design, are split into concrete commits when larger than 300 to 500 lines, and carry clear messages and full descriptions. Section 12.5: merge commits allowed besides squash merging, so a large pull request's commits can be kept. |
+| 2 (design) | 2026-11-27 | Section 13.6: the review flow. Every pull request gets a review guide (skill `preparing-review-guide`), kept in sync during review, harvested into the permanent documents before merging, and archived on the pull request; shared explanations in `docs/reviews/background.md`. |
+| 2 (design) | 2026-11-28 | Sections 11.3, 12.2, 12.5, 13.2, 13.7, 14.3: a pull request is merged only when all checks pass and a CODEOWNERS member approves; merging publishes the version automatically to the "Try new versions first" phones, and the owner marks it ready for everyone after real-phone testing; each new app version is a release (tag and GitHub Release with the built app); the version lives in `package.json` and must be raised by a pull request that changes the app. |
+| 2 (design) | 2026-11-28 | Section 13.6: branch names. `dev/<first.last>/<descriptive_info>` for a person, `dev/<agent>/<descriptive_info>` for an agent working alone; the branch carries the name of whoever pushes it. |
+| 2 (design) | 2026-11-28 | Section 13.6: `CONTRIBUTING.md` holds the setup of a contributor's computer (Git, Node 22, VS Code) and the step-by-step workflow from branch to merge, kept in sync with the build and the rules. |
+| 2 (design) | 2026-11-28 | Section 13.6: the review guide is a local file, never committed, built when the pull request is pushed; at merge, nothing is harvested from it into the design documents, and only a short summary is posted on the pull request. |
+| 2 (design) | 2026-11-28 | Section 13.6: a change over 500 lines of code waits for the owner's choice: commits, several pull requests, or a longer pull request. Tests fail when the page throws an error the user cannot see. |
+| 2 (design) | 2026-11-28 | Section 13.8 (new): performance. Short event handlers, no repeated work on frequent events, battery rules, no heavy logging; every optimization is a design decision written here and in `AGENTS.md`. |
+| 2 (design) | 2026-11-28 | Section 13.7: ESLint runs in the build, right after the compiler, and stops it on a type cast or `any`, which the compiler alone allows. |
+| 2 (design) | 2026-11-28 | Section 13.7: code style checked by the build: Prettier (120-character lines), ESLint size, naming, type, and safety rules, and a check for the license line and function descriptions; the rules are in `AGENTS.md`, "Code style". |

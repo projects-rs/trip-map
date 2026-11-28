@@ -1,0 +1,32 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 The Trip Map authors
+#
+# Dependabot, GitHub's own update service (DESIGN.md section 13.7): once a week
+# it looks for newer stable versions of the packages in package.json and of
+# the GitHub actions in the workflows, and opens a pull request for each.
+# It never merges: every update goes through the tests and the owner's review.
+# Beta and other pre-release versions are never proposed.
+
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    cooldown:
+      default-days: 14          # propose a version only once it is 14 days old
+    versioning-strategy: increase
+    open-pull-requests-limit: 3
+    groups:
+      leaflet:                  # Leaflet and its type descriptions change together
+        patterns: ["leaflet", "@types/leaflet"]
+      lint:                     # ESLint, its TypeScript rules, and Prettier change together
+        patterns: ["eslint", "typescript-eslint", "prettier"]
+
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    cooldown:
+      default-days: 14
+    open-pull-requests-limit: 3

@@ -1,0 +1,61 @@
+# SPDX-License-Identifier: MIT
+# Copyright (c) 2026 The Trip Map authors
+#
+# The automated checks, on every pull request and every change to main
+# (DESIGN.md sections 13.2 and 13.4): the type check and build, the check on
+# the tests, and the phone tests. Read-only: nothing here can write to the
+# repository, merge, or publish, and it gets no keys of any kind.
+
+name: Tests
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  phone-tests:
+    name: Type check, build, and phone tests (Android and iPhone)
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false   # no GitHub key left on the machine for the tests
+          fetch-depth: 0               # the history, to compare with main (version check)
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install the build and test tools (exact versions from package.json)
+        run: npm install --no-audit --no-fund
+
+      - name: Check the tests themselves (section 13.4)
+        run: node tools/check-tests.ts
+
+      - name: Check that a change to the app raises its version (section 11.3)
+        if: github.event_name == 'pull_request'
+        run: node tools/check-version.ts "origin/${{ github.base_ref }}"
+
+      - name: Type check, lint, and build the site (fails on any type error or code style break)
+        run: npm run build
+
+      - name: Install the simulated phone browsers
+        run: npx playwright install --with-deps chromium webkit
+
+      - name: Run the phone tests on the built site
+        run: npx playwright test
+
+      - name: Keep the screenshots and the report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: phone-test-screenshots
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 14

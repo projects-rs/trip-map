@@ -1,0 +1,83 @@
+---
+name: preparing-review-guide
+description: How to build, keep up to date, and archive the review guide for a Trip Map pull request, as a local file that is never committed. Load as soon as a PR is pushed and opened, after every later push, and before the PR is merged.
+---
+
+# Preparing a review guide
+
+Every pull request gets a **review guide** before review is requested (AGENTS.md, "Review"). It lets a reviewer, who may not know TypeScript or the browser well, review the change thoroughly: what to read, in which order, what each part does, and where to look hardest. The process and the list of past reviews are in `docs/reviews/README.md`; the explanations shared by all reviews are in `docs/reviews/background.md`.
+
+## 1. Background for the reviewer
+
+Do not question the reviewer about what they know. `docs/reviews/background.md` already explains the basics (TypeScript next to C++, the browser and the phone, modules, events, classes, HTML and CSS, performance, build and publishing, tests, Leaflet), so the guide points there:
+
+- At the top of the guide, link the `background.md` sections for the topics this PR touches (a PR with events links "Events", a PR with tests links "Tests"). A reviewer who knows a topic skips its link.
+- Never repeat those basics inside the guide.
+- If the PR needs an explanation `background.md` lacks, add it there, in its own commit, not to the guide.
+
+## 2. Where the guide lives
+
+- **Name:** "Trip Map PR #<GitHub number> (plan PR <n>): review guide", for example "Trip Map PR #4 (plan PR 1): review guide". GitHub's number comes first, because it is the one people see and click; the plan's number (DESIGN.md section 13.3) follows in brackets.
+- **A local file, never committed:** `review-guides/pr-<GitHub number>-review-guide.md` in the author's copy of the repository. The folder is in `.gitignore`, so the guide never reaches the repository: its line numbers and code maps go stale.
+- **When:** build it as soon as the pull request is pushed and opened, and update it on every later push (section 4).
+- **Tell the reviewer** right away that it exists, with its path, and that VS Code shows it with its drawings (`Ctrl+K` then `V`). Write the same path in the PR description under "Review guide".
+- **An author working in the cloud,** whose files the reviewer cannot open, sends the file to the reviewer instead, and sends it again after each update.
+
+## 3. What the guide contains
+
+Use this order. Leave out a part marked "when" if it does not apply; keep every "always" part, even if short. Be concise: tables for anything with several attributes, drawings in a text format (Mermaid) for flows and state machines, short sentences.
+
+| # | Part | Contents | |
+| --- | --- | --- | --- |
+| 1 | Header | PR number and link, plan step (DESIGN.md 13.3), design sections followed, size in lines of code, check status | Always |
+| 2 | Summary | What the PR does and why, in 3 to 5 lines | Always |
+| 3 | Open decisions and owner's settings | Two short checkbox lists at the top, where the reviewer sees them first (see below) | Always (settings: when the PR needs any) |
+| 4 | Change index | Tables of every changed file and every new, changed, or removed function, class, type, or constant, with a **Reviewed** box per row and links to the parts of the guide that explain it (see below). It is also the reviewer's progress list | Always |
+| 5 | Background links | The `background.md` sections for the topics this PR touches (section 1) | When any |
+| 6 | Reading order | Every file, in an order where each builds on the ones before, grouped in levels (0: what runs first; 1: the app; 2: tests and tools; 3: project rules), with the attention each needs: review carefully, read quickly, glance, or skip, and why | Always |
+| 7 | Code map | For each new or changed file: every name (constants, types, classes, functions, fields), its kind, what it does, and what it interacts with. For a changed file, only what changed | Always |
+| 8 | Line by line | For the files marked "review carefully": a table of lines, code, and meaning, with the C, C++, or Python equivalent where it helps | Always, for those files |
+| 9 | Behavior | State machines as a drawing, and a state × event table covering every cell | When the PR has a state machine or flow |
+| 10 | Decisions | Each decision the PR makes, the alternatives considered, and why | When any |
+| 11 | Rules check | The AGENTS.md rules the PR touches, and whether each is enforced by a check or only written | Always |
+| 12 | Tests | What the tests cover, what they do not, and the link to the run and its screenshots | Always |
+| 13 | Review questions | Where to look hardest: failure paths, event order, cleanup, security, privacy, performance | Always |
+| 14 | Try it | Steps on the phone, or in Chrome's phone simulation with a fake GPS position | When the user sees a change |
+
+**Open decisions and owner's settings (part 3)** sit at the top of the guide, right after the summary, so the reviewer sees at once what waits for them:
+
+- **Open decisions:** one checkbox per question only the reviewer or the owner can answer (a rule to add, a choice between two designs). Each says in one line what it is and what the author recommends; a longer explanation goes in the chat or in part 10 (Decisions), linked. When decided, tick it and add the outcome and the commit that carried it out ("yes, done in 42ce396"). A decision not taken by the merge becomes an issue.
+- **Owner's settings:** one checkbox per repository or organization setting the PR needs, which only the owner can change (AGENTS.md): what to set and where (`Settings → Pages → Source: GitHub Actions`). The author never changes a setting, only lists it; the owner ticks it when done.
+- **The same two lists are in the PR description,** under "Review status", so they can be seen on GitHub and by any session that cannot open the guide. Keep both copies the same.
+
+**The change index (part 4)** is the reviewer's map of the whole PR and their progress list: they start there, jump to each explanation, and tick each row when reviewed. One table per level of the reading order (part 6), under a short bold label ("Level 1: the app"). Every changed file has its own row (or rows), named by its full path: never two files in one row, so the tables list exactly the files GitHub counts in the PR. Within a file, one row per name or per small group of names; a file with no named items (a document, a settings file) gets one row. Check after every update that the number of files in the tables equals GitHub's "Files changed".
+
+| Reviewed | File | Name | Kind | Change | What changed, in a few words | Explained in |
+| --- | --- | --- | --- | --- | --- | --- |
+| ☐ | `src/location.ts` | `MyLocation.onTap` | method (arrow field) | new | Starts watching on the first tap; follows on the second | [Code map](#7-code-map-srclocationts) · [Line by line](#8-line-by-line-srclocationts) |
+| ☐ | `tools/serve-site.ts` | `fileFor` | function | new | Maps a URL to a file inside `site/`, or refuses it | [Code map](#7-code-map-toolsserve-sitets) |
+
+- **Reviewed:** ☐ when the guide is built. The reviewer changes it to ☑, and only the reviewer: never tick a row for them, and when unsure whether a row was reviewed, leave ☐ and ask. When a later commit changes a ticked row, set it back to ☐ and add ⚠️ (changed after review), with the change named in "What changed". Exception (owner's decision, 2026-11-28): a commit that only lays out the code with the formatter (`npm run format`, no code changed) keeps the ticks; name it, and the files it touched, in a note under the change index instead. There is no separate checklist of files: these tables are the one list.
+
+- **Kind:** constant, type, class, method, field, function, or file.
+- **Change:** new, changed, renamed (old name → new), or removed.
+- **Explained in:** a link to every part that covers the row: its code map, its line-by-line table, the behavior drawing, a decision. Each file gets its own heading in parts 7 and 8, such as `### 7. Code map: src/location.ts`, so the link is the heading's anchor: lowercase, spaces as `-`, punctuation dropped (`#7-code-map-srclocationts`). VS Code's Markdown preview and GitHub both follow these links.
+- Order the rows as in the reading order (part 6), and check after every update that every link still lands on its heading.
+
+Every fact in the guide is checked against the PR's latest commit: line numbers, names, sizes, check results. Link code at that commit, not at the branch, so links stay correct.
+
+## 4. Keep it in sync during review
+
+- After every new commit: update the change index (new rows, changed links), and the line numbers, tables, sizes, and check status the commit affects.
+- When the reviewer asks a question in the conversation, answer it there, then add the answer to the guide, in the part it belongs to. If it explains a general concept, add it to `background.md` instead and link it.
+- Tick open decisions and owner's settings as they are done, with the outcome and the commit, in the guide and in the PR description.
+
+## 5. Before the merge: a short archive
+
+The guide itself is not kept. Before the merge:
+
+1. **Check the documents.** Every decision taken during review must already be in DESIGN.md, `docs/ARCHITECTURE.md`, or `background.md`, written by its own commit during the review (AGENTS.md: a pull request keeps the design in sync). If one is missing, add it now in a new commit. Nothing is copied from the guide into those documents.
+2. **Open decisions** not taken become GitHub issues.
+3. **Post a short archive comment** on the PR, headed "Review guide (archived at merge)", extracted from the guide: the summary, each decision with its reason, the questions and answers worth keeping, and the open decisions left, with links to their issues. At most about 60 lines: no code map, no line-by-line tables, no reading order.
+4. **Add a line** for the PR to the list in `docs/reviews/README.md`.
+5. **Delete the local guide file,** and tell the reviewer it is archived.

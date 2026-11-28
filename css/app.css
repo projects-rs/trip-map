@@ -1,0 +1,89 @@
+/*
+ * SPDX-License-Identifier: MIT
+ * Copyright (c) 2026 The Trip Map authors
+ *
+ * The app's styles: a full-screen map, the round map buttons, the blue dot,
+ * and the short message line (DESIGN.md section 4).
+ */
+
+:root {
+  --button-bg: #ffffff;
+  --button-fg: #343a40;
+  --active: #1a73e8; /* the blue of the dot and of an active button */
+  --message-bg: #212529;
+  --message-fg: #ffffff;
+}
+
+html,
+body {
+  height: 100%;
+  margin: 0;
+  /* No page scrolling or pull-to-refresh: the map takes every gesture. */
+  overflow: hidden;
+  overscroll-behavior: none;
+  font-family:
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
+}
+
+#map {
+  position: fixed;
+  inset: 0;
+}
+
+/* Round buttons on the right side of the map, at least 48 px for easy tapping
+   while walking (DESIGN.md section 13.4, usability). */
+.map-button {
+  position: fixed;
+  right: calc(12px + env(safe-area-inset-right, 0px));
+  width: 52px;
+  height: 52px;
+  border: none;
+  border-radius: 50%;
+  background: var(--button-bg);
+  color: var(--button-fg);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+  display: grid;
+  place-items: center;
+  z-index: 1000; /* above Leaflet's map panes (which go up to 700) */
+  -webkit-tap-highlight-color: transparent;
+}
+
+#my-location {
+  bottom: calc(40px + env(safe-area-inset-bottom, 0px));
+}
+
+/* "shown": the dot is on the map. "follow": the map follows the user. */
+#my-location[data-mode="shown"] {
+  color: var(--active);
+}
+#my-location[data-mode="follow"] {
+  background: var(--active);
+  color: #ffffff;
+}
+#my-location[data-mode="waiting"] {
+  opacity: 0.6;
+}
+
+#message {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: calc(108px + env(safe-area-inset-bottom, 0px));
+  max-width: min(90vw, 420px);
+  margin: 0;
+  padding: 10px 14px;
+  border-radius: 8px;
+  background: var(--message-bg);
+  color: var(--message-fg);
+  font-size: 15px;
+  line-height: 1.35;
+  z-index: 1000;
+}
+
+[hidden] {
+  display: none !important;
+}
