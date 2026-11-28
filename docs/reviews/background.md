@@ -173,7 +173,7 @@ flowchart LR
   N["leaflet (npm, exact version)"] -- copied --> V["site/vendor/leaflet/"]
   J --> SITE
   V --> SITE
-  SITE -- "publish job, after the owner approves" --> P["GitHub Pages"] --> PHONE["the phone"]
+  SITE -- "publish job, after each merge" --> P["GitHub Pages"] --> PHONE["the phone"]
 ```
 
 - `npm run build` compiles `src/` and assembles `site/`, exactly what the phone downloads; `site/` is never stored in git.

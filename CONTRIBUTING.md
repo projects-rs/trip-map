@@ -91,7 +91,7 @@ flowchart LR
 2. **Make a branch** named `dev/<first.last>/<descriptive_info>`, for example `dev/reuven.shefer/first_basic_app`: lowercase, words joined by `_` (AGENTS.md). Nothing is committed to `main` directly; GitHub refuses it.
 3. **Change, test, commit.** One idea per commit. Run `npm test` first. The message: a first line of at most 72 characters saying what changed, a blank line, then why.
 4. **Raise the version** in `package.json` if the change touches the app: a patch for a fix, the minor for a feature (DESIGN.md section 11.3). A check fails the pull request otherwise.
-5. **Push and open a pull request** into `main`, with the full description AGENTS.md asks for: main changes, each file and why, the design sections behind it, how it was tested, and what is left open. One feature or theme per pull request, at most 300 to 500 lines of code.
+5. **Push and open a pull request** into `main`, with the full description AGENTS.md asks for: main changes, each file and why, the design sections behind it, how it was tested, and what is left open. One feature or theme per pull request, at most 300 to 500 lines of code; if it needs more, ask the owner first whether to split it into commits or pull requests, or allow it.
 6. **Review:** prepare the review guide (AGENTS.md, "Review"); answer every comment in its thread; every fix is a new commit.
 7. **Merge** on github.com, once the checks pass and a CODEOWNERS member approves. The merge publishes the new version to the phones that try new versions first.
 

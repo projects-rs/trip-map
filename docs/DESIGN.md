@@ -1867,6 +1867,7 @@ Rough effort for releases C to F together: about four to five weeks, mostly set 
 - Tests never write to `trip-db`: the checker's tests use test trips kept with the tests.
 - Firebase tests run only against the Firebase emulator, a local copy on the test machine, never against the real Firebase project.
 - There is no published test version: new versions are tried in the real app by phones with "Try new versions first", after an automatic backup (sections 3.2 and 13.2).
+- A phone test also fails if the page throws an error during it, even when the screen looks right, so a hidden error is never missed (decided 2026-11-28).
 
 How the rule is enforced:
 
@@ -2011,7 +2012,7 @@ Pull requests and commits (decided 2026-11-27; the working rules are in `AGENTS.
 
 - Each pull request comes from its own branch, named by who pushes it (decided 2026-11-28): `dev/<first.last>/<descriptive_info>` for a person (`dev/reuven.shefer/first_basic_app`), `dev/<agent>/<descriptive_info>` for an agent working alone (`dev/claude/legend_panel`); lowercase, words joined by `_`. A person working with an agent on their own computer commits and pushes, so the branch carries the person's name; the commits name the agent as co-author. Nothing is committed to `main` directly.
 - Each pull request holds one feature or theme, defined in advance in section 13.3 and meeting a concrete need of the app, and is described in a design document that it keeps in sync with the code.
-- At most 300 to 500 lines of code per pull request. A larger one is broken into commits, each one concrete piece (an idea, a class, or a module) with working code; the merger decides whether to squash them.
+- At most 300 to 500 lines of code per pull request. When a change needs more, the author asks the owner first (decided 2026-11-28), and the owner chooses: commits, each one concrete piece (an idea, a class, or a module) with working code, whose squashing the merger decides; several pull requests; or a longer pull request this time.
 - Every pull request and commit has a message that states its content clearly. Every pull request's description lists the main changes, each touched file and why, the design sections behind it, how it was tested, and anything it leaves open.
 
 #### Everything the app relies on
@@ -2458,3 +2459,4 @@ Only questions still open are listed here (2026-11-23). Decided questions are re
 | 2 (design) | 2026-11-28 | Section 13.6: branch names. `dev/<first.last>/<descriptive_info>` for a person, `dev/<agent>/<descriptive_info>` for an agent working alone; the branch carries the name of whoever pushes it. |
 | 2 (design) | 2026-11-28 | Section 13.6: `CONTRIBUTING.md` holds the setup of a contributor's computer (Git, Node 22, VS Code) and the step-by-step workflow from branch to merge, kept in sync with the build and the rules. |
 | 2 (design) | 2026-11-28 | Section 13.6: the review guide is a local file, never committed, built when the pull request is pushed; at merge, nothing is harvested from it into the design documents, and only a short summary is posted on the pull request. |
+| 2 (design) | 2026-11-28 | Section 13.6: a change over 500 lines of code waits for the owner's choice: commits, several pull requests, or a longer pull request. Tests fail when the page throws an error the user cannot see. |
