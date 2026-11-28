@@ -59,3 +59,4 @@ test("first tap on My location shows the blue dot in the center", async ({ page,
 - Tests run on the built site (`npm test` builds first), exactly what GitHub publishes.
 - A screenshot of every test is kept automatically for the review.
 - No retries: a flaky test is a bug to fix.
+- Every test also fails if the page throws an error during it (the `pageerror` check at the top of each test file, DESIGN.md section 13.4). Keep that check in every new test file.

@@ -43,6 +43,17 @@ async function dotDistanceFromCenter(page: Page): Promise<number> {
   return Math.hypot(dx, dy);
 }
 
+// Every test also fails if the page threw an error the user cannot see, even
+// when the screen looks right (owner's decision, 2026-11-28).
+let pageErrors: string[] = [];
+test.beforeEach(({ page }) => {
+  pageErrors = [];
+  page.on("pageerror", (error) => pageErrors.push(error.message));
+});
+test.afterEach(() => {
+  expect(pageErrors, "errors thrown by the page during the test").toEqual([]);
+});
+
 /**
  * What: The map fills the whole screen, shows OpenStreetMap's street map, and
  *       shows the OpenStreetMap credit its license requires.

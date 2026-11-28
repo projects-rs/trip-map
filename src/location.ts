@@ -74,7 +74,7 @@ export class MyLocation {
   }
 
   /** Called by the browser on a tap of the button. */
-  onTap = (): void => {
+  private readonly onTap = (): void => {
     if (this.mode === "off") {
       this.setMode("waiting");
       // The first call is what makes the phone ask for permission.
@@ -91,7 +91,7 @@ export class MyLocation {
   };
 
   /** Called by the browser each time the phone has a new position. */
-  onPosition = (position: GeolocationPosition): void => {
+  private readonly onPosition = (position: GeolocationPosition): void => {
     const latLng = L.latLng(position.coords.latitude, position.coords.longitude);
     if (this.marker === null) {
       this.marker = {
@@ -118,7 +118,7 @@ export class MyLocation {
   };
 
   /** Called by the browser when it cannot give a position. */
-  onError = (error: GeolocationPositionError): void => {
+  private readonly onError = (error: GeolocationPositionError): void => {
     if (error.code === error.PERMISSION_DENIED) {
       this.stopWatching();
       this.removeMarker();        // an old position must not stay on the map
@@ -131,7 +131,7 @@ export class MyLocation {
   };
 
   /** Called by Leaflet when a finger starts dragging the map. */
-  onDragStart = (): void => {
+  private readonly onDragStart = (): void => {
     if (this.mode === "follow") this.setMode("shown");
   };
 
