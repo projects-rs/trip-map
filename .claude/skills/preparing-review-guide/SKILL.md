@@ -7,15 +7,13 @@ description: How to build, keep up to date, and archive the review guide for a T
 
 Every pull request gets a **review guide** before review is requested (AGENTS.md, "Review"). It lets a reviewer, who may not know TypeScript or the browser well, review the change thoroughly: what to read, in which order, what each part does, and where to look hardest. The process and the list of past reviews are in `docs/reviews/README.md`; the explanations shared by all reviews are in `docs/reviews/background.md`.
 
-## 1. Ask the reviewer first
+## 1. Background for the reviewer
 
-Before writing, ask the reviewer (in the conversation, or in a PR comment):
+Do not question the reviewer about what they know. `docs/reviews/background.md` already explains the basics (TypeScript next to C++, the browser and the phone, modules, events, classes, HTML and CSS, performance, build and publishing, tests, Leaflet), so the guide points there:
 
-- Which languages do you know well?
-- Are TypeScript, the browser (events, the page, CSS), and Leaflet familiar?
-- Is this your first review on this project?
-
-From the answers, choose which sections of `background.md` to link at the top of the guide. Never repeat those basics inside the guide. If `background.md` lacks something this reviewer needs, add it there, not to the guide.
+- At the top of the guide, link the `background.md` sections for the topics this PR touches (a PR with events links "Events", a PR with tests links "Tests"). A reviewer who knows a topic skips its link.
+- Never repeat those basics inside the guide.
+- If the PR needs an explanation `background.md` lacks, add it there, in its own commit, not to the guide.
 
 ## 2. Where the guide lives
 
@@ -34,7 +32,7 @@ Use this order. Leave out a part marked "when" if it does not apply; keep every 
 | 1 | Header | PR number and link, plan step (DESIGN.md 13.3), design sections followed, size in lines of code, check status | Always |
 | 2 | Summary | What the PR does and why, in 3 to 5 lines | Always |
 | 3 | Change index | Tables of every changed file and every new, changed, or removed function, class, type, or constant, with a **Reviewed** box per row and links to the parts of the guide that explain it (see below). It is also the reviewer's progress list | Always |
-| 4 | Background links | The `background.md` sections this reviewer asked for (step 1) | When any |
+| 4 | Background links | The `background.md` sections for the topics this PR touches (section 1) | When any |
 | 5 | Reading order | Every file, in an order where each builds on the ones before, grouped in levels (0: what runs first; 1: the app; 2: tests and tools; 3: project rules), with the attention each needs: review carefully, read quickly, glance, or skip, and why | Always |
 | 6 | Code map | For each new or changed file: every name (constants, types, classes, functions, fields), its kind, what it does, and what it interacts with. For a changed file, only what changed | Always |
 | 7 | Line by line | For the files marked "review carefully": a table of lines, code, and meaning, with the C, C++, or Python equivalent where it helps | Always, for those files |
