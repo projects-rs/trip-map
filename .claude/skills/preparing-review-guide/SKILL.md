@@ -57,7 +57,7 @@ Use this order. Leave out a part marked "when" if it does not apply; keep every 
 | ☐ | `src/location.ts` | `MyLocation.onTap` | method (arrow field) | new | Starts watching on the first tap; follows on the second | [Code map](#7-code-map-srclocationts) · [Line by line](#8-line-by-line-srclocationts) |
 | ☐ | `tools/serve-site.ts` | `fileFor` | function | new | Maps a URL to a file inside `site/`, or refuses it | [Code map](#7-code-map-toolsserve-sitets) |
 
-- **Reviewed:** ☐ when the guide is built. The reviewer changes it to ☑, and only the reviewer: never tick a row for them, and when unsure whether a row was reviewed, leave ☐ and ask. When a later commit changes a ticked row, set it back to ☐ and add ⚠️ (changed after review), with the change named in "What changed". There is no separate checklist of files: these tables are the one list.
+- **Reviewed:** ☐ when the guide is built. The reviewer changes it to ☑, and only the reviewer: never tick a row for them, and when unsure whether a row was reviewed, leave ☐ and ask. When a later commit changes a ticked row, set it back to ☐ and add ⚠️ (changed after review), with the change named in "What changed". Exception (owner's decision, 2026-11-28): a commit that only lays out the code with the formatter (`npm run format`, no code changed) keeps the ticks; name it, and the files it touched, in a note under the change index instead. There is no separate checklist of files: these tables are the one list.
 
 - **Kind:** constant, type, class, method, field, function, or file.
 - **Change:** new, changed, renamed (old name → new), or removed.
