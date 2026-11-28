@@ -33,7 +33,7 @@ Use this order. Leave out a part marked "when" if it does not apply; keep every 
 | --- | --- | --- | --- |
 | 1 | Header | PR number and link, plan step (DESIGN.md 13.3), design sections followed, size in lines of code, check status | Always |
 | 2 | Summary | What the PR does and why, in 3 to 5 lines | Always |
-| 3 | Change index | One table of every changed file and every new, changed, or removed function, class, type, or constant, with a link from each row to the part of the guide that explains it (see below) | Always |
+| 3 | Change index | Tables of every changed file and every new, changed, or removed function, class, type, or constant, with a **Reviewed** box per row and links to the parts of the guide that explain it (see below). It is also the reviewer's progress list | Always |
 | 4 | Background links | The `background.md` sections this reviewer asked for (step 1) | When any |
 | 5 | Reading order | Every file, in an order where each builds on the ones before, grouped in levels (0: what runs first; 1: the app; 2: tests and tools; 3: project rules), with the attention each needs: review carefully, read quickly, glance, or skip, and why | Always |
 | 6 | Code map | For each new or changed file: every name (constants, types, classes, functions, fields), its kind, what it does, and what it interacts with. For a changed file, only what changed | Always |
@@ -46,12 +46,14 @@ Use this order. Leave out a part marked "when" if it does not apply; keep every 
 | 13 | Try it | Steps on the phone, or in Chrome's phone simulation with a fake GPS position | When the user sees a change |
 | 14 | Open points | Decisions needed from the reviewer, as checkboxes | Always |
 
-**The change index (part 3)** is the reviewer's map of the whole PR: they start there and jump to each explanation. One row per name; a file with no named items (a document, a settings file) gets one row of its own.
+**The change index (part 3)** is the reviewer's map of the whole PR and their progress list: they start there, jump to each explanation, and tick each row when reviewed. One table per level of the reading order (part 5), under a short bold label ("Level 1: the app"). One row per name, or per small group of names in one file; a file with no named items (a document, a settings file) gets one row of its own.
 
-| File | Name | Kind | Change | What changed, in a few words | Explained in |
-| --- | --- | --- | --- | --- | --- |
-| `src/location.ts` | `MyLocation.onTap` | method (arrow field) | new | Starts watching on the first tap; follows on the second | [Code map](#6-code-map-srclocationts) · [Line by line](#7-line-by-line-srclocationts) |
-| `tools/serve-site.ts` | `fileFor` | function | new | Maps a URL to a file inside `site/`, or refuses it | [Code map](#6-code-map-toolsserve-sitets) |
+| Reviewed | File | Name | Kind | Change | What changed, in a few words | Explained in |
+| --- | --- | --- | --- | --- | --- | --- |
+| ☐ | `src/location.ts` | `MyLocation.onTap` | method (arrow field) | new | Starts watching on the first tap; follows on the second | [Code map](#6-code-map-srclocationts) · [Line by line](#7-line-by-line-srclocationts) |
+| ☐ | `tools/serve-site.ts` | `fileFor` | function | new | Maps a URL to a file inside `site/`, or refuses it | [Code map](#6-code-map-toolsserve-sitets) |
+
+- **Reviewed:** ☐ when the guide is built. The reviewer changes it to ☑, and only the reviewer: never tick a row for them, and when unsure whether a row was reviewed, leave ☐ and ask. When a later commit changes a ticked row, set it back to ☐ and add ⚠️ (changed after review), with the change named in "What changed". There is no separate checklist of files: these tables are the one list.
 
 - **Kind:** constant, type, class, method, field, function, or file.
 - **Change:** new, changed, renamed (old name → new), or removed.
