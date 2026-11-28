@@ -50,7 +50,7 @@ Use this order. Leave out a part marked "when" if it does not apply; keep every 
 - **Owner's settings:** one checkbox per repository or organization setting the PR needs, which only the owner can change (AGENTS.md): what to set and where (`Settings → Pages → Source: GitHub Actions`). The author never changes a setting, only lists it; the owner ticks it when done.
 - **The same two lists are in the PR description,** under "Review status", so they can be seen on GitHub and by any session that cannot open the guide. Keep both copies the same.
 
-**The change index (part 4)** is the reviewer's map of the whole PR and their progress list: they start there, jump to each explanation, and tick each row when reviewed. One table per level of the reading order (part 6), under a short bold label ("Level 1: the app"). One row per name, or per small group of names in one file; a file with no named items (a document, a settings file) gets one row of its own.
+**The change index (part 4)** is the reviewer's map of the whole PR and their progress list: they start there, jump to each explanation, and tick each row when reviewed. One table per level of the reading order (part 6), under a short bold label ("Level 1: the app"). Every changed file has its own row (or rows), named by its full path: never two files in one row, so the tables list exactly the files GitHub counts in the PR. Within a file, one row per name or per small group of names; a file with no named items (a document, a settings file) gets one row. Check after every update that the number of files in the tables equals GitHub's "Files changed".
 
 | Reviewed | File | Name | Kind | Change | What changed, in a few words | Explained in |
 | --- | --- | --- | --- | --- | --- | --- |
