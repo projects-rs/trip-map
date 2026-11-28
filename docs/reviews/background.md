@@ -7,7 +7,7 @@ Explanations shared by every review, for reviewers who know C, C++, or Python bu
 1. [TypeScript next to C++](#1-typescript-next-to-c)
 2. [The browser and the phone](#2-the-browser-and-the-phone)
 3. [Modules and imports](#3-modules-and-imports)
-4. [Events](#4-events), with the browser loop and the app's life from opening to a tap
+4. [Events](#4-events), with the browser loop and how one tap travels
 5. [Classes](#5-classes)
 6. [The page: HTML and CSS](#6-the-page-html-and-css)
 7. [Performance](#7-performance)
@@ -103,67 +103,29 @@ flowchart TD
   T["The phone's system:<br/>touchscreen, GPS, clock, network"] -. "puts events in the queue" .-> W
 ```
 
-### The app's life: from opening to a tap
+### An example: how one tap travels
 
-What happens in Trip Map today, from opening the app to following the user, and who runs each step: the user, the browser, our code, Leaflet, or the phone.
+The pattern every feature follows: start-up registers handlers and returns; an event arrives; the browser calls the handler; the handler changes some state and returns; the browser redraws. Here with the "My location" button (the app's current flows, one drawing per event, are in `docs/ARCHITECTURE.md`, "How the app runs"):
 
 ```mermaid
 sequenceDiagram
   actor U as User
-  participant B as Browser (its loop)
-  participant A as Our code (js/*.js)
-  participant LF as Leaflet
-  participant G as Phone (GPS)
+  participant B as Browser loop
+  participant A as Our handler
 
-  Note over U,G: 1. Opening the app: start-up, runs once
-  U->>B: opens the app (home-screen icon)
-  B->>B: loads index.html, then the styles
-  B->>LF: runs leaflet.js (creates the global L)
-  B->>A: runs main.js, whose imports (leaflet.ts, map.ts, location.ts) run first
-  A->>A: leaflet.ts checks L, then main.ts checks the page (requireElement)
-  A->>LF: createMap: the map, OSM tiles, the credit
-  A->>B: new MyLocation: registers onTap (button "click")
-  A->>LF: and onDragStart (map "dragstart")
-  A-->>B: main.js ends: back to the loop, nothing runs until an event
-
-  Note over U,G: 2. First tap on "My location" (mode off)
+  Note over B,A: at start-up
+  A->>B: addEventListener("click", onTap), then return
+  Note over U,A: later, any time
   U->>B: taps the button
-  B->>A: "click" event: onTap()
-  A->>A: setMode("waiting"): the button fades
-  A->>B: geolocation.watchPosition(onPosition, onError)
-  B->>U: first time only: "Allow Trip Map to use your location?"
-  U->>B: Allow
-  B->>G: start the GPS
-  A-->>B: onTap ends
-
-  Note over U,G: 3. The first position (mode waiting)
-  G->>B: a position
-  B->>A: onPosition(position)
-  A->>LF: create the dot and the accuracy circle
-  A->>LF: setView: center on the user, zoom 16
-  A->>A: setMode("shown"): the button turns blue
+  B->>A: onTap()
+  A->>A: change the state (the mode), start work (the GPS)
+  A-->>B: return
   B->>B: redraw at the next frame
-
-  Note over U,G: 4. Second tap (mode shown): follow
-  U->>B: taps the button
-  B->>A: onTap(): center on the dot, setMode("follow")
-
-  Note over U,G: 5. Walking (mode follow), about once a second
-  G->>B: a new position
-  B->>A: onPosition(position)
-  A->>LF: move the dot, then panTo: the map slides to keep the user centered
-
-  Note over U,G: 6. The user drags the map (mode follow)
-  U->>LF: a finger drag
-  LF->>A: "dragstart": onDragStart()
-  A->>A: setMode("shown"): the map stops following, the dot keeps moving
 ```
 
-Things the drawing shows:
-
 - **Nothing in our code waits.** Each step is a handler that runs and returns; between steps, only the browser's loop runs.
-- **The order of events is not ours to choose.** A tap can arrive while a GPS fix is on its way; the mode (the state machine) is what makes every order safe, as checked in each review's state × event table.
-- **Leaflet sits between the user and our code for the map:** a finger on the map reaches Leaflet first, which then fires its own events, such as `dragstart`.
+- **The order of events is not ours to choose.** A tap can arrive while a GPS fix is on its way; the state machine is what makes every order safe, as checked in each review's state × event table.
+- **For the map, Leaflet comes first:** a finger on the map reaches Leaflet, which then fires its own events, such as `dragstart`.
 
 ## 5. Classes
 

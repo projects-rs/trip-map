@@ -55,7 +55,7 @@ Every fact in the guide is checked against the PR's latest commit: line numbers,
 The guide is temporary; what lasts moves to permanent documents before the PR is merged:
 
 1. **Decisions** go into DESIGN.md (with a version-history row), if not already there.
-2. **How the code is organized** goes into `docs/ARCHITECTURE.md`.
+2. **How the code is organized** goes into `docs/ARCHITECTURE.md`. If the PR adds a start-up step or an interaction, update or add its drawing in "How the app runs".
 3. **General explanations** given during review go into `docs/reviews/background.md`.
 4. **Open points not settled** become GitHub issues, or items in the next PR's plan.
 5. **Post the final guide** as a comment on the PR, headed "Review guide (archived at merge)".

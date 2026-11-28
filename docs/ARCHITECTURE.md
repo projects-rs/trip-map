@@ -69,15 +69,132 @@ Every Leaflet call the app makes, with its place in the reference (update this t
 | Options `color`, `weight`, `fillColor`, `fillOpacity`, `stroke`, `className`, `interactive` | `location.ts` | Inherited from [Path](https://leafletjs.com/reference.html#path-color) |
 | `L.version` | `leaflet.ts` | [version](https://leafletjs.com/reference.html#version) |
 
-## "My location" (UI-08)
+## How the app runs
 
-The button moves through four modes, kept in its `data-mode` attribute:
+The app's code never runs on its own: the browser runs it in steps, at start-up and then once per event, and each step returns to the browser's loop (the loop itself is explained in `docs/reviews/background.md`, section 4). The drawings below show the current flows, one per start-up and per interaction. **A pull request that adds a start-up step or an interaction updates them** (AGENTS.md, "Pull requests and commits").
 
-| Mode | Meaning | A tap |
-| --- | --- | --- |
-| `off` | Location not used | Asks the phone for location (the first time, the phone asks the user) → `waiting` |
-| `waiting` | Waiting for the first position | Nothing |
-| `shown` | The blue dot is on the map | Centers the map on the dot → `follow` |
-| `follow` | The map keeps the dot in its center | Centers again |
+### Start-up: runs once, when the app opens
 
-Dragging the map with a finger turns `follow` back into `shown`. If location is refused, the dot is removed, a message explains how to allow it, and the mode returns to `off`.
+```mermaid
+sequenceDiagram
+  actor U as User
+  participant B as Browser
+  participant A as Our code
+  participant LF as Leaflet
+
+  U->>B: opens the app
+  B->>B: loads index.html, then the styles
+  B->>LF: runs vendor/leaflet/leaflet.js, which creates the global L
+  B->>A: runs js/main.js, whose imports run first
+  A->>A: leaflet.ts checks L is Leaflet at the expected version, or stops with an error
+  A->>A: main.ts checks the page (requireElement), or stops with an error
+  A->>LF: createMap: the map, OpenStreetMap's tiles, the credit
+  A->>B: new MyLocation registers onTap for the button's "click"
+  A->>LF: and onDragStart for the map's "dragstart"
+  A-->>B: main.js ends: back to the loop, nothing runs until an event
+```
+
+### My location (UI-08)
+
+The button is a state machine, the class `MyLocation` in `src/location.ts`. Its mode is kept in the field `mode` and copied to the button's `data-mode` attribute, which the CSS and the tests read.
+
+```mermaid
+stateDiagram-v2
+  [*] --> off
+  off --> waiting: tap (start the GPS)
+  waiting --> shown: first position (center, zoom 16)
+  shown --> follow: tap (center)
+  follow --> follow: tap (center again)
+  follow --> shown: finger drag
+  waiting --> off: location refused
+  shown --> off: location refused (dot removed)
+  follow --> off: location refused (dot removed)
+```
+
+| Mode | Meaning | The button | A tap |
+| --- | --- | --- | --- |
+| `off` | Location not used | White | Starts the GPS (the first time, the phone asks the user) → `waiting` |
+| `waiting` | GPS started, no position yet | Faded | Nothing |
+| `shown` | The blue dot is on the map; the map stays where it is | Blue symbol | Centers on the dot → `follow` |
+| `follow` | The map keeps the dot in its center | Solid blue | Centers again |
+
+**First tap, and the first position** (`off` → `waiting` → `shown`):
+
+```mermaid
+sequenceDiagram
+  actor U as User
+  participant B as Browser
+  participant A as MyLocation
+  participant LF as Leaflet
+  participant G as Phone GPS
+
+  U->>B: taps My location
+  B->>A: "click": onTap()
+  A->>A: setMode("waiting"), the button fades
+  A->>B: watchPosition(onPosition, onError)
+  B->>U: first time only: allow location?
+  U->>B: Allow
+  B->>G: start the GPS
+  G->>B: a position
+  B->>A: onPosition(position)
+  A->>LF: create the dot and the accuracy circle
+  A->>LF: setView: center on the user, zoom at least 16
+  A->>A: setMode("shown"), the button turns blue
+```
+
+**Following, and walking** (`shown` → `follow`; then about once a second):
+
+```mermaid
+sequenceDiagram
+  actor U as User
+  participant B as Browser
+  participant A as MyLocation
+  participant LF as Leaflet
+  participant G as Phone GPS
+
+  U->>B: taps My location again
+  B->>A: "click": onTap()
+  A->>LF: setView: center on the dot
+  A->>A: setMode("follow")
+  loop each new position
+    G->>B: a position
+    B->>A: onPosition(position)
+    A->>LF: move the dot and the circle, then panTo: keep the user centered
+  end
+```
+
+**A finger drag** (`follow` → `shown`):
+
+```mermaid
+sequenceDiagram
+  actor U as User
+  participant LF as Leaflet
+  participant A as MyLocation
+
+  U->>LF: drags the map
+  LF->>A: "dragstart": onDragStart()
+  A->>A: setMode("shown"), the map stops following
+  Note over A: later positions move only the dot
+```
+
+**When the GPS fails** (`onError`):
+
+```mermaid
+sequenceDiagram
+  participant B as Browser
+  participant A as MyLocation
+  participant LF as Leaflet
+
+  alt location refused (at the prompt, or later in the phone's settings)
+    B->>A: onError(PERMISSION_DENIED)
+    A->>B: clearWatch: stop the GPS
+    A->>LF: remove the dot and the circle
+    A->>A: setMode("off"), message "Location is off for Trip Map..."
+  else no signal, while waiting for the first position
+    B->>A: onError(POSITION_UNAVAILABLE)
+    A->>A: message "Can't find your location yet...", the GPS keeps trying
+  else no signal, once the dot is shown
+    B->>A: onError(POSITION_UNAVAILABLE)
+    Note over A: nothing: the dot stays at its last position
+  end
+```
