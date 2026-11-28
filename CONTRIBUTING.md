@@ -89,7 +89,7 @@ flowchart LR
 
 1. **Start from `main`:** switch to it and pull (VS Code: the branch name at the bottom left, then **Sync**).
 2. **Make a branch** named `dev/<first.last>/<descriptive_info>`, for example `dev/reuven.shefer/first_basic_app`: lowercase, words joined by `_` (AGENTS.md). Nothing is committed to `main` directly; GitHub refuses it.
-3. **Change, test, commit.** One idea per commit. Run `npm test` first. The message: a first line of at most 72 characters saying what changed, a blank line, then why.
+3. **Change, format, test, commit.** One idea per commit. Run `npm run format` (lays out the code, AGENTS.md "Code style"), then `npm test`. The message: a first line of at most 72 characters saying what changed, a blank line, then why.
 4. **Raise the version** in `package.json` if the change touches the app: a patch for a fix, the minor for a feature (DESIGN.md section 11.3). A check fails the pull request otherwise.
 5. **Push and open a pull request** into `main`, with the full description AGENTS.md asks for: main changes, each file and why, the design sections behind it, how it was tested, and what is left open. One feature or theme per pull request, at most 300 to 500 lines of code; if it needs more, ask the owner first whether to split it into commits or pull requests, or allow it.
 6. **Review:** prepare the review guide (AGENTS.md, "Review"); answer every comment in its thread; every fix is a new commit.
@@ -131,6 +131,7 @@ The Claude Code extension (Anthropic) needs a paid Claude plan; sign in from its
 | `npm test`: a browser executable doesn't exist | `npx playwright install chromium webkit` |
 | `npm test` fails here but passes on GitHub, or the reverse | `node -v` must be 22; run `npm install` after pulling a change to `package.json` |
 | The build stops: a library version disagrees with `package.json` | `npm install` |
+| The build stops on code style (Prettier, ESLint, or check-headers) | `npm run format` fixes layout; the message names the file, line, and rule for the rest (AGENTS.md, "Code style") |
 | Push refused: "would publish a private email" | `git config --global user.email` is not the noreply address: fix it, then amend the commit |
 | **Clone from GitHub** does not list the projects-rs repositories | github.com → **Settings → Applications → Authorized OAuth Apps → Visual Studio Code** → **Grant** for projects-rs |
 | Push to `main` refused | Expected: make a branch, push it, open a pull request |

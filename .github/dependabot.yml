@@ -20,8 +20,8 @@ updates:
     groups:
       leaflet:                  # Leaflet and its type descriptions change together
         patterns: ["leaflet", "@types/leaflet"]
-      lint:                     # ESLint and its TypeScript rules change together
-        patterns: ["eslint", "typescript-eslint"]
+      lint:                     # ESLint, its TypeScript rules, and Prettier change together
+        patterns: ["eslint", "typescript-eslint", "prettier"]
 
   - package-ecosystem: "github-actions"
     directory: "/"

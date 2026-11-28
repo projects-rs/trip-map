@@ -43,7 +43,7 @@ Trip Map is a phone-first web app. The design is in [docs/DESIGN.md](docs/DESIGN
 - TypeScript in `src/`, plus HTML and CSS, with no framework (DESIGN.md section 13.7). `npm run build` compiles it with strict settings into `site/`, which is what GitHub publishes. Never commit `site/`.
 - Every code file starts with the license line (`SPDX-License-Identifier: MIT`) and a short comment saying what the file is for.
 - Types are written in the code (`function f(id: string): HTMLElement`), never in comments. A `/** … */` description on every function: what it does, what it receives, and what it returns (DESIGN.md section 13.6).
-- No type casts (`as …`) and no `any`. Check in code instead (`instanceof`, `=== null`), so the compiler learns the type from the check. If a cast seems unavoidable, ask the owner first. ESLint (`eslint.config.js`) stops `npm run build` if it finds one.
+- No type casts (`as …`) and no `any`. Check in code instead (`instanceof`, `=== null`), so the compiler learns the type from the check. If a cast seems unavoidable, ask the owner first (see "Code style").
 - Where code follows a rule from the design, the comment names the section, for example "DESIGN.md section 5.1".
 - Choose the form of each new piece of code with these four questions, in order, and say which one applies in the pull request:
     1. A library or the browser requires a class (for example `L.Control.extend`, a Web Component)? → a class.
@@ -56,6 +56,18 @@ Trip Map is a phone-first web app. The design is in [docs/DESIGN.md](docs/DESIGN
 - Text from a trip, a user, or any other outside source is shown only as plain text (`textContent`), never as HTML (DESIGN.md section 14.3).
 - Use Leaflet only through `src/leaflet.ts` (`import { L, type Leaflet } from "./leaflet.ts"`), never the global `L`; the compiler enforces it (DESIGN.md section 13.7).
 - Libraries come only from their official npm packages, at exact versions in `package.json`, which is the one place a version is written; the build copies them unchanged into `site/vendor/<package>/` and stops if anything disagrees with `package.json`. Updates arrive as Dependabot pull requests, reviewed like any other. They are listed in [NOTICES.md](NOTICES.md). Load the skill [`adding-libraries`](.claude/skills/adding-libraries/SKILL.md) before adding or updating one.
+
+## Code style (enforced by `npm run build`)
+
+`npm run build` stops on any break below, on a laptop and on every pull request (DESIGN.md section 13.7). Run `npm run format` to lay out the code before committing.
+
+- **Layout:** lines at most 120 characters; Prettier formats the code (`.prettierrc.json`).
+- **Size:** functions at most 50 lines and files at most 300 lines, not counting blank lines and comments; at most 4 parameters (pass one object instead); `if`/`for` nested at most 3 deep; at most 10 paths through a function (`complexity`). Split anything longer into well-named helpers.
+- **Names:** `camelCase` for variables and functions, `PascalCase` for types and classes, `UPPER_CASE` for fixed constants; file names lowercase with `-` (checked in review).
+- **Types:** every function states its return type; no casts and no `any`; always `===`; `const` unless the value changes, never `var`; no unused variables or imports (typescript-eslint "recommended").
+- **Safety:** never `innerHTML`, `outerHTML`, `insertAdjacentHTML`, or `document.write`; never `eval`, `new Function`, or code in strings; throw only `Error` objects; no empty `catch {}` without a comment saying why.
+- **Files:** every code file starts with the license line, and every function, method, and handler has a `/** … */` description (`tools/check-headers.ts`); no `console.log` in `src/` (errors and warnings are allowed).
+- **Breaking a rule** needs the owner's approval, and is marked in the code where it happens: `// eslint-disable-next-line <rule> -- <why>`.
 
 ## Performance
 

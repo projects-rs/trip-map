@@ -41,7 +41,7 @@ jobs:
         if: github.event_name == 'pull_request'
         run: node tools/check-version.ts "origin/${{ github.base_ref }}"
 
-      - name: Type check, lint, and build the site (fails on any type error, cast, or any)
+      - name: Type check, lint, and build the site (fails on any type error or code style break)
         run: npm run build
 
       - name: Install the simulated phone browsers
