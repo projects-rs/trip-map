@@ -50,6 +50,8 @@ Any of the three:
 - **git:** `git clone https://github.com/projects-rs/trip-map.git`
 - **GitHub CLI:** `gh auth login` once (GitHub.com, HTTPS, login with a web browser), then `gh repo clone projects-rs/trip-map`.
 
+**Grant the organization to VS Code.** The first time VS Code signs in to GitHub (Accounts icon, bottom left → **Sign in with GitHub**), GitHub may list `projects-rs` with a **Grant** button: press it (or ask the owner to). Without it, the organization's repositories do not appear in **Clone from GitHub**.
+
 Open the `trip-map` folder itself in VS Code (**File → Open Folder**), not a single file. The first push opens the browser once for the GitHub sign-in; Git Credential Manager keeps it in the system's credential store, never in the project.
 
 ## 3. Build and test
@@ -130,6 +132,31 @@ The Claude Code extension (Anthropic) needs a paid Claude plan; sign in from its
 | `npm test` fails here but passes on GitHub, or the reverse | `node -v` must be 22; run `npm install` after pulling a change to `package.json` |
 | The build stops: a library version disagrees with `package.json` | `npm install` |
 | Push refused: "would publish a private email" | `git config --global user.email` is not the noreply address: fix it, then amend the commit |
+| **Clone from GitHub** does not list the projects-rs repositories | github.com → **Settings → Applications → Authorized OAuth Apps → Visual Studio Code** → **Grant** for projects-rs |
 | Push to `main` refused | Expected: make a branch, push it, open a pull request |
 | Pull stops: branches have diverged | Merge on purpose (section 6), or ask before choosing |
 | Git asks for a message in an unknown editor | `git config --global core.editor "code --wait"` |
+
+## 9. Optional tips
+
+Not needed to work on Trip Map; take what helps you.
+
+**VS Code keys:** `Ctrl+Shift+P` every command by name · `` Ctrl+` `` terminal · `Ctrl+Shift+G` Source Control · `Ctrl+P` open a file by name · `Ctrl+K` then `V` Markdown preview beside the text.
+
+**VS Code words and the git commands they run:**
+
+| VS Code | git |
+| --- | --- |
+| Sync / Pull | `git pull` |
+| **+** (Stage) | `git add` |
+| Commit | `git commit` (stays on your computer until you push) |
+| Publish Branch / Sync Changes | `git push` |
+| Checkout / switch branch | `git switch` |
+
+**GitHub CLI for pull requests:** `gh pr create` · `gh pr list` · `gh pr checkout <number>` · `gh pr checks` · `gh pr view --web`.
+
+**Check what the Git installer set:** `git config --show-origin init.defaultBranch` (also `pull.ff`, `core.editor`); without `--global`, because the installer writes Git's system settings.
+
+**One-click tests:** in the Explorer side bar, the **NPM Scripts** list (turn it on from the Explorer's `…` menu) runs `build` or `test` with ▶.
+
+**Claude in VS Code:** `/model` chooses the model · for a bigger change, ask for a plan first and review it · `Shift+Enter` for a new line without sending · sessions from claude.ai's own workspace do not appear in VS Code's session history, so the repository, not a chat, carries decisions between them.
