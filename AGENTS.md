@@ -57,6 +57,16 @@ Trip Map is a phone-first web app. The design is in [docs/DESIGN.md](docs/DESIGN
 - Use Leaflet only through `src/leaflet.ts` (`import { L, type Leaflet } from "./leaflet.ts"`), never the global `L`; the compiler enforces it (DESIGN.md section 13.7).
 - Libraries come only from their official npm packages, at exact versions in `package.json`, which is the one place a version is written; the build copies them unchanged into `site/vendor/<package>/` and stops if anything disagrees with `package.json`. Updates arrive as Dependabot pull requests, reviewed like any other. They are listed in [NOTICES.md](NOTICES.md). Load the skill [`adding-libraries`](.claude/skills/adding-libraries/SKILL.md) before adding or updating one.
 
+## Performance
+
+The phone's budgets are time (one screen frame, about 16 ms) and battery (DESIGN.md section 13.8).
+
+- **Event handlers are short.** A tap, a GPS position, or a map move must finish in a few milliseconds. Heavy work moves out of the handler, like a Linux bottom half.
+- **No repeated work on frequent events.** React to `moveend`, not to every `move`; never to every finger movement.
+- **Battery:** no polling; GPS only while the user asked for it; stop work while the app is hidden.
+- **No heavy logging** in handlers that run often.
+- **Any new optimization, or a rule that trades speed for something else, is a design decision:** it is written in DESIGN.md with its reason, and as a rule here, in the same pull request.
+
 ## Tests
 
 - Load the skill [`writing-tests`](.claude/skills/writing-tests/SKILL.md) before writing or changing any test.

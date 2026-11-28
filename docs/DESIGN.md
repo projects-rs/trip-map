@@ -2056,6 +2056,16 @@ Rules:
 - **Releases** (decided 2026-11-28). Each publish of a new app version is marked by a Git tag `v<version>` and a GitHub Release, with the release notes taken from the merged pull request and the built `site/` attached as a zip: a permanent copy of exactly what the phones received, since GitHub Pages keeps only the latest. Going back to an earlier release means publishing that tag again (the publish workflow's "Run workflow" button, choosing the tag). A merge that does not change the app (documents only) publishes nothing new and makes no release.
 - **Source maps** are published with the code, so that the browser's developer tools show the TypeScript, not the compiled code, when debugging on a phone.
 
+### 13.8 Performance (decided 2026-11-28)
+
+The phone has two budgets: time and battery. The app's code runs in short steps between the browser's screen redraws, about 16 ms each at 60 redraws a second; past about 100 ms a tap feels slow (explained in `docs/reviews/background.md`, section 7). The battery is spent mostly by the screen, GPS, and work done while nobody looks.
+
+- **Event handlers are short.** A tap, a GPS position, or a map move finishes in a few milliseconds. Heavy work moves out of the handler (`setTimeout`, `requestAnimationFrame`, or a Web Worker), as a Linux interrupt handler defers to a bottom half.
+- **No repeated work on frequent events.** The app reacts to the end of a map move (`moveend`), not to every step of it, and never to every finger movement.
+- **Battery:** no polling; GPS runs only while the user asked for it ("My location", navigation); work stops while the app is hidden (`visibilitychange`). Navigation adds its own measures (section 7.3.1).
+- **No heavy logging** in handlers that run often.
+- **Every optimization is a design decision:** a new optimization, or a rule that trades speed or battery for something else, is written here with its reason, and as a rule in `AGENTS.md`, in the same pull request.
+
 ## 14. Licensing, rights, and privacy
 
 This section is a design guide, not legal advice. Before the app and the Trips repository are opened to people outside the trip group, the app owner should have it checked by someone qualified.
@@ -2460,3 +2470,4 @@ Only questions still open are listed here (2026-11-23). Decided questions are re
 | 2 (design) | 2026-11-28 | Section 13.6: `CONTRIBUTING.md` holds the setup of a contributor's computer (Git, Node 22, VS Code) and the step-by-step workflow from branch to merge, kept in sync with the build and the rules. |
 | 2 (design) | 2026-11-28 | Section 13.6: the review guide is a local file, never committed, built when the pull request is pushed; at merge, nothing is harvested from it into the design documents, and only a short summary is posted on the pull request. |
 | 2 (design) | 2026-11-28 | Section 13.6: a change over 500 lines of code waits for the owner's choice: commits, several pull requests, or a longer pull request. Tests fail when the page throws an error the user cannot see. |
+| 2 (design) | 2026-11-28 | Section 13.8 (new): performance. Short event handlers, no repeated work on frequent events, battery rules, no heavy logging; every optimization is a design decision written here and in `AGENTS.md`. |
