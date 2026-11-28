@@ -9,12 +9,13 @@
 //   site/js/                     compiled from src/ by the TypeScript compiler
 //   site/vendor/<library>/       copied unchanged from each library's official
 //                                npm package (skill adding-libraries)
+//   site/version.json            the app's version, from package.json
 //
 // Each library's version is written in one place only: package.json
 // (DESIGN.md section 13.7). This script checks that npm installed exactly that
 // version, and that every other place that must agree with it does.
 
-import { cpSync, existsSync, mkdirSync, readFileSync } from "node:fs";
+import { cpSync, existsSync, mkdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 const SITE = "site";
@@ -103,4 +104,10 @@ for (const lib of LIBRARIES) {
   const version = copyLibrary(lib);
   if (lib.pkg === "leaflet") checkLeafletVersion(version);
 }
+
+// The app's own version (DESIGN.md section 11.3), written in one place,
+// package.json, and copied here for Settings and the update check.
+const appVersion = readJsonField("package.json", "version");
+writeFileSync(join(SITE, "version.json"), JSON.stringify({ version: appVersion }) + "\n");
+console.log(`app version ${appVersion} → site/version.json`);
 console.log("site/ is ready");

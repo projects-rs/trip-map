@@ -25,6 +25,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false   # no GitHub key left on the machine for the tests
+          fetch-depth: 0               # the history, to compare with main (version check)
 
       - uses: actions/setup-node@v4
         with:
@@ -35,6 +36,10 @@ jobs:
 
       - name: Check the tests themselves (section 13.4)
         run: node tools/check-tests.ts
+
+      - name: Check that a change to the app raises its version (section 11.3)
+        if: github.event_name == 'pull_request'
+        run: node tools/check-version.ts "origin/${{ github.base_ref }}"
 
       - name: Type check and build the site (fails on any type error)
         run: npm run build

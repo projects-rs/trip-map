@@ -178,7 +178,7 @@ flowchart LR
 
 - `npm run build` compiles `src/` and assembles `site/`, exactly what the phone downloads; `site/` is never stored in git.
 - A library's version is written only in `package.json`; the build checks everything else agrees. Dependabot proposes newer stable versions as pull requests.
-- After each merge, GitHub builds, tests that exact build, and waits; the publish job runs only after the owner approves it (DESIGN.md section 13.7).
+- A pull request merges only if every check passes and a CODEOWNERS member approves it. After each merge, GitHub builds, tests that exact build, publishes it, and marks a new version as a release. Phones with "Try new versions first" get it at once; everyone else when the owner marks it ready, after trying it on real phones (DESIGN.md sections 12.2, 13.2, 13.7).
 
 ### Where the compiled app is
 
@@ -188,7 +188,8 @@ flowchart LR
 | --- | --- | --- |
 | A computer, in the project folder | After `npm run build` | Until deleted; never committed |
 | A GitHub machine | During each workflow run: built, tested, and, in the publish workflow, packed | Deleted when the run ends, with the machine |
-| GitHub Pages' servers | After the owner approves a publish | Until the next publish replaces it. This is the copy phones download, at `https://projects-rs.github.io/trip-map/` |
+| GitHub Pages' servers | After each merge into main | Until the next publish replaces it. This is the copy phones download, at `https://projects-rs.github.io/trip-map/` |
+| A GitHub Release (repository → Releases) | When a merge brings a new app version | For good: the exact app of that version, as a zip |
 
 The same path as a C++ release:
 
@@ -196,10 +197,11 @@ The same path as a C++ release:
 | --- | --- |
 | A build server compiles | The publish workflow's `build` job compiles `src/` into `site/` on a GitHub machine, and runs the phone tests on that exact build |
 | A package (zip, installer) | `upload-pages-artifact` packs `site/` into an archive, the "Pages artifact", kept with the run only briefly |
-| Upload to the download server | The `publish` job deploys that archive to GitHub Pages, GitHub's web hosting, after the owner's approval |
+| Upload to the download server | The `publish` job deploys that archive to GitHub Pages, GitHub's web hosting |
+| A release, kept for good | The `release` job tags the commit `v<version>` and creates a GitHub Release with the built site attached as a zip |
 | The user downloads and installs | The phone opens the address and downloads the files; the home-screen icon is the "install" |
 
-GitHub keeps a history of every deployment (Settings → Environments → `github-pages`): its date, its commit, and who approved it. How a release is numbered, marked, kept, and rolled back is an open design point (DESIGN.md section 11.3).
+The app's version is written in `package.json` and raised by each pull request that changes the app (DESIGN.md section 11.3); the built site carries it in `version.json`. GitHub keeps a history of every deployment (Settings → Environments → `github-pages`), and every version is a release. To go back to an earlier version: Actions → Publish → Run workflow, choosing that release's tag.
 
 **To see the compiled app:** after a publish, open the address and use the browser's developer tools (F12 → Sources): `index.html`, `js/*.js` (with source maps, so the TypeScript shows too), `css/`, and `vendor/leaflet/`. Before that, on a computer: `npm install`, `npm run build`, `python3 -m http.server 8000 --directory site`, then open `http://localhost:8000/`.
 

@@ -19,6 +19,7 @@ Trip Map is a phone-first web app. The design is in [docs/DESIGN.md](docs/DESIGN
 - **Every pull request is described in a design document, and stays in sync with it.** If the code changes something the design describes, the same pull request updates the design.
 - **At most 300 to 500 lines of code** in one pull request, not counting comments, blank lines, and documents. If that is not possible, the pull request is broken into commits as below.
 - **A larger pull request is broken into commits,** each holding one concrete piece: one idea, one class, or one module, with its own working code flow. Whoever merges decides whether to squash them into one.
+- **A pull request that changes the app raises its version** in `package.json`: a patch for a fix, the minor for a feature (DESIGN.md section 11.3). A check fails the pull request otherwise. Its merge becomes a release.
 - **Every pull request and commit has a message that states its content clearly:** a first line of at most 72 characters saying what changed, then, after a blank line, why.
 - **Every pull request has a full description:**
     - the main changes;
@@ -67,4 +68,4 @@ Trip Map is a phone-first web app. The design is in [docs/DESIGN.md](docs/DESIGN
 - Never write to `trip-db` or any real trip from code or tests.
 - Never load code from another website at run time.
 - Never change any organization, project, or repository setting: only the project owner can.
-- Never give a workflow permission to publish or write, except the publish job in `.github/workflows/publish.yml`, which runs only after the owner approves it.
+- Never give a workflow permission to publish or write, except the `publish` and `release` jobs in `.github/workflows/publish.yml`, which run only after a merge into `main`.

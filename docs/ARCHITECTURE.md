@@ -25,15 +25,22 @@ How the Trip Map app is built, and how its parts work together. What the app doe
 | `icons/` | The icon set (DESIGN.md section 5.4) |
 | `tests/` | Phone tests (DESIGN.md section 13.4), with `playwright.config.ts` |
 | `tools/check-tests.ts` | Checks the tests themselves: description blocks and no real addresses |
-| `.github/workflows/tests.yml` | On every pull request: the test check, the type check and build, and the phone tests. Read-only |
-| `.github/workflows/publish.yml` | After each merge: build, test that exact build, then publish to GitHub Pages once the owner approves |
+| `.github/workflows/tests.yml` | On every pull request: the test check, the version check, the type check and build, and the phone tests. Read-only. A pull request can merge only if it passes |
+| `.github/workflows/publish.yml` | After each merge into main: build and test that exact build, publish it to GitHub Pages, and mark a new version as a release (a tag `v<version>` and a GitHub Release with the built site attached) |
+| `tools/check-version.ts` | On every pull request: a change to the app must raise `version` in `package.json` |
 
 ## From source to phone
 
-```text
-src/*.ts ──tsc (strict)──> site/js/*.js ─┐
-index.html, css/ ──copied──────────────> site/ ──publish (owner approves)──> GitHub Pages ──> the phone
-leaflet (npm, exact version) ──copied──> site/vendor/leaflet/ ─┘
+```mermaid
+flowchart LR
+  PR["Pull request"] --> T["tests.yml: test check, version check,<br/>type check and build, phone tests"]
+  PR --> R["Review: a CODEOWNERS approval"]
+  T --> M{"Merge allowed only if<br/>both pass"}
+  R --> M
+  M --> B["publish.yml, build: compile src/ into site/,<br/>copy index.html, css/, Leaflet (npm),<br/>run the phone tests on this build"]
+  B --> P["publish: deploy site/ to GitHub Pages"]
+  P --> L["release: tag v&lt;version&gt;,<br/>GitHub Release with the built site"]
+  P --> F["Phones with 'Try new versions first'<br/>get it; everyone else when the owner<br/>marks it ready (DESIGN.md 13.2)"]
 ```
 
 ## How the parts connect
