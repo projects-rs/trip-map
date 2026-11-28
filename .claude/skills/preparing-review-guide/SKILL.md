@@ -33,23 +33,36 @@ Use this order. Leave out a part marked "when" if it does not apply; keep every 
 | --- | --- | --- | --- |
 | 1 | Header | PR number and link, plan step (DESIGN.md 13.3), design sections followed, size in lines of code, check status | Always |
 | 2 | Summary | What the PR does and why, in 3 to 5 lines | Always |
-| 3 | Background links | The `background.md` sections this reviewer asked for (step 1) | When any |
-| 4 | Reading order | Every file, in an order where each builds on the ones before, grouped in levels (0: what runs first; 1: the app; 2: tests and tools; 3: project rules), with the attention each needs: review carefully, read quickly, glance, or skip, and why | Always |
-| 5 | Code map | For each new or changed file: every name (constants, types, classes, functions, fields), its kind, what it does, and what it interacts with. For a changed file, only what changed | Always |
-| 6 | Line by line | For the files marked "review carefully": a table of lines, code, and meaning, with the C, C++, or Python equivalent where it helps | Always, for those files |
-| 7 | Behavior | State machines as a drawing, and a state × event table covering every cell | When the PR has a state machine or flow |
-| 8 | Decisions | Each decision the PR makes, the alternatives considered, and why | When any |
-| 9 | Rules check | The AGENTS.md rules the PR touches, and whether each is enforced by a check or only written | Always |
-| 10 | Tests | What the tests cover, what they do not, and the link to the run and its screenshots | Always |
-| 11 | Review questions | Where to look hardest: failure paths, event order, cleanup, security, privacy, performance | Always |
-| 12 | Try it | Steps on the phone, or in Chrome's phone simulation with a fake GPS position | When the user sees a change |
-| 13 | Open points | Decisions needed from the reviewer, as checkboxes | Always |
+| 3 | Change index | One table of every changed file and every new, changed, or removed function, class, type, or constant, with a link from each row to the part of the guide that explains it (see below) | Always |
+| 4 | Background links | The `background.md` sections this reviewer asked for (step 1) | When any |
+| 5 | Reading order | Every file, in an order where each builds on the ones before, grouped in levels (0: what runs first; 1: the app; 2: tests and tools; 3: project rules), with the attention each needs: review carefully, read quickly, glance, or skip, and why | Always |
+| 6 | Code map | For each new or changed file: every name (constants, types, classes, functions, fields), its kind, what it does, and what it interacts with. For a changed file, only what changed | Always |
+| 7 | Line by line | For the files marked "review carefully": a table of lines, code, and meaning, with the C, C++, or Python equivalent where it helps | Always, for those files |
+| 8 | Behavior | State machines as a drawing, and a state × event table covering every cell | When the PR has a state machine or flow |
+| 9 | Decisions | Each decision the PR makes, the alternatives considered, and why | When any |
+| 10 | Rules check | The AGENTS.md rules the PR touches, and whether each is enforced by a check or only written | Always |
+| 11 | Tests | What the tests cover, what they do not, and the link to the run and its screenshots | Always |
+| 12 | Review questions | Where to look hardest: failure paths, event order, cleanup, security, privacy, performance | Always |
+| 13 | Try it | Steps on the phone, or in Chrome's phone simulation with a fake GPS position | When the user sees a change |
+| 14 | Open points | Decisions needed from the reviewer, as checkboxes | Always |
+
+**The change index (part 3)** is the reviewer's map of the whole PR: they start there and jump to each explanation. One row per name; a file with no named items (a document, a settings file) gets one row of its own.
+
+| File | Name | Kind | Change | What changed, in a few words | Explained in |
+| --- | --- | --- | --- | --- | --- |
+| `src/location.ts` | `MyLocation.onTap` | method (arrow field) | new | Starts watching on the first tap; follows on the second | [Code map](#6-code-map-srclocationts) · [Line by line](#7-line-by-line-srclocationts) |
+| `tools/serve-site.ts` | `fileFor` | function | new | Maps a URL to a file inside `site/`, or refuses it | [Code map](#6-code-map-toolsserve-sitets) |
+
+- **Kind:** constant, type, class, method, field, function, or file.
+- **Change:** new, changed, renamed (old name → new), or removed.
+- **Explained in:** a link to every part that covers the row: its code map, its line-by-line table, the behavior drawing, a decision. Each file gets its own heading in parts 6 and 7, such as `### 6. Code map: src/location.ts`, so the link is the heading's anchor: lowercase, spaces as `-`, punctuation dropped (`#6-code-map-srclocationts`). VS Code's Markdown preview and GitHub both follow these links.
+- Order the rows as in the reading order (part 5), and check after every update that every link still lands on its heading.
 
 Every fact in the guide is checked against the PR's latest commit: line numbers, names, sizes, check results. Link code at that commit, not at the branch, so links stay correct.
 
 ## 4. Keep it in sync during review
 
-- After every new commit: update the line numbers, tables, sizes, and check status it affects.
+- After every new commit: update the change index (new rows, changed links), and the line numbers, tables, sizes, and check status the commit affects.
 - When the reviewer asks a question in the conversation, answer it there, then add the answer to the guide, in the part it belongs to. If it explains a general concept, add it to `background.md` instead and link it.
 - Tick open points as they are decided, with the decision and the date.
 
