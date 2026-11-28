@@ -24,13 +24,15 @@ export default defineConfig({
     { name: "Android phone", use: { ...devices["Pixel 7"] } },
     { name: "iPhone", use: { ...devices["iPhone 15"] } },
   ],
-  // Serves the built site/ folder, exactly as GitHub Pages will. "localhost"
-  // counts as a secure address, so the browser allows location there.
+  // Serves the built site/ folder, exactly as GitHub Pages will, with the
+  // project's own Node server (tools/serve-site.ts), so the tests run on
+  // Windows, Mac and Linux alike. "localhost" counts as a secure address,
+  // so the browser allows location there.
   webServer: {
-    command: `python3 -m http.server ${PORT} --bind 127.0.0.1 --directory site`,
+    command: `node tools/serve-site.ts ${PORT}`,
     url: `http://localhost:${PORT}/index.html`,
     reuseExistingServer: !process.env.CI,
     stdout: "ignore",
-    stderr: "ignore",        // the server lists every file it sends; not needed
+    stderr: "pipe",          // a server error shows in the test output
   },
 });

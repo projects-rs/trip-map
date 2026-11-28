@@ -203,7 +203,7 @@ The same path as a C++ release:
 
 The app's version is written in `package.json` and raised by each pull request that changes the app (DESIGN.md section 11.3); the built site carries it in `version.json`. GitHub keeps a history of every deployment (Settings → Environments → `github-pages`), and every version is a release. To go back to an earlier version: Actions → Publish → Run workflow, choosing that release's tag.
 
-**To see the compiled app:** after a publish, open the address and use the browser's developer tools (F12 → Sources): `index.html`, `js/*.js` (with source maps, so the TypeScript shows too), `css/`, and `vendor/leaflet/`. Before that, on a computer: `npm install`, `npm run build`, `python3 -m http.server 8000 --directory site`, then open `http://localhost:8000/`.
+**To see the compiled app:** after a publish, open the address and use the browser's developer tools (F12 → Sources): `index.html`, `js/*.js` (with source maps, so the TypeScript shows too), `css/`, and `vendor/leaflet/`. Before that, on a computer: `npm install`, `npm run build`, `npm run serve`, then open `http://localhost:8000/`.
 
 ## 9. The tests
 

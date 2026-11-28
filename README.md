@@ -25,8 +25,7 @@ The app is written in TypeScript and built into the folder `site/` (DESIGN.md se
 ```sh
 npm install                      # the build and test tools, at exact versions
 npm run build                    # type check, compile, and assemble site/
-python3 -m http.server 8000 --directory site
-# then open http://localhost:8000/
+npm run serve                    # serve site/ at http://localhost:8000/
 ```
 
 ## Tests
