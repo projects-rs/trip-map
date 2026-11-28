@@ -31,12 +31,12 @@ Trip Map is a phone-first web app. The design is in [docs/DESIGN.md](docs/DESIGN
 
 ## Review
 
-- Before asking for review, the author (person or agent) prepares a **review guide** for the pull request with the skill [`preparing-review-guide`](.claude/skills/preparing-review-guide/SKILL.md), and links it from the PR description. The process is in [docs/reviews/README.md](docs/reviews/README.md).
+- As soon as a pull request is pushed and opened, the author (person or agent) builds its **review guide** with the skill [`preparing-review-guide`](.claude/skills/preparing-review-guide/SKILL.md): a local file, `review-guides/pr-<number>-review-guide.md`, never committed. The author tells the reviewer it exists and names its path in the PR description. The process is in [docs/reviews/README.md](docs/reviews/README.md).
 - The guide never repeats the basics: those are in [docs/reviews/background.md](docs/reviews/background.md), linked as the reviewer needs.
-- The guide is kept in sync with the pull request: every new commit updates it.
+- The guide is kept in sync with the pull request: every new push updates it.
 - Reviewers comment on GitHub, on the line. Every comment gets an answer in its thread; every fix is a new commit; only the reviewer resolves a thread. An answer that explains something new is also added to the guide, or to `background.md` if it is general.
 - A pull request that touches security, privacy, or publishing is also reviewed by a separate agent session that did not write it, before the human review.
-- Before merging, the lasting parts of the guide are harvested into DESIGN.md, `docs/ARCHITECTURE.md`, and `background.md`, open points become issues, and the final guide is archived as a comment on the pull request. Guides are never stored in the repository.
+- Before merging: decisions from the review are already in the design documents (each in its own commit, during the review), never copied from the guide; open points become issues; a short summary of the guide (at most about 60 lines) is posted as a comment on the pull request; the local guide file is deleted. Guides are never stored in the repository.
 
 ## How the code is written
 

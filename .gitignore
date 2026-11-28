@@ -2,3 +2,4 @@ node_modules/
 site/
 test-results/
 playwright-report/
+review-guides/

@@ -1,6 +1,6 @@
 ---
 name: preparing-review-guide
-description: How to prepare, keep up to date, and archive the review guide for a Trip Map pull request. Load before asking for a review, after every new commit on a PR under review, and before the PR is merged.
+description: How to build, keep up to date, and archive the review guide for a Trip Map pull request, as a local file that is never committed. Load as soon as a PR is pushed and opened, after every later push, and before the PR is merged.
 ---
 
 # Preparing a review guide
@@ -20,8 +20,10 @@ From the answers, choose which sections of `background.md` to link at the top of
 ## 2. Where the guide lives
 
 - **Name:** "Trip Map PR #<GitHub number> (plan PR <n>): review guide", for example "Trip Map PR #4 (plan PR 1): review guide". GitHub's number comes first, because it is the one people see and click; the plan's number (DESIGN.md section 13.3) follows in brackets.
-- **During review:** an editable document (a Claude doc when the reviewer works with Claude, otherwise a Markdown comment on the PR), linked from the PR description under "Review guide".
-- **After merge:** archived as a comment on the PR (step 5). Guides are never stored in the repository: their line numbers and code maps go stale.
+- **A local file, never committed:** `review-guides/pr-<GitHub number>-review-guide.md` in the author's copy of the repository. The folder is in `.gitignore`, so the guide never reaches the repository: its line numbers and code maps go stale.
+- **When:** build it as soon as the pull request is pushed and opened, and update it on every later push (section 4).
+- **Tell the reviewer** right away that it exists, with its path, and that VS Code shows it with its drawings (`Ctrl+K` then `V`). Write the same path in the PR description under "Review guide".
+- **An author working in the cloud,** whose files the reviewer cannot open, sends the file to the reviewer instead, and sends it again after each update.
 
 ## 3. What the guide contains
 
@@ -51,13 +53,12 @@ Every fact in the guide is checked against the PR's latest commit: line numbers,
 - When the reviewer asks a question in the conversation, answer it there, then add the answer to the guide, in the part it belongs to. If it explains a general concept, add it to `background.md` instead and link it.
 - Tick open points as they are decided, with the decision and the date.
 
-## 5. Before the merge: harvest, then archive
+## 5. Before the merge: a short archive
 
-The guide is temporary; what lasts moves to permanent documents before the PR is merged:
+The guide itself is not kept. Before the merge:
 
-1. **Decisions** go into DESIGN.md (with a version-history row), if not already there.
-2. **How the code is organized** goes into `docs/ARCHITECTURE.md`. If the PR adds a start-up step or an interaction, update or add its drawing in "How the app runs".
-3. **General explanations** given during review go into `docs/reviews/background.md`.
-4. **Open points not settled** become GitHub issues, or items in the next PR's plan.
-5. **Post the final guide** as a comment on the PR, headed "Review guide (archived at merge)".
-6. **Add a line** for the PR to the list in `docs/reviews/README.md`.
+1. **Check the documents.** Every decision taken during review must already be in DESIGN.md, `docs/ARCHITECTURE.md`, or `background.md`, written by its own commit during the review (AGENTS.md: a pull request keeps the design in sync). If one is missing, add it now in a new commit. Nothing is copied from the guide into those documents.
+2. **Open points** not settled become GitHub issues.
+3. **Post a short archive comment** on the PR, headed "Review guide (archived at merge)", extracted from the guide: the summary, each decision with its reason, the questions and answers worth keeping, and the open points with links to their issues. At most about 60 lines: no code map, no line-by-line tables, no reading order.
+4. **Add a line** for the PR to the list in `docs/reviews/README.md`.
+5. **Delete the local guide file,** and tell the reviewer it is archived.
