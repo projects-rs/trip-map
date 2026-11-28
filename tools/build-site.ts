@@ -45,8 +45,8 @@ function readJsonField(path: string, field: string): string {
  */
 function wantedVersion(pkg: string): string {
   const manifest: unknown = JSON.parse(readFileSync("package.json", "utf8"));
-  const deps: unknown = typeof manifest === "object" && manifest !== null
-    ? Reflect.get(manifest, "devDependencies") : undefined;
+  const deps: unknown =
+    typeof manifest === "object" && manifest !== null ? Reflect.get(manifest, "devDependencies") : undefined;
   const version: unknown = typeof deps === "object" && deps !== null ? Reflect.get(deps, pkg) : undefined;
   if (typeof version !== "string" || !/^\d+\.\d+\.\d+$/.test(version)) {
     throw new Error(`package.json must give ${pkg} an exact version like "1.9.4", not ${String(version)}`);
@@ -85,13 +85,17 @@ function checkLeafletVersion(version: string): void {
   const source = readFileSync(join("src", "leaflet.ts"), "utf8");
   const match = /export const LEAFLET_VERSION = "([^"]+)";/.exec(source);
   if (match === null || match[1] !== version) {
-    throw new Error(`src/leaflet.ts checks for Leaflet ${String(match?.[1])}, but package.json asks for ${version}: ` +
-      `set LEAFLET_VERSION = "${version}" in src/leaflet.ts`);
+    throw new Error(
+      `src/leaflet.ts checks for Leaflet ${String(match?.[1])}, but package.json asks for ${version}: ` +
+        `set LEAFLET_VERSION = "${version}" in src/leaflet.ts`,
+    );
   }
   const types = wantedVersion("@types/leaflet");
   const majorMinor = (v: string): string => v.split(".").slice(0, 2).join(".");
   if (majorMinor(types) !== majorMinor(version)) {
-    throw new Error(`@types/leaflet ${types} describes another Leaflet than ${version}: use a ${majorMinor(version)}.x version`);
+    throw new Error(
+      `@types/leaflet ${types} describes another Leaflet than ${version}: use a ${majorMinor(version)}.x version`,
+    );
   }
 }
 

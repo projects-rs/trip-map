@@ -15,8 +15,7 @@ export const MSG_DENIED =
   "Location is off for Trip Map. To use it, allow location for this site in your browser's settings.";
 
 /** Shown when the phone cannot find a position yet; it keeps trying. */
-export const MSG_NOT_FOUND =
-  "Can't find your location yet. The blue dot will appear when the phone finds it.";
+export const MSG_NOT_FOUND = "Can't find your location yet. The blue dot will appear when the phone finds it.";
 
 /**
  * The button's modes, kept in its data-mode attribute so that the styles
@@ -79,8 +78,8 @@ export class MyLocation {
       this.setMode("waiting");
       // The first call is what makes the phone ask for permission.
       this.watchId = this.geolocation.watchPosition(this.onPosition, this.onError, {
-        enableHighAccuracy: true,   // use GPS, not only Wi-Fi, for walking
-        maximumAge: 5000,           // a position up to 5 seconds old is fine
+        enableHighAccuracy: true, // use GPS, not only Wi-Fi, for walking
+        maximumAge: 5000, // a position up to 5 seconds old is fine
       });
     } else if (this.marker !== null) {
       // "shown" or "follow": center on the dot, and follow from now on.
@@ -97,11 +96,19 @@ export class MyLocation {
       this.marker = {
         circle: L.circle(latLng, {
           radius: position.coords.accuracy,
-          stroke: false, fillColor: "#1a73e8", fillOpacity: 0.15, interactive: false,
+          stroke: false,
+          fillColor: "#1a73e8",
+          fillOpacity: 0.15,
+          interactive: false,
         }).addTo(this.map),
         dot: L.circleMarker(latLng, {
-          radius: 8, weight: 3, color: "#ffffff", fillColor: "#1a73e8", fillOpacity: 1,
-          className: "blue-dot", interactive: false,
+          radius: 8,
+          weight: 3,
+          color: "#ffffff",
+          fillColor: "#1a73e8",
+          fillOpacity: 1,
+          className: "blue-dot",
+          interactive: false,
         }).addTo(this.map),
       };
     } else {
@@ -121,7 +128,7 @@ export class MyLocation {
   private readonly onError = (error: GeolocationPositionError): void => {
     if (error.code === error.PERMISSION_DENIED) {
       this.stopWatching();
-      this.removeMarker();        // an old position must not stay on the map
+      this.removeMarker(); // an old position must not stay on the map
       this.setMode("off");
       this.showMessage(MSG_DENIED);
     } else if (this.mode === "waiting") {

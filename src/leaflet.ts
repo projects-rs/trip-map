@@ -30,8 +30,7 @@ export const LEAFLET_VERSION = "1.9.4";
  * @returns  True if it is Leaflet LEAFLET_VERSION; the compiler then treats it as Leaflet.
  */
 function isLeaflet(value: unknown): value is typeof LeafletTypes {
-  return typeof value === "object" && value !== null &&
-    "version" in value && value.version === LEAFLET_VERSION;
+  return typeof value === "object" && value !== null && "version" in value && value.version === LEAFLET_VERSION;
 }
 
 /**
@@ -43,8 +42,9 @@ function isLeaflet(value: unknown): value is typeof LeafletTypes {
 function findLeaflet(): typeof LeafletTypes {
   const found: unknown = Reflect.get(globalThis, "L");
   if (!isLeaflet(found)) {
-    throw new Error(`Leaflet ${LEAFLET_VERSION} is not loaded: index.html must load ` +
-      `vendor/leaflet/leaflet.js before js/main.js`);
+    throw new Error(
+      `Leaflet ${LEAFLET_VERSION} is not loaded: index.html must load ` + `vendor/leaflet/leaflet.js before js/main.js`,
+    );
   }
   return found;
 }

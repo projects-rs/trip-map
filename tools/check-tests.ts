@@ -15,10 +15,10 @@ const TEST_DIR = "tests";
 
 /** Addresses a test must never contain (section 13.4, "How the rule is enforced"). */
 const FORBIDDEN = [
-  "projects-rs.github.io",          // the published app and trip-db
-  "github.com/projects-rs",         // the repositories themselves
-  "api.github.com",                 // GitHub's address for changing them
-  "firebaseio.com",                 // a real Firebase database
+  "projects-rs.github.io", // the published app and trip-db
+  "github.com/projects-rs", // the repositories themselves
+  "api.github.com", // GitHub's address for changing them
+  "firebaseio.com", // a real Firebase database
   "firebasedatabase.app",
 ];
 
@@ -53,7 +53,9 @@ function problemsIn(path: string): string[] {
   return problems;
 }
 
-const files = readdirSync(TEST_DIR).filter((name) => name.endsWith(".ts")).map((name) => join(TEST_DIR, name));
+const files = readdirSync(TEST_DIR)
+  .filter((name) => name.endsWith(".ts"))
+  .map((name) => join(TEST_DIR, name));
 const problems = files.flatMap(problemsIn);
 for (const line of problems) console.error(line);
 console.log(`Checked ${files.length} test file(s): ${problems.length} problem(s).`);

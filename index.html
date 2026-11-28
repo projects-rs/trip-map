@@ -7,33 +7,39 @@
   (DESIGN.md section 4, build step 1).
 -->
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <!-- viewport-fit=cover lets the map reach under the phone's notch;
+  <head>
+    <meta charset="utf-8" />
+    <!-- viewport-fit=cover lets the map reach under the phone's notch;
        the buttons keep clear of it with the safe-area insets in app.css. -->
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Trip Map</title>
-  <link rel="stylesheet" href="vendor/leaflet/leaflet.css">
-  <link rel="stylesheet" href="css/app.css">
-</head>
-<body>
-  <div id="map" aria-label="Map"></div>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Trip Map</title>
+    <link rel="stylesheet" href="vendor/leaflet/leaflet.css" />
+    <link rel="stylesheet" href="css/app.css" />
+  </head>
+  <body>
+    <div id="map" aria-label="Map"></div>
 
-  <button id="my-location" class="map-button" type="button"
-          aria-label="My location" aria-pressed="false" data-mode="off">
-    <!-- A target symbol: a ring with a dot, and four short ticks. -->
-    <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
-      <circle cx="12" cy="12" r="7" fill="none" stroke="currentColor" stroke-width="2"/>
-      <circle cx="12" cy="12" r="3" fill="currentColor"/>
-      <path d="M12 1v4M12 19v4M1 12h4M19 12h4" stroke="currentColor" stroke-width="2"/>
-    </svg>
-  </button>
+    <button
+      id="my-location"
+      class="map-button"
+      type="button"
+      aria-label="My location"
+      aria-pressed="false"
+      data-mode="off"
+    >
+      <!-- A target symbol: a ring with a dot, and four short ticks. -->
+      <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
+        <circle cx="12" cy="12" r="7" fill="none" stroke="currentColor" stroke-width="2" />
+        <circle cx="12" cy="12" r="3" fill="currentColor" />
+        <path d="M12 1v4M12 19v4M1 12h4M19 12h4" stroke="currentColor" stroke-width="2" />
+      </svg>
+    </button>
 
-  <p id="message" role="status" aria-live="polite" hidden></p>
+    <p id="message" role="status" aria-live="polite" hidden></p>
 
-  <!-- Leaflet is a classic script that defines the global "L";
+    <!-- Leaflet is a classic script that defines the global "L";
        it must load before the app's module, which uses it. -->
-  <script src="vendor/leaflet/leaflet.js"></script>
-  <script type="module" src="js/main.js"></script>
-</body>
+    <script src="vendor/leaflet/leaflet.js"></script>
+    <script type="module" src="js/main.js"></script>
+  </body>
 </html>

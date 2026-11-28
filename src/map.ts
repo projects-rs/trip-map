@@ -10,8 +10,7 @@ import { L, type Leaflet } from "./leaflet.ts";
 export const TILE_URL = "https://tile.openstreetmap.org/{z}/{x}/{y}.png";
 
 /** The credit OpenStreetMap's license requires on the map (DESIGN.md section 14.1). */
-export const OSM_CREDIT =
-  '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
+export const OSM_CREDIT = '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
 
 /**
  * Where the map starts before any trip is open: the Mediterranean,
@@ -32,7 +31,7 @@ export function createMap(elementId: string): Leaflet.Map {
   }).setView(START_VIEW.center, START_VIEW.zoom);
 
   L.tileLayer(TILE_URL, {
-    maxZoom: 19,              // the highest zoom OpenStreetMap's server provides
+    maxZoom: 19, // the highest zoom OpenStreetMap's server provides
     attribution: OSM_CREDIT,
   }).addTo(map);
 

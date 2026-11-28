@@ -9,7 +9,7 @@ import { test, expect, type Page } from "playwright/test";
 /** A fake position in Haifa, near the test trip's hotel (step 0b). */
 const HAIFA = { latitude: 32.8156, longitude: 34.9892, accuracy: 20 };
 /** A second fake position, about 300 m north-east of the first. */
-const HAIFA_LATER = { latitude: 32.8180, longitude: 34.9915, accuracy: 20 };
+const HAIFA_LATER = { latitude: 32.818, longitude: 34.9915, accuracy: 20 };
 
 /** A 1×1 grey PNG image, sent instead of every real map image. */
 const BLANK_TILE = Buffer.from(

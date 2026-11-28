@@ -62,6 +62,8 @@ if (changed === "") {
   console.log(`The app changed, and its version rises from ${previous} to ${current}.`);
 } else {
   console.error(`The app changed (${changed.split("\n").join(", ")}), but its version is still ${current}.`);
-  console.error(`Raise "version" in package.json above ${previous}: a patch for a fix, the minor for a feature (DESIGN.md section 11.3).`);
+  console.error(
+    `Raise "version" in package.json above ${previous}: a patch for a fix, the minor for a feature (DESIGN.md section 11.3).`,
+  );
   process.exit(1);
 }

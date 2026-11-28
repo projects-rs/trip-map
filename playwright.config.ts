@@ -12,12 +12,12 @@ const PORT = 8123;
 export default defineConfig({
   testDir: "tests",
   fullyParallel: true,
-  forbidOnly: !!process.env.CI,     // a test left as "only" fails on GitHub
-  retries: 0,                        // a flaky test is a bug to fix, not to retry
+  forbidOnly: !!process.env.CI, // a test left as "only" fails on GitHub
+  retries: 0, // a flaky test is a bug to fix, not to retry
   reporter: [["list"], ["html", { open: "never" }]],
   use: {
     baseURL: `http://localhost:${PORT}/`,
-    screenshot: "on",                // a screenshot of every test, for the review
+    screenshot: "on", // a screenshot of every test, for the review
     trace: "retain-on-failure",
   },
   projects: [
@@ -33,6 +33,6 @@ export default defineConfig({
     url: `http://localhost:${PORT}/index.html`,
     reuseExistingServer: !process.env.CI,
     stdout: "ignore",
-    stderr: "pipe",          // a server error shows in the test output
+    stderr: "pipe", // a server error shows in the test output
   },
 });

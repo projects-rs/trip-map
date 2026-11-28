@@ -45,7 +45,9 @@ function showMessage(text: string): void {
   messageBox.textContent = text;
   messageBox.hidden = false;
   clearTimeout(messageTimer);
-  messageTimer = setTimeout(() => { messageBox.hidden = true; }, MESSAGE_TIME_MS);
+  messageTimer = setTimeout(() => {
+    messageBox.hidden = true;
+  }, MESSAGE_TIME_MS);
 }
 
 // Start-up, part 2: create the map and connect the button.

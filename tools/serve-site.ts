@@ -12,7 +12,7 @@ import { readFile } from "node:fs/promises";
 import { extname, resolve, sep } from "node:path";
 
 const SITE = resolve("site");
-const HOST = "127.0.0.1";     // this computer only, never the network
+const HOST = "127.0.0.1"; // this computer only, never the network
 
 // The file types the site holds, and the type the browser must be told for each.
 const CONTENT_TYPES: Record<string, string> = {

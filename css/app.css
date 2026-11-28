@@ -9,18 +9,24 @@
 :root {
   --button-bg: #ffffff;
   --button-fg: #343a40;
-  --active: #1a73e8;          /* the blue of the dot and of an active button */
+  --active: #1a73e8; /* the blue of the dot and of an active button */
   --message-bg: #212529;
   --message-fg: #ffffff;
 }
 
-html, body {
+html,
+body {
   height: 100%;
   margin: 0;
   /* No page scrolling or pull-to-refresh: the map takes every gesture. */
   overflow: hidden;
   overscroll-behavior: none;
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-family:
+    system-ui,
+    -apple-system,
+    "Segoe UI",
+    Roboto,
+    sans-serif;
 }
 
 #map {
@@ -42,7 +48,7 @@ html, body {
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
   display: grid;
   place-items: center;
-  z-index: 1000;              /* above Leaflet's map panes (which go up to 700) */
+  z-index: 1000; /* above Leaflet's map panes (which go up to 700) */
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -51,9 +57,16 @@ html, body {
 }
 
 /* "shown": the dot is on the map. "follow": the map follows the user. */
-#my-location[data-mode="shown"] { color: var(--active); }
-#my-location[data-mode="follow"] { background: var(--active); color: #ffffff; }
-#my-location[data-mode="waiting"] { opacity: 0.6; }
+#my-location[data-mode="shown"] {
+  color: var(--active);
+}
+#my-location[data-mode="follow"] {
+  background: var(--active);
+  color: #ffffff;
+}
+#my-location[data-mode="waiting"] {
+  opacity: 0.6;
+}
 
 #message {
   position: fixed;
@@ -71,4 +84,6 @@ html, body {
   z-index: 1000;
 }
 
-[hidden] { display: none !important; }
+[hidden] {
+  display: none !important;
+}
