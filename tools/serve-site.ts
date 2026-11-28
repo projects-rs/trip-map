@@ -33,6 +33,7 @@ const CONTENT_TYPES: Record<string, string> = {
  * Receives the request's URL path, such as "/js/main.js" or "/".
  * Returns the file's full path, or null if the path would leave site/
  * (for example "/../package.json"), so nothing outside site/ is ever sent.
+ * Throws if the path is not valid percent-encoding (for example "/%E0").
  */
 function fileFor(urlPath: string): string | null {
   const path = decodeURIComponent(urlPath.split("?")[0] ?? "/");
@@ -46,8 +47,10 @@ function fileFor(urlPath: string): string | null {
  * Returns when the answer is sent: the file, or 404 if there is none.
  */
 async function answer(request: IncomingMessage, response: ServerResponse): Promise<void> {
-  const file = fileFor(request.url ?? "/");
   try {
+    // Inside try: a malformed address (such as "/%E0") makes fileFor throw,
+    // and must get a 404, not stop the server.
+    const file = fileFor(request.url ?? "/");
     if (file === null) throw new Error("outside site/");
     const body = await readFile(file);
     const type = CONTENT_TYPES[extname(file)] ?? "application/octet-stream";
